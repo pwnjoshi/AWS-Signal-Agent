@@ -63,7 +63,6 @@ export class StorageService {
   private preferences: UserPreferences;
 
   constructor() {
-    // Load existing local files into memory
     const savedSignals = readJsonFile<AWSSignal[]>(FILES.signals, []);
     savedSignals.forEach(s => this.signals.set(s.signal_id, s));
 
@@ -73,17 +72,22 @@ export class StorageService {
     this.briefings = readJsonFile<DailyBriefing[]>(FILES.briefings, []);
     this.logs = readJsonFile<AgentExecutionLog[]>(FILES.logs, []);
 
-    this.preferences = readJsonFile<UserPreferences>(FILES.preferences, {
+    const loadedPrefs = readJsonFile<Partial<UserPreferences>>(FILES.preferences, {});
+
+    this.preferences = {
       user_id: 'usr_pawan_default',
       name: 'Pawan',
-      email: 'pawan@example.com',
-      email_enabled: true,
-      digest_frequency: 'daily',
-      alert_threshold: 'high',
-      favorite_services: ['Amazon Bedrock', 'AWS Lambda', 'Amazon ECS'],
-      favorite_topics: ['Bedrock Latency', 'Cold Starts', 'Serverless Architecture'],
-      last_visited_at: new Date(Date.now() - 3600 * 1000 * 12).toISOString(),
-    });
+      email: loadedPrefs.email || 'pawan@example.com',
+      email_list: loadedPrefs.email_list || (loadedPrefs.email ? [loadedPrefs.email] : ['pawan@example.com', 'devops@company.com']),
+      email_enabled: loadedPrefs.email_enabled ?? true,
+      digest_frequency: loadedPrefs.digest_frequency || 'daily',
+      schedule_frequency: loadedPrefs.schedule_frequency || '6h',
+      cron_expression: loadedPrefs.cron_expression || '0 */6 * * *',
+      alert_threshold: loadedPrefs.alert_threshold || 'high',
+      favorite_services: loadedPrefs.favorite_services || ['Amazon Bedrock', 'AWS Lambda', 'Amazon ECS'],
+      favorite_topics: loadedPrefs.favorite_topics || ['Bedrock Latency', 'Cold Starts', 'Serverless Architecture'],
+      last_visited_at: loadedPrefs.last_visited_at || new Date(Date.now() - 3600 * 1000 * 12).toISOString(),
+    };
 
     // Hydrate memory from live AWS DynamoDB tables asynchronously
     this.hydrateFromDynamoDB();
@@ -94,7 +98,6 @@ export class StorageService {
       const sigScan = await docClient.send(new ScanCommand({ TableName: 'AWSSignals' }));
       if (sigScan.Items && sigScan.Items.length > 0) {
         sigScan.Items.forEach(item => this.signals.set(item.signal_id, item as AWSSignal));
-        console.log(`[DynamoDB Hydrate] Successfully hydrated ${sigScan.Items.length} signals from AWS DynamoDB AWSSignals table.`);
       }
     } catch (err: any) {
       console.log(`[DynamoDB Hydrate] Note: ${err.message}. Using active in-memory and disk persistence.`);
@@ -120,10 +123,7 @@ export class StorageService {
     this.signals.set(signal.signal_id, signal);
     writeJsonFile(FILES.signals, Array.from(this.signals.values()));
 
-    // Async write to AWS DynamoDB AWSSignals table
-    docClient.send(new PutCommand({ TableName: 'AWSSignals', Item: signal })).catch(err => {
-      // Quiet log for offline/sandbox fallback
-    });
+    docClient.send(new PutCommand({ TableName: 'AWSSignals', Item: signal })).catch(() => {});
   }
 
   public toggleSaveSignal(id: string): AWSSignal | undefined {
@@ -178,6 +178,12 @@ export class StorageService {
 
   public updatePreferences(updates: Partial<UserPreferences>): UserPreferences {
     this.preferences = { ...this.preferences, ...updates };
+    
+    // Ensure email_list stays synchronized
+    if (updates.email && (!this.preferences.email_list || !this.preferences.email_list.includes(updates.email))) {
+      this.preferences.email_list = [updates.email, ...(this.preferences.email_list || []).filter(e => e !== updates.email)];
+    }
+
     writeJsonFile(FILES.preferences, this.preferences);
 
     docClient.send(new PutCommand({ TableName: 'AWSPreferences', Item: this.preferences })).catch(() => {});

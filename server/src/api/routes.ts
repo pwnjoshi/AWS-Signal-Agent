@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { storage } from '../services/storageService';
-import { getSchedulerStatus, runAgentPipeline } from '../scheduler/agentScheduler';
+import { getSchedulerStatus, runAgentPipeline, updateScheduleCron } from '../scheduler/agentScheduler';
 import { sendSignalAlertIfNeeded } from '../services/emailAlertService';
 
 const router = Router();
@@ -12,6 +12,7 @@ router.get('/agent/status', (req, res) => {
   res.json({
     status: 'ONLINE',
     is_running: status.is_running,
+    cron_expression: status.cron_expression,
     next_scheduled_run: status.next_scheduled_run,
     latest_run: status.last_log,
     execution_history: logs,
@@ -150,6 +151,9 @@ router.get('/preferences', (req, res) => {
 
 router.put('/preferences', (req, res) => {
   const updated = storage.updatePreferences(req.body);
+  if (updated.cron_expression) {
+    updateScheduleCron(updated.cron_expression);
+  }
   res.json(updated);
 });
 

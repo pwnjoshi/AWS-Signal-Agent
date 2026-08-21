@@ -9,6 +9,8 @@ import { sendSignalAlertIfNeeded } from '../services/emailAlertService';
 import { AgentExecutionLog, TimelineEntry } from '../types';
 
 let isRunning = false;
+let currentCronTask: cron.ScheduledTask | null = null;
+let currentCronExpression = '0 */6 * * *';
 let nextScheduledRun: string = new Date(Date.now() + 6 * 3600 * 1000).toISOString();
 
 export async function runAgentPipeline(trigger: 'scheduler' | 'manual_demo' = 'manual_demo'): Promise<AgentExecutionLog> {
@@ -71,10 +73,11 @@ export async function runAgentPipeline(trigger: 'scheduler' | 'manual_demo' = 'm
     // Step 3: Bedrock Analysis & Ranking
     addLog('Bedrock Engine', 'info', 'Running Bedrock classification, 5-metric scoring & developer relevance reasoning...');
     
-    // Process items
     const itemsToProcess = candidates.length > 0 ? candidates.slice(0, 10) : items.slice(0, 7).map(processRawItem);
 
     const newSignals = [];
+    const prefs = storage.getPreferences();
+
     for (const item of itemsToProcess) {
       const signal = await analyzeContentWithBedrock(item);
       storage.saveSignal(signal);
@@ -82,8 +85,8 @@ export async function runAgentPipeline(trigger: 'scheduler' | 'manual_demo' = 'm
       signalsDetectedCount++;
       if (signal.signal_score >= 80) highPriorityCount++;
 
-      // Check alert
-      await sendSignalAlertIfNeeded(signal, storage.getPreferences());
+      // Check alert for all recipient emails in email_list
+      await sendSignalAlertIfNeeded(signal, prefs);
     }
 
     addLog('Bedrock Engine', 'success', `Processed ${newSignals.length} AWS Signals. Detected ${highPriorityCount} high-priority signals (Score >= 80).`);
@@ -128,25 +131,41 @@ export async function runAgentPipeline(trigger: 'scheduler' | 'manual_demo' = 'm
   return log;
 }
 
-export function initScheduler(): void {
-  console.log('[Agent Scheduler] Initializing autonomous EventBridge background scheduler...');
-  
-  // Initial run on server start
-  setTimeout(() => {
-    runAgentPipeline('scheduler').catch(err => console.error('Initial agent run error:', err));
-  }, 2000);
+export function updateScheduleCron(cronExpr: string): void {
+  if (currentCronExpression === cronExpr && currentCronTask) return;
 
-  // Cron schedule: every 6 hours ('0 */6 * * *')
-  cron.schedule('0 */6 * * *', () => {
-    console.log('[Agent Scheduler] EventBridge cron trigger fired.');
+  if (currentCronTask) {
+    currentCronTask.stop();
+  }
+
+  currentCronExpression = cronExpr;
+  console.log(`[Agent Scheduler] Rescheduling EventBridge trigger cron to: '${cronExpr}'`);
+  
+  currentCronTask = cron.schedule(cronExpr, () => {
+    console.log(`[Agent Scheduler] Cron trigger fired ('${cronExpr}').`);
     nextScheduledRun = new Date(Date.now() + 6 * 3600 * 1000).toISOString();
     runAgentPipeline('scheduler').catch(err => console.error('Scheduled pipeline error:', err));
   });
 }
 
+export function initScheduler(): void {
+  const prefs = storage.getPreferences();
+  const expr = prefs.cron_expression || '0 */6 * * *';
+  
+  console.log(`[Agent Scheduler] Initializing autonomous background scheduler with frequency '${prefs.schedule_frequency}' (${expr})...`);
+  
+  // Initial background run
+  setTimeout(() => {
+    runAgentPipeline('scheduler').catch(err => console.error('Initial agent run error:', err));
+  }, 2000);
+
+  updateScheduleCron(expr);
+}
+
 export function getSchedulerStatus() {
   return {
     is_running: isRunning,
+    cron_expression: currentCronExpression,
     next_scheduled_run: nextScheduledRun,
     last_log: storage.getLogs()[0] || null,
   };

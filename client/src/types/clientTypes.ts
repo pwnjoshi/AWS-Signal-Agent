@@ -92,12 +92,17 @@ export interface DailyBriefing {
   created_at: string;
 }
 
+export type ScheduleFrequency = '1h' | '6h' | '12h' | 'daily_8am' | 'weekly_mon';
+
 export interface UserPreferences {
   user_id: string;
   name: string;
   email: string;
+  email_list: string[];
   email_enabled: boolean;
   digest_frequency: 'daily' | 'weekly' | 'instant_only' | 'off';
+  schedule_frequency: ScheduleFrequency;
+  cron_expression: string;
   alert_threshold: 'high' | 'medium' | 'all';
   favorite_services: string[];
   favorite_topics: string[];

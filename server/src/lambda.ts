@@ -5,19 +5,15 @@ import apiRoutes from './api/routes';
 
 const app = express();
 
-// Enable CORS for all origins and HTTP methods including OPTIONS preflight
-app.use(cors({
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
-}));
-
-app.options('*', (req, res) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept');
-  res.sendStatus(200);
-});
+// Only use Express cors middleware when running locally
+// In AWS Lambda, Lambda Function URL native CORS handles headers at the gateway layer to avoid duplicate headers
+if (!process.env.AWS_LAMBDA_FUNCTION_NAME) {
+  app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+  }));
+}
 
 app.use(express.json());
 

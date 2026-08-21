@@ -12,17 +12,21 @@ const sesClient = new SESClient({
 
 export interface AlertResult {
   sent: boolean;
-  recipient: string;
+  recipients: string[];
   subject: string;
   reason: string;
   timestamp: string;
 }
 
 export async function sendSignalAlertIfNeeded(signal: AWSSignal, prefs: UserPreferences): Promise<AlertResult> {
+  const recipients = (prefs.email_list && prefs.email_list.length > 0) 
+    ? prefs.email_list 
+    : [prefs.email || 'pawan@example.com'];
+
   if (!prefs.email_enabled || prefs.digest_frequency === 'off') {
     return {
       sent: false,
-      recipient: prefs.email,
+      recipients,
       subject: '',
       reason: 'Email alerts disabled in user preferences',
       timestamp: new Date().toISOString(),
@@ -35,7 +39,7 @@ export async function sendSignalAlertIfNeeded(signal: AWSSignal, prefs: UserPref
   if (!meetsThreshold) {
     return {
       sent: false,
-      recipient: prefs.email,
+      recipients,
       subject: '',
       reason: `Signal score (${signal.signal_score}) below user threshold (${prefs.alert_threshold})`,
       timestamp: new Date().toISOString(),
@@ -74,6 +78,7 @@ export async function sendSignalAlertIfNeeded(signal: AWSSignal, prefs: UserPref
 
       <div style="margin-top: 28px; border-top: 1px solid #e2e8f0; padding-top: 12px; font-size: 12px; color: #94a3b8; text-align: center;">
         Sent by Dori — Your Autonomous AWS Intelligence Companion.<br/>
+        Delivered to: ${recipients.join(', ')}<br/>
         You can adjust alert preferences in your AWS Signal Dashboard settings.
       </div>
     </div>
@@ -83,24 +88,24 @@ export async function sendSignalAlertIfNeeded(signal: AWSSignal, prefs: UserPref
     try {
       const command = new SendEmailCommand({
         Source: process.env.SES_SENDER_EMAIL,
-        Destination: { ToAddresses: [prefs.email] },
+        Destination: { ToAddresses: recipients },
         Message: {
           Subject: { Data: subject },
           Body: { Html: { Data: htmlBody } }
         }
       });
       await sesClient.send(command);
-      console.log(`[Email Alert Service] SES alert email successfully sent to ${prefs.email}`);
+      console.log(`[Email Alert Service] SES alert email successfully sent to ${recipients.length} recipients: [${recipients.join(', ')}]`);
     } catch (err: any) {
-      console.warn(`[Email Alert Service] SES send note: ${err.message}. Logging alert locally.`);
+      console.warn(`[Email Alert Service] SES send note: ${err.message}. Logging alert locally for [${recipients.join(', ')}].`);
     }
   } else {
-    console.log(`[Email Alert Service] AWS SES unconfigured or in demo mode. Simulated alert to ${prefs.email}: ${subject}`);
+    console.log(`[Email Alert Service] AWS SES unconfigured or in demo mode. Simulated alert to [${recipients.join(', ')}]: ${subject}`);
   }
 
   return {
     sent: true,
-    recipient: prefs.email,
+    recipients,
     subject,
     reason: `Signal score ${signal.signal_score} triggered instant alert`,
     timestamp: new Date().toISOString(),
