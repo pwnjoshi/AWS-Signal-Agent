@@ -25,6 +25,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Articles & Drafts
+AWS_BUILDER_CENTER_ARTICLE.md
+
 # System & IDE Files
 .DS_Store
 Thumbs.db
