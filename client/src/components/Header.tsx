@@ -1,5 +1,6 @@
 import React from 'react';
-import { Play, RefreshCw, Bell, Search, Radio } from 'lucide-react';
+import { Play, RefreshCw, Bell, Search } from 'lucide-react';
+import { Logo } from './Logo';
 
 interface HeaderProps {
   onRunAgent: () => void;
@@ -19,14 +20,9 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header className="h-16 bg-white border-b border-slate-200 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs">
       
-      {/* Mobile Brand Title */}
-      <div className="flex items-center gap-2.5 md:hidden shrink-0">
-        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-sm text-white font-bold text-sm">
-          ⚡
-        </div>
-        <span className="font-extrabold text-slate-900 text-base font-rounded tracking-tight">
-          AWS Signal
-        </span>
+      {/* Mobile Brand Title using Logo */}
+      <div className="md:hidden shrink-0">
+        <Logo size="sm" showText={true} />
       </div>
 
       {/* Search Input */}

@@ -10,6 +10,7 @@ import {
   Settings, 
   Activity 
 } from 'lucide-react';
+import { Logo } from './Logo';
 
 export type NavTab = 
   | 'home' 
@@ -49,19 +50,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
     <aside className="hidden md:flex w-64 bg-white border-r border-slate-200 flex-col justify-between h-screen sticky top-0 z-20 shrink-0">
       <div>
         {/* Brand Header */}
-        <div className="p-6 border-b border-slate-100 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-md shadow-blue-500/20 text-white font-bold text-lg">
-            ⚡
-          </div>
-          <div>
-            <h1 className="font-extrabold text-slate-900 tracking-tight text-lg leading-none font-rounded">
-              AWS Signal
-            </h1>
-            <p className="text-xs text-blue-600 font-semibold mt-1 flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              Autonomous Agent
-            </p>
-          </div>
+        <div className="p-5 border-b border-slate-100">
+          <Logo size="md" />
         </div>
 
         {/* Primary Navigation */}
