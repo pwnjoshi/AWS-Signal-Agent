@@ -4,7 +4,21 @@ import serverless from 'serverless-http';
 import apiRoutes from './api/routes';
 
 const app = express();
-app.use(cors());
+
+// Enable CORS for all origins and HTTP methods including OPTIONS preflight
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+}));
+
+app.options('*', (req, res) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, Accept');
+  res.sendStatus(200);
+});
+
 app.use(express.json());
 
 app.get('/', (req, res) => {
