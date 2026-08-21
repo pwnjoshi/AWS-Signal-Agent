@@ -1,5 +1,5 @@
 import React from 'react';
-import { Play, RefreshCw, Bell, Search } from 'lucide-react';
+import { Play, RefreshCw, Bell, Search, Radio } from 'lucide-react';
 
 interface HeaderProps {
   onRunAgent: () => void;
@@ -17,23 +17,34 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenSettings,
 }) => {
   return (
-    <header className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between sticky top-0 z-10">
+    <header className="h-16 bg-white border-b border-slate-200 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs">
+      
+      {/* Mobile Brand Title */}
+      <div className="flex items-center gap-2.5 md:hidden shrink-0">
+        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-sm text-white font-bold text-sm">
+          ⚡
+        </div>
+        <span className="font-extrabold text-slate-900 text-base font-rounded tracking-tight">
+          AWS Signal
+        </span>
+      </div>
+
       {/* Search Input */}
-      <div className="flex-1 max-w-md relative">
+      <div className="flex-1 max-w-md mx-2 sm:mx-4 relative">
         <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
         <input
           type="text"
           value={searchTerm}
           onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
-          placeholder="Search AWS Signals, Services, Announcements..."
-          className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all placeholder:text-slate-400"
+          placeholder="Search AWS signals..."
+          className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all placeholder:text-slate-400"
         />
       </div>
 
       {/* Action Controls & Agent Status */}
-      <div className="flex items-center gap-4">
-        {/* Agent Status Badge */}
-        <div className="hidden sm:flex items-center gap-2 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full text-xs font-semibold text-emerald-700">
+      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        {/* Agent Status Badge (Desktop Only) */}
+        <div className="hidden lg:flex items-center gap-2 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full text-xs font-semibold text-emerald-700">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
           AGENT ONLINE
         </div>
@@ -42,22 +53,23 @@ export const Header: React.FC<HeaderProps> = ({
         <button
           onClick={onRunAgent}
           disabled={isAgentRunning}
-          className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-4 py-2 rounded-xl font-medium text-xs md:text-sm shadow-md shadow-blue-500/20 transition-all active:scale-95 disabled:opacity-50"
+          className="flex items-center gap-1.5 sm:gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-3 sm:px-4 py-2 rounded-xl font-bold text-xs shadow-md shadow-blue-500/20 transition-all active:scale-95 disabled:opacity-50"
         >
           {isAgentRunning ? (
             <>
-              <RefreshCw className="w-4 h-4 animate-spin" />
-              <span>Analyzing AWS...</span>
+              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+              <span className="hidden sm:inline">Analyzing...</span>
             </>
           ) : (
             <>
               <Play className="w-3.5 h-3.5 fill-white" />
-              <span>Run Agent Now</span>
+              <span className="hidden sm:inline">Run Agent Now</span>
+              <span className="sm:hidden">Run</span>
             </>
           )}
         </button>
 
-        {/* Notification / Settings Quick Button */}
+        {/* Notification / Settings Button */}
         <button 
           onClick={onOpenSettings}
           className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-xl transition-all relative"

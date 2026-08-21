@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sidebar, NavTab } from './components/Sidebar';
+import { Sidebar, MobileBottomNav, NavTab } from './components/Sidebar';
 import { Header } from './components/Header';
 import { Dashboard } from './pages/Dashboard';
 import { SignalsPage } from './pages/SignalsPage';
@@ -126,8 +126,8 @@ export function App() {
   const savedSignalsCount = signals.filter(s => s.is_saved).length;
 
   return (
-    <div className="min-h-screen flex bg-slate-50">
-      {/* Sidebar */}
+    <div className="min-h-screen flex bg-slate-50 font-sans">
+      {/* Desktop Sidebar */}
       <Sidebar
         activeTab={activeTab}
         setActiveTab={(tab) => {
@@ -156,7 +156,7 @@ export function App() {
           onOpenSettings={() => setShowAlertSettings(true)}
         />
 
-        <main className="p-6 md:p-8 max-w-7xl mx-auto w-full flex-1">
+        <main className="p-4 sm:p-6 md:p-8 pb-24 md:pb-8 max-w-7xl mx-auto w-full flex-1">
           {activeTab === 'home' && (
             <Dashboard
               summary={summary}
@@ -207,18 +207,18 @@ export function App() {
 
           {activeTab === 'alerts' && (
             <div className="space-y-6">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
-                  <h1 className="text-2xl font-extrabold text-slate-900 font-rounded">
+                  <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 font-rounded">
                     ✉ Intelligent SES Alert History
                   </h1>
-                  <p className="text-slate-500 text-sm mt-1">
-                    Signals that triggered high-priority automated email alerts to {preferences?.email}.
+                  <p className="text-slate-500 text-xs sm:text-sm mt-1">
+                    Signals that triggered high-priority automated email alerts to your recipient list.
                   </p>
                 </div>
                 <button
                   onClick={() => setShowAlertSettings(true)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-sm"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-sm"
                 >
                   Alert Settings
                 </button>
@@ -242,6 +242,19 @@ export function App() {
           )}
         </main>
       </div>
+
+      {/* Mobile Touch Bottom Navigation */}
+      <MobileBottomNav
+        activeTab={activeTab}
+        setActiveTab={(tab) => {
+          if (tab === 'settings') {
+            setShowAlertSettings(true);
+          } else {
+            setActiveTab(tab);
+          }
+        }}
+        alertCount={summary?.high_priority_alerts ?? 1}
+      />
 
       {/* Modals */}
       <SignalDetailModal
