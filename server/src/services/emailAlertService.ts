@@ -7,7 +7,7 @@ const profile = process.env.AWS_PROFILE || 'cloudblueprint';
 
 const sesClient = new SESClient({ 
   region,
-  credentials: fromIni({ profile }) 
+  ...(process.env.AWS_LAMBDA_FUNCTION_NAME ? {} : { credentials: fromIni({ profile }) })
 });
 
 export interface AlertResult {
@@ -90,9 +90,9 @@ export async function sendSignalAlertIfNeeded(signal: AWSSignal, prefs: UserPref
         }
       });
       await sesClient.send(command);
-      console.log(`[Email Alert Service] SES alert email successfully sent to ${prefs.email} using profile '${profile}'`);
+      console.log(`[Email Alert Service] SES alert email successfully sent to ${prefs.email}`);
     } catch (err: any) {
-      console.warn(`[Email Alert Service] SES send note (profile: ${profile}): ${err.message}. Logging alert locally.`);
+      console.warn(`[Email Alert Service] SES send note: ${err.message}. Logging alert locally.`);
     }
   } else {
     console.log(`[Email Alert Service] AWS SES unconfigured or in demo mode. Simulated alert to ${prefs.email}: ${subject}`);

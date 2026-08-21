@@ -8,7 +8,7 @@ const profile = process.env.AWS_PROFILE || 'cloudblueprint';
 
 const client = new BedrockRuntimeClient({ 
   region,
-  credentials: fromIni({ profile }) 
+  ...(process.env.AWS_LAMBDA_FUNCTION_NAME ? {} : { credentials: fromIni({ profile }) })
 });
 
 export interface BedrockAnalysisResult {
@@ -28,12 +28,10 @@ export async function analyzeContentWithBedrock(item: ProcessedItemCandidate): P
   try {
     analysis = await invokeBedrockModel(item);
   } catch (err: any) {
-    console.warn(`[Bedrock Service] AWS Bedrock call (profile: ${profile}) fallback note: ${err.message}`);
+    console.warn(`[Bedrock Service] AWS Bedrock call fallback note: ${err.message}`);
     analysis = generateFallbackAnalysis(item);
   }
 
-  // Calculate Signal Score using specified weights:
-  // Importance × 0.25 + Developer Relevance × 0.25 + Novelty × 0.15 + Community Momentum × 0.15 + AWS Impact × 0.20
   const calculatedSignalScore = Math.round(
     analysis.importance_score * 0.25 +
     analysis.relevance_score * 0.25 +
@@ -117,7 +115,6 @@ Respond strictly with a valid JSON object matching this schema:
   const responseBody = JSON.parse(new TextDecoder().decode(response.body));
   const rawText = responseBody.content[0].text;
   
-  // Extract JSON from output
   const jsonMatch = rawText.match(/\{[\s\S]*\}/);
   if (!jsonMatch) {
     throw new Error('Failed to parse JSON from Bedrock model response');
@@ -157,9 +154,8 @@ function generateFallbackAnalysis(item: ProcessedItemCandidate): BedrockAnalysis
     impact = 70;
   }
 
-  // Add deterministic variance based on title length hash
   const titleHash = item.title.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
-  const offset = (titleHash % 7) - 3; // -3 to +3
+  const offset = (titleHash % 7) - 3;
 
   importance = Math.min(100, Math.max(40, importance + offset));
   relevance = Math.min(100, Math.max(40, relevance + offset));

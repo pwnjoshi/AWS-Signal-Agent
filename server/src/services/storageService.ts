@@ -5,13 +5,19 @@ import { DynamoDBDocumentClient, PutCommand, ScanCommand } from '@aws-sdk/lib-dy
 import { fromIni } from '@aws-sdk/credential-providers';
 import { AgentExecutionLog, AWSSignal, CommunityTopic, DailyBriefing, UserPreferences } from '../types';
 
-const DATA_DIR = path.join(process.cwd(), 'data');
+const DATA_DIR = process.env.AWS_LAMBDA_FUNCTION_NAME 
+  ? path.join('/tmp', 'data')
+  : path.join(process.cwd(), 'data');
 
 if (!fs.existsSync(DATA_DIR)) {
-  fs.mkdirSync(DATA_DIR, { recursive: true });
+  try {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+  } catch (err) {
+    console.warn('Warning creating data directory:', err);
+  }
 }
 
-// Local File Persistence Fallback
+// Memory stores for local persistence
 const FILES = {
   signals: path.join(DATA_DIR, 'signals.json'),
   topics: path.join(DATA_DIR, 'topics.json'),
@@ -25,7 +31,7 @@ const profile = process.env.AWS_PROFILE || 'cloudblueprint';
 
 const ddbClient = new DynamoDBClient({ 
   region,
-  credentials: fromIni({ profile }) 
+  ...(process.env.AWS_LAMBDA_FUNCTION_NAME ? {} : { credentials: fromIni({ profile }) })
 });
 const docClient = DynamoDBDocumentClient.from(ddbClient);
 
