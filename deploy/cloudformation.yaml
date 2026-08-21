@@ -1,0 +1,155 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'AWS Signal - Autonomous AWS Intelligence Agent Infrastructure'
+
+Parameters:
+  Environment:
+    Type: String
+    Default: production
+    AllowedValues: [development, production]
+    Description: Environment stage
+
+Resources:
+  # 1. DynamoDB Tables
+  SignalsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: AWSSignals
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: signal_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: signal_id
+          KeyType: HASH
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+
+  TopicsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: AWSTopics
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: topic_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: topic_id
+          KeyType: HASH
+
+  BriefingsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: AWSBriefings
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: briefing_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: briefing_id
+          KeyType: HASH
+
+  PreferencesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: AWSPreferences
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: user_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: user_id
+          KeyType: HASH
+
+  ExecutionLogsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: AWSExecutionLogs
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: run_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: run_id
+          KeyType: HASH
+
+  # 2. S3 Bucket for Briefings & Frontend
+  StorageBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub 'aws-signal-storage-${AWS::AccountId}-${AWS::Region}'
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      CorsConfiguration:
+        CorsRules:
+          - AllowedHeaders: ['*']
+            AllowedMethods: [GET, PUT, POST, DELETE, HEAD]
+            AllowedOrigins: ['*']
+
+  # 3. IAM Role for Agent Orchestrator Lambda / App Runner
+  AgentRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: AWSSignalAgentRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+                - scheduler.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: AWSSignalAgentPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - bedrock:InvokeModel
+                  - bedrock:InvokeModelWithResponseStream
+                  - bedrock:ListFoundationModels
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - dynamodb:GetItem
+                  - dynamodb:PutItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:DeleteItem
+                  - dynamodb:Scan
+                  - dynamodb:Query
+                Resource:
+                  - !GetAtt SignalsTable.Arn
+                  - !GetAtt TopicsTable.Arn
+                  - !GetAtt BriefingsTable.Arn
+                  - !GetAtt PreferencesTable.Arn
+                  - !GetAtt ExecutionLogsTable.Arn
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:ListBucket
+                Resource:
+                  - !GetAtt StorageBucket.Arn
+                  - !Sub '${StorageBucket.Arn}/*'
+              - Effect: Allow
+                Action:
+                  - ses:SendEmail
+                  - ses:SendRawEmail
+                Resource: '*'
+
+Outputs:
+  StorageBucketName:
+    Value: !Ref StorageBucket
+    Description: S3 Storage Bucket Name
+  SignalsTableName:
+    Value: !Ref SignalsTable
+    Description: DynamoDB Signals Table
+  AgentRoleArn:
+    Value: !GetAtt AgentRole.Arn
+    Description: Agent IAM Role ARN
