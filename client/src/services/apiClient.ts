@@ -59,8 +59,9 @@ export async function toggleSaveSignal(id: string): Promise<AWSSignal> {
   return res.json();
 }
 
-export async function fetchLatestBriefing(): Promise<DailyBriefing> {
+export async function fetchLatestBriefing(): Promise<DailyBriefing | null> {
   const res = await fetch(`${BASE_URL}/api/briefings/latest`);
+  if (res.status === 404) return null;
   if (!res.ok) throw new Error('Failed to fetch latest briefing');
   return res.json();
 }

@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { storage } from '../services/storageService';
 import { getSchedulerStatus, runAgentPipeline, updateScheduleCron } from '../scheduler/agentScheduler';
 import { sendSignalAlertIfNeeded } from '../services/emailAlertService';
+import { generateDailyBriefing } from '../services/briefingGenerator';
 
 const router = Router();
 
@@ -98,9 +99,11 @@ router.get('/briefings', (req, res) => {
 });
 
 router.get('/briefings/latest', (req, res) => {
-  const latest = storage.getLatestBriefing();
+  let latest = storage.getLatestBriefing();
   if (!latest) {
-    return res.status(404).json({ error: 'No briefings generated yet' });
+    const signals = storage.getSignals();
+    latest = generateDailyBriefing(signals);
+    storage.saveBriefing(latest);
   }
   res.json(latest);
 });
