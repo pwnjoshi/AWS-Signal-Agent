@@ -3,11 +3,15 @@ import { storage } from '../services/storageService';
 import { getSchedulerStatus, runAgentPipeline, updateScheduleCron } from '../scheduler/agentScheduler';
 import { sendSignalAlertIfNeeded } from '../services/emailAlertService';
 import { generateDailyBriefing } from '../services/briefingGenerator';
+import { apiSecurityGuard, rateLimiter } from '../middleware/security';
 
 const router = Router();
 
-// Agent Status & Telemetry
-router.get('/agent/status', (req, res) => {
+// Apply Security Guard Middleware across all API routes (Security Headers + API Key validation)
+router.use(apiSecurityGuard);
+
+// Agent Status & Telemetry (General rate limit: 100 requests / 15 min)
+router.get('/agent/status', rateLimiter(100, 15 * 60 * 1000), (req, res) => {
   const status = getSchedulerStatus();
   const logs = storage.getLogs();
   res.json({
@@ -20,7 +24,8 @@ router.get('/agent/status', (req, res) => {
   });
 });
 
-router.post('/agent/run', async (req, res) => {
+// Strict Rate Limiting on heavy Bedrock execution: Max 10 runs per 15 minutes
+router.post('/agent/run', rateLimiter(10, 15 * 60 * 1000), async (req, res) => {
   try {
     const log = await runAgentPipeline('manual_demo');
     res.json({ success: true, log });
@@ -30,7 +35,7 @@ router.post('/agent/run', async (req, res) => {
 });
 
 // Signals
-router.get('/signals', (req, res) => {
+router.get('/signals', rateLimiter(100, 15 * 60 * 1000), (req, res) => {
   const { search, service, category, minImportance, source, sort, savedOnly } = req.query;
   let signals = storage.getSignals();
 
@@ -77,7 +82,7 @@ router.get('/signals', (req, res) => {
   res.json({ count: signals.length, signals });
 });
 
-router.get('/signals/:id', (req, res) => {
+router.get('/signals/:id', rateLimiter(100, 15 * 60 * 1000), (req, res) => {
   const signal = storage.getSignalById(req.params.id);
   if (!signal) {
     return res.status(404).json({ error: 'Signal not found' });
@@ -85,7 +90,7 @@ router.get('/signals/:id', (req, res) => {
   res.json(signal);
 });
 
-router.post('/signals/:id/toggle-save', (req, res) => {
+router.post('/signals/:id/toggle-save', rateLimiter(50, 15 * 60 * 1000), (req, res) => {
   const updated = storage.toggleSaveSignal(req.params.id);
   if (!updated) {
     return res.status(404).json({ error: 'Signal not found' });
@@ -94,11 +99,11 @@ router.post('/signals/:id/toggle-save', (req, res) => {
 });
 
 // Daily Briefings
-router.get('/briefings', (req, res) => {
+router.get('/briefings', rateLimiter(100, 15 * 60 * 1000), (req, res) => {
   res.json(storage.getBriefings());
 });
 
-router.get('/briefings/latest', (req, res) => {
+router.get('/briefings/latest', rateLimiter(100, 15 * 60 * 1000), (req, res) => {
   let latest = storage.getLatestBriefing();
   if (!latest) {
     const signals = storage.getSignals();
@@ -109,12 +114,12 @@ router.get('/briefings/latest', (req, res) => {
 });
 
 // Trends
-router.get('/trends', (req, res) => {
+router.get('/trends', rateLimiter(100, 15 * 60 * 1000), (req, res) => {
   res.json(storage.getTopics());
 });
 
 // Services Explorer Data
-router.get('/services', (req, res) => {
+router.get('/services', rateLimiter(100, 15 * 60 * 1000), (req, res) => {
   const signals = storage.getSignals();
   const serviceCounts: Record<string, { count: number; signals: any[]; avgScore: number }> = {};
 
@@ -142,17 +147,17 @@ router.get('/services', (req, res) => {
 });
 
 // "While You Were Away" summary
-router.get('/summary/while-you-were-away', (req, res) => {
+router.get('/summary/while-you-were-away', rateLimiter(100, 15 * 60 * 1000), (req, res) => {
   const summary = storage.getWhileYouWereAwaySummary();
   res.json(summary);
 });
 
 // Preferences
-router.get('/preferences', (req, res) => {
+router.get('/preferences', rateLimiter(100, 15 * 60 * 1000), (req, res) => {
   res.json(storage.getPreferences());
 });
 
-router.put('/preferences', (req, res) => {
+router.put('/preferences', rateLimiter(30, 15 * 60 * 1000), (req, res) => {
   const updated = storage.updatePreferences(req.body);
   if (updated.cron_expression) {
     updateScheduleCron(updated.cron_expression);
@@ -160,8 +165,8 @@ router.put('/preferences', (req, res) => {
   res.json(updated);
 });
 
-// Test Email Alert
-router.post('/alerts/test', async (req, res) => {
+// Test Email Alert: Max 5 test alerts per 15 minutes
+router.post('/alerts/test', rateLimiter(5, 15 * 60 * 1000), async (req, res) => {
   const signals = storage.getSignals();
   const targetSignal = signals[0];
   const prefs = storage.getPreferences();
