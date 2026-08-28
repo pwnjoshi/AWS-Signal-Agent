@@ -43,11 +43,13 @@ export const GEUNavbar: React.FC<GEUNavbarProps> = ({ onOpenAuthModal, onLaunchD
           
           {/* Brand Logo with exact GEU typography */}
           <Link to="/" className="flex items-center gap-3 group select-none">
-            <img 
-              src={theme === 'dark' ? '/whitelogo.png' : '/logo.png'} 
-              alt="AWS Student Builder Group GEU" 
-              className="h-8 sm:h-9 w-auto object-contain transform group-hover:scale-105 transition-transform duration-300" 
-            />
+            <div className="p-1 rounded-xl bg-surface-low border border-outline shadow-sm flex items-center justify-center shrink-0 transition-colors">
+              <img 
+                src={theme === 'dark' ? '/whitelogo.png' : '/logo.png'} 
+                alt="AWS Student Builder Group GEU" 
+                className="h-8 sm:h-9 w-auto object-contain transform group-hover:scale-105 transition-transform duration-300" 
+              />
+            </div>
             <div className="flex flex-col text-left font-mono">
               <span className="text-[11px] sm:text-[12px] font-black uppercase tracking-wider text-on-background leading-tight">
                 AWS Student Builder Group
