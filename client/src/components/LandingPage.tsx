@@ -113,25 +113,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
 
       {/* ── Section 1: Hero Section ── */}
       <section id="home" className="relative pt-28 sm:pt-36 pb-16 sm:pb-24 min-h-[85vh] flex items-center justify-center">
-        
-        {/* Floating AWS Badges on Desktop */}
-        <div className="hidden lg:block absolute left-8 top-1/3 -translate-y-1/2 pointer-events-none">
-          <div className="w-12 h-12 rounded-xl bg-surface border border-outline shadow-sm flex items-center justify-center p-2">
-            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original-wordmark.svg" alt="AWS" className="w-full h-full object-contain" />
-          </div>
-          <div className="w-11 h-11 rounded-xl bg-surface border border-outline shadow-sm flex items-center justify-center p-2 mt-6">
-            <span className="text-[10px] font-mono font-black text-primary">EC2</span>
-          </div>
-        </div>
-
-        <div className="hidden lg:block absolute right-8 top-1/3 -translate-y-1/2 pointer-events-none">
-          <div className="w-12 h-12 rounded-xl bg-surface border border-outline shadow-sm flex items-center justify-center p-2">
-            <span className="text-xs font-mono font-black text-[#fe9800]">Lambda</span>
-          </div>
-          <div className="w-11 h-11 rounded-xl bg-surface border border-outline shadow-sm flex items-center justify-center p-2 mt-6">
-            <span className="text-[10px] font-mono font-black text-[#00d294]">S3</span>
-          </div>
-        </div>
 
         <div className="max-w-5xl mx-auto px-4 sm:px-6 text-center space-y-7 relative z-10">
           
