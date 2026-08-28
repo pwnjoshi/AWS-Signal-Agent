@@ -57,9 +57,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
       <section id="home" className="relative pt-32 sm:pt-40 pb-8 sm:pb-12 min-h-[70vh] flex flex-col items-center justify-center text-center">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 space-y-6 relative z-10">
           
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 text-xs font-medium">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Autonomous AWS Intelligence • Powered by Bedrock & Polly</span>
+          {/* Redesigned Animated Hero Badge without Star Icon */}
+          <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-slate-100/80 dark:bg-zinc-900/80 backdrop-blur-md border border-slate-200/80 dark:border-zinc-700/80 shadow-sm hover:border-blue-500/50 transition-all duration-300 group select-none">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00d294] opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00d294]" />
+            </span>
+            <span className="text-xs font-medium text-slate-700 dark:text-zinc-300 tracking-normal">
+              Autonomous AWS Intelligence • Powered by Bedrock & Polly
+            </span>
           </div>
 
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight text-slate-900 dark:text-zinc-100 leading-[1.15]">
