@@ -122,7 +122,7 @@ function MainLayout({
       />
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 md:pl-64">
         <Header
           onRunAgent={onRunAgent}
           isAgentRunning={isAgentRunning}
