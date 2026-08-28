@@ -6,8 +6,41 @@ import { generateDailyBriefing } from '../services/briefingGenerator';
 import { apiSecurityGuard, rateLimiter } from '../middleware/security';
 import { fetchAWSFeeds } from '../collectors/awsFeedsCollector';
 import { synthesizeDoriSpeech } from '../services/pollyService';
+import { askDoriQuestion } from '../services/bedrockService';
 
 const router = Router();
+
+// Real-time Grounded QA with Dori & Amazon Bedrock
+router.post('/dori/ask', rateLimiter(60, 15 * 60 * 1000), async (req, res) => {
+  try {
+    const { question, synthesizeAudio = true } = req.body;
+    if (!question || typeof question !== 'string') {
+      return res.status(400).json({ error: 'question string is required' });
+    }
+
+    const signals = storage.getSignals();
+    const topics = storage.getTopics();
+
+    const { answer, relevantSignals } = await askDoriQuestion(question, signals, topics);
+
+    let audioBase64: string | undefined;
+    if (synthesizeAudio) {
+      const pollyRes = await synthesizeDoriSpeech(answer, 'Ruth', 'generative');
+      if (pollyRes) {
+        audioBase64 = pollyRes.audioBase64;
+      }
+    }
+
+    res.json({
+      success: true,
+      answer,
+      relevantSignals,
+      audioBase64,
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // Amazon Polly Generative & Neural Speech Endpoint for Dori
 router.post('/dori/synthesize', rateLimiter(60, 15 * 60 * 1000), async (req, res) => {
