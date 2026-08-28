@@ -2,15 +2,16 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   Radio, 
+  ArrowRight,
   ArrowUpRight, 
   ShieldCheck, 
   Zap, 
   Volume2, 
-  VolumeX, 
   Cpu, 
   Clock, 
   Brain,
-  Sparkles
+  Sparkles,
+  BookOpen
 } from 'lucide-react';
 import { GEUNavbar as Navbar } from './GEUNavbar';
 import { ParticleBackground } from './ParticleBackground';
@@ -69,36 +70,31 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
             An autonomous cloud intelligence platform. AWS Signal monitors hundreds of release feeds, analyzes developer friction on re:Post, and delivers personalized audio briefings before breaking your stack.
           </p>
 
-          {/* Action CTAs */}
+          {/* Clean Action CTAs */}
           <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
             <Link
               to="/dashboard"
               className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs sm:text-sm font-medium shadow-sm active:scale-98 transition-all flex items-center gap-2"
             >
-              <Radio className="w-4 h-4" />
-              <span>Launch Command Hub</span>
+              <span>Get Started</span>
+              <ArrowRight className="w-4 h-4" />
             </Link>
 
-            <button
-              onClick={toggleDoriNarration}
-              className={`px-4 py-2.5 rounded-lg text-xs sm:text-sm font-medium border transition-all flex items-center gap-2 cursor-pointer ${
-                isSpeaking
-                  ? 'bg-amber-500 text-white border-amber-400 shadow-md'
-                  : 'bg-white dark:bg-[#18181b] border-slate-200 dark:border-zinc-800 hover:bg-slate-50 dark:hover:bg-[#202026] text-slate-800 dark:text-zinc-200'
-              }`}
+            <Link
+              to="/signals"
+              className="px-4 py-2.5 rounded-lg text-xs sm:text-sm font-medium border border-slate-200 dark:border-zinc-800 bg-white dark:bg-[#18181b] hover:bg-slate-50 dark:hover:bg-[#202026] text-slate-800 dark:text-zinc-200 transition-all flex items-center gap-2"
             >
-              {isSpeaking ? (
-                <>
-                  <VolumeX className="w-4 h-4" />
-                  <span>Stop Dori Voice</span>
-                </>
-              ) : (
-                <>
-                  <Volume2 className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                  <span>Talk with Dori (Audio)</span>
-                </>
-              )}
-            </button>
+              <Radio className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              <span>Explore Live Radar</span>
+            </Link>
+
+            <Link
+              to="/briefings"
+              className="px-4 py-2.5 rounded-lg text-xs sm:text-sm font-medium border border-slate-200 dark:border-zinc-800 bg-white dark:bg-[#18181b] hover:bg-slate-50 dark:hover:bg-[#202026] text-slate-800 dark:text-zinc-200 transition-all flex items-center gap-2"
+            >
+              <BookOpen className="w-4 h-4 text-slate-500 dark:text-zinc-400" />
+              <span>Daily Briefings</span>
+            </Link>
           </div>
         </div>
 
@@ -329,7 +325,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
               to="/dashboard"
               className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs sm:text-sm font-medium shadow-sm flex items-center gap-1.5 transition-all"
             >
-              <span>Launch Command Hub</span>
+              <span>Command Hub</span>
               <ArrowUpRight className="w-3.5 h-3.5" />
             </Link>
           </div>
