@@ -4,14 +4,42 @@
 
 @layer base {
   body {
-    background-color: #0b0f19;
-    color: #f1f5f9;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: #09090b;
+    color: #f4f4f5;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   }
 }
 
 .font-rounded {
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* AWS Club GEU signature color utility classes */
+.btn-geu-gradient {
+  background: linear-gradient(135deg, #ad5cff 0%, #8d36eb 50%, #fe6e00 100%);
+  box-shadow: 0 0 25px rgba(173, 92, 255, 0.35);
+  transition: all 0.3s ease;
+}
+
+.btn-geu-gradient:hover {
+  box-shadow: 0 0 35px rgba(254, 110, 0, 0.45);
+  transform: translateY(-1px);
+}
+
+.bg-geu-card {
+  background: rgba(18, 18, 22, 0.85);
+  border: 1px solid rgba(173, 92, 255, 0.2);
+  backdrop-filter: blur(16px);
+}
+
+.text-geu-gradient {
+  background: linear-gradient(135deg, #ad5cff 0%, #e9d5ff 40%, #ffc080 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .custom-scrollbar::-webkit-scrollbar {
@@ -19,14 +47,14 @@
   height: 6px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: #0f172a;
+  background: #09090b;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #27272a;
   border-radius: 4px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: #3f3f46;
 }
 
 @keyframes float {
@@ -38,21 +66,11 @@
   animation: float 4s ease-in-out infinite;
 }
 
-@keyframes cyber-scan {
-  0% { transform: translateY(-100%); }
-  100% { transform: translateY(1000%); }
+@keyframes pulse-purple {
+  0%, 100% { box-shadow: 0 0 20px rgba(173, 92, 255, 0.3); }
+  50% { box-shadow: 0 0 35px rgba(254, 110, 0, 0.5); }
 }
 
-.animate-cyber-scan {
-  animation: cyber-scan 8s linear infinite;
-}
-
-@keyframes radar-pulse {
-  0% { transform: scale(0.95); opacity: 0.8; }
-  50% { transform: scale(1.05); opacity: 1; }
-  100% { transform: scale(0.95); opacity: 0.8; }
-}
-
-.animate-radar-pulse {
-  animation: radar-pulse 3s ease-in-out infinite;
+.animate-pulse-purple {
+  animation: pulse-purple 3s ease-in-out infinite;
 }
