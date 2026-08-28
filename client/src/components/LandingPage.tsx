@@ -14,14 +14,11 @@ import {
   Bookmark, 
   Layers, 
   FileText, 
-  Activity, 
-  Sparkles,
   BarChart3,
   Search,
-  CheckCircle2,
-  Terminal,
-  Lock
+  CheckCircle2
 } from 'lucide-react';
+import { Logo } from './Logo';
 import { DoriCompanion } from './DoriCompanion';
 
 interface LandingPageProps {
@@ -33,29 +30,31 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#09090b] text-slate-900 dark:text-zinc-100 font-sans selection:bg-blue-600 selection:text-white transition-colors duration-200">
       
-      {/* ── Top Navigation Bar ── */}
+      {/* ── Top Navigation Bar with Original Logo & Centered Menu ── */}
       <nav className="sticky top-0 z-50 bg-white/80 dark:bg-[#09090b]/80 backdrop-blur-md border-b border-slate-200 dark:border-zinc-800">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-sm group-hover:scale-105 transition-transform">
-              <Radio className="w-4 h-4 text-white" />
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="font-bold text-sm text-slate-900 dark:text-zinc-100 tracking-tight">AWS Signal</span>
-              <span className="text-[10px] bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 px-1.5 py-0.2 rounded font-mono font-semibold">2026</span>
-            </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          
+          {/* Original Brand Logo */}
+          <Link to="/" className="shrink-0 group">
+            <Logo size="md" showText={true} />
           </Link>
 
-          <div className="hidden sm:flex items-center gap-5 text-xs text-slate-600 dark:text-zinc-400 font-medium">
-            <a href="#features" className="hover:text-slate-900 dark:hover:text-zinc-100 transition-colors">Command Hub</a>
-            <a href="#intelligence" className="hover:text-slate-900 dark:hover:text-zinc-100 transition-colors">5-Pillar AI Scoring</a>
-            <a href="#how-it-works" className="hover:text-slate-900 dark:hover:text-zinc-100 transition-colors">Architecture</a>
+          {/* Centered Navigation Menu */}
+          <div className="hidden lg:flex items-center justify-center gap-6 text-xs text-slate-600 dark:text-zinc-400 font-medium mx-auto">
+            <Link to="/dashboard" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Command Hub</Link>
+            <Link to="/signals" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Radar Signals</Link>
+            <Link to="/trending" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Friction Matrix</Link>
+            <Link to="/briefings" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Daily Digest</Link>
+            <Link to="/services" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Cloud Mesh</Link>
+            <Link to="/saved" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Vault</Link>
+            <a href="#how-it-works" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">Architecture</a>
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-3">
+          {/* Right Launch CTA */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <Link
               to="/dashboard"
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium shadow-sm transition-all flex items-center gap-1.5 active:scale-98 cursor-pointer"
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-medium shadow-sm transition-all flex items-center gap-1.5 active:scale-98 cursor-pointer"
             >
               <span>Launch Hub</span>
               <ArrowUpRight className="w-3.5 h-3.5" />
@@ -65,30 +64,33 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
       </nav>
 
       {/* ── Section 1: Hero Showcase ── */}
-      <section className="relative overflow-hidden pt-8 pb-12 sm:pt-14 sm:pb-16 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto flex flex-col items-center text-center">
+      <section className="relative overflow-hidden pt-8 pb-10 sm:pt-14 sm:pb-14 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto flex flex-col items-center text-center">
         
-        {/* Shimmer Border Pill */}
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white dark:bg-[#18181b] border border-blue-500/30 text-blue-600 dark:text-blue-400 text-xs font-medium shadow-sm mb-4">
-          <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400 animate-pulse" />
-          <span>Autonomous AWS Intelligence</span>
+        {/* Animated Moving Lightning Shimmer Border Pill (No blinking dot) */}
+        <div className="relative p-[1.5px] rounded-full overflow-hidden inline-flex mb-5 shadow-sm">
+          <div className="absolute inset-[-100%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#2563eb_0%,#38bdf8_40%,#10b981_70%,#2563eb_100%)]" />
+          <div className="relative px-4 py-1.5 rounded-full bg-white dark:bg-[#121216] text-blue-600 dark:text-blue-400 text-xs font-semibold tracking-wide flex items-center gap-1.5">
+            <Zap className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+            <span>Autonomous AWS Intelligence</span>
+          </div>
         </div>
 
-        {/* Clean Responsive Heading */}
-        <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 dark:text-zinc-100 tracking-tight leading-[1.15] max-w-4xl">
+        {/* Crisp High-Impact Heading */}
+        <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 dark:text-zinc-100 tracking-tight leading-[1.15] max-w-3xl">
           AWS updates without noise. <br className="hidden sm:inline" />
-          Scored by <span className="text-blue-600 dark:text-blue-400">Bedrock Claude</span> &amp; Voice with <span className="text-indigo-600 dark:text-indigo-400">Dori</span>.
+          Scored by <span className="text-blue-600 dark:text-blue-400">Bedrock</span>. Spoken by <span className="text-indigo-600 dark:text-indigo-400">Dori</span>.
         </h1>
 
-        {/* Subtitle */}
-        <p className="mt-3.5 sm:mt-5 text-xs sm:text-sm md:text-base text-slate-600 dark:text-zinc-400 max-w-2xl mx-auto leading-relaxed font-normal">
-          An autonomous agent continuously monitors hundreds of AWS release feeds, eliminates duplicate marketing noise via SHA-256 hashing, ranks architectural importance on a 5-pillar scale, and speaks live daily briefings.
+        {/* Clean, Concise Subtitle */}
+        <p className="mt-3.5 sm:mt-4 text-xs sm:text-sm md:text-base text-slate-600 dark:text-zinc-400 max-w-xl mx-auto leading-relaxed font-normal">
+          Autonomous 24/7 cloud intelligence. Ingests feeds, eliminates duplicate noise via SHA-256 hashing, and delivers hands-free voice briefings.
         </p>
 
         {/* Action Button Grid */}
         <div className="mt-6 flex flex-wrap items-center justify-center gap-2.5 sm:gap-3.5 w-full max-w-md">
           <Link
             to="/dashboard"
-            className="w-full sm:w-auto px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs sm:text-sm font-medium shadow-sm flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+            className="w-full sm:w-auto px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs sm:text-sm font-medium shadow-sm flex items-center justify-center gap-1.5 transition-all cursor-pointer active:scale-98"
           >
             <span>Open Command Hub</span>
             <ArrowUpRight className="w-3.5 h-3.5" />
@@ -103,7 +105,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
         </div>
 
         {/* ── Dori Voice Copilot Centered ── */}
-        <div className="mt-8 sm:mt-12 flex flex-col items-center justify-center relative z-20 w-full">
+        <div className="mt-8 sm:mt-10 flex flex-col items-center justify-center relative z-20 w-full">
           <DoriCompanion
             size="hero"
             showSpeechBubble={true}
@@ -117,7 +119,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
           <div className="flex items-center gap-2.5">
             <span className="w-2 h-2 rounded-full bg-[#00d294] animate-pulse" />
             <span className="font-semibold text-slate-900 dark:text-zinc-100">Live Agent Pipeline:</span>
-            <span className="text-slate-500 dark:text-zinc-400">Autonomous 24/7 Ingestion &amp; Bedrock Scoring</span>
+            <span className="text-slate-500 dark:text-zinc-400">Autonomous Ingestion &amp; Bedrock Scoring</span>
           </div>
 
           <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-[11px] text-slate-600 dark:text-zinc-400 font-mono">
