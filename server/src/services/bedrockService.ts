@@ -123,9 +123,24 @@ Respond strictly with a valid JSON object matching this schema:
   return JSON.parse(jsonMatch[0]) as BedrockAnalysisResult;
 }
 
+function normalizeSpeechQuery(query: string): string {
+  return query
+    .replace(/\b(ec two|ec 2|easy to|ec-2)\b/gi, 'EC2')
+    .replace(/\b(s three|s 3|s-3)\b/gi, 'S3')
+    .replace(/\b(bed rock|bad rock|bed-rock)\b/gi, 'Bedrock')
+    .replace(/\b(dynamo db|dynamodb|dynamo)\b/gi, 'DynamoDB')
+    .replace(/\b(cloud watch|cloudwatch)\b/gi, 'CloudWatch')
+    .replace(/\b(cloud front|cloudfront)\b/gi, 'CloudFront')
+    .replace(/\b(cloud formation|cloudformation)\b/gi, 'CloudFormation')
+    .replace(/\b(sage maker|sagemaker)\b/gi, 'SageMaker')
+    .replace(/\b(re post|repost|re:post)\b/gi, 're:Post')
+    .replace(/\b(i am|iam)\b/gi, 'IAM')
+    .trim();
+}
+
 /**
  * Real-time grounded Question Answering with Dori & Amazon Bedrock.
- * Handles conversational queries naturally and grounds technical queries in AWS telemetry.
+ * Handles conversational queries naturally and grounds technical queries in accurate AWS telemetry.
  */
 export async function askDoriQuestion(
   question: string,
@@ -133,58 +148,81 @@ export async function askDoriQuestion(
   topics: CommunityTopic[],
   history?: Array<{ role: 'user' | 'assistant'; content: string }>
 ): Promise<{ answer: string; relevantSignals: AWSSignal[] }> {
-  const q = question.toLowerCase().trim();
+  const normalizedQuery = normalizeSpeechQuery(question);
+  const q = normalizedQuery.toLowerCase().trim();
 
-  // 1. Natural Conversational Queries & Greetings (Instant Response)
-  if (q.includes('can you hear me') || q.includes('hear me') || q.includes('are you there') || q.includes('test')) {
+  // 1. Exact Single-Word Conversational Queries & Greetings
+  if (q === 'can you hear me' || q === 'hear me' || q === 'are you there' || q === 'test') {
     return {
-      answer: "Yes, I can hear you loud and clear! I'm Dori, your AWS cloud intelligence specialist. What AWS service or release would you like to explore?",
+      answer: "Yes! I can hear you loud and clear! What AWS service or cloud release should we discuss?",
       relevantSignals: [],
     };
   }
 
-  if (q.startsWith('hi') || q.startsWith('hello') || q.startsWith('hey') || q === 'good morning' || q === 'good evening') {
+  if (q === 'hi' || q === 'hello' || q === 'hey' || q === 'good morning' || q === 'good evening') {
     return {
-      answer: "Hello builder! I'm Dori. I'm actively tracking all the latest AWS release feeds, re:Post discussions, and architectural blogs. What's on your mind?",
+      answer: "Hi builder! I'm Dori, your AI cloud intelligence specialist. What AWS service or release are you curious about today?",
       relevantSignals: [],
     };
   }
 
-  if (q.includes('who are you') || q.includes('what are you') || q.includes('what do you do') || q.includes('help me')) {
+  if (q === 'who are you' || q === 'what are you' || q === 'what do you do') {
     return {
-      answer: "I'm Dori, an autonomous AWS intelligence agent powered by Amazon Bedrock. I monitor hundreds of cloud feeds, strip duplicate noise, and deliver personalized briefings for your architecture.",
+      answer: "I'm Dori, an autonomous AWS intelligence agent powered by Amazon Bedrock! I monitor hundreds of cloud feeds, strip duplicate noise, and deliver personalized briefings.",
       relevantSignals: [],
     };
   }
   
-  // 2. Search and rank matching signals
+  // 2. Intelligent Service & Keyword Matching
+  const queryTokens = q.split(/\s+/).filter(t => t.length > 2);
+  
   const matchedSignals = signals.filter(s => {
-    return (
-      s.title.toLowerCase().includes(q) ||
-      s.summary.toLowerCase().includes(q) ||
-      s.aws_services.some(srv => q.includes(srv.toLowerCase()) || srv.toLowerCase().includes(q)) ||
-      s.category.toLowerCase().includes(q)
+    const titleLower = s.title.toLowerCase();
+    const summaryLower = s.summary.toLowerCase();
+    const servicesLower = s.aws_services.map(srv => srv.toLowerCase());
+    const categoryLower = s.category.toLowerCase();
+
+    // Check direct normalized match
+    if (
+      titleLower.includes(q) ||
+      summaryLower.includes(q) ||
+      servicesLower.some(srv => q.includes(srv) || srv.includes(q)) ||
+      categoryLower.includes(q)
+    ) {
+      return true;
+    }
+
+    // Check token match
+    return queryTokens.some(token => 
+      titleLower.includes(token) || 
+      summaryLower.includes(token) || 
+      servicesLower.some(srv => srv.includes(token))
     );
   }).slice(0, 3);
 
-  const fallbackSignals = matchedSignals.length > 0 ? matchedSignals : signals.slice(0, 3);
-
-  const contextSnippet = fallbackSignals.map((s, idx) => 
-    `[Signal ${idx + 1}] Title: ${s.title}\nServices: ${s.aws_services.join(', ')}\nSummary: ${s.summary}\nWhy it matters: ${s.why_it_matters.why_it_matters}`
-  ).join('\n\n');
+  // If specific match found, use those signals. Otherwise, do NOT pass unrelated signals.
+  let contextSnippet = '';
+  if (matchedSignals.length > 0) {
+    contextSnippet = matchedSignals.map((s, idx) => 
+      `[Signal ${idx + 1}] Title: ${s.title}\nServices: ${s.aws_services.join(', ')}\nCategory: ${s.category}\nSummary: ${s.summary}\nWhy it matters: ${s.why_it_matters.why_it_matters}`
+    ).join('\n\n');
+  } else {
+    contextSnippet = `No specific news item logged for "${normalizedQuery}" in the latest scan, but answer the developer's question directly about "${normalizedQuery}" using official AWS architecture and best practices.`;
+  }
 
   const systemInstructions = `You are Dori, an energetic, super cheerful, cute, and brilliant AI cloud specialist for AWS Signal!
-Developer asks: "${question}".
+Developer asks: "${normalizedQuery}".
 
-Verified AWS Intelligence:
+AWS Context & Intelligence:
 ${contextSnippet}
 
-EXPRESSIVE STYLE & INSTRUCTIONS:
-1. Speak with enthusiastic, cheerful, and delightful cloud engineering energy (e.g. "Ooh! That's exciting!", "Aha!", "Yay! Let's break this down!").
-2. Answer in 1 to 2 crisp, high-impact spoken sentences explaining what changed and the practical developer win.
-3. If this is a follow-up in the chat, smoothly connect to what was discussed before.
-4. NO markdown symbols, asterisks, bullet points, or URLs.
-5. Sound warm, adorable, and extremely smart!`;
+STRICT GUARDRAILS & INSTRUCTIONS:
+1. Answer the developer's question specifically about "${normalizedQuery}". If they asked about EC2, answer about EC2. If they asked about S3, answer about S3. NEVER substitute with unrelated services.
+2. Speak with enthusiastic, cheerful, and delightful cloud engineering energy.
+3. Answer in 1 to 2 crisp, high-impact spoken sentences explaining what they need to know.
+4. If this is a follow-up in the chat, maintain continuity.
+5. NO markdown symbols, asterisks, bullet points, or URLs.
+6. Sound warm, adorable, and extremely smart!`;
 
   try {
     const formattedHistory = (history || [])
@@ -221,18 +259,18 @@ EXPRESSIVE STYLE & INSTRUCTIONS:
 
     return {
       answer,
-      relevantSignals: fallbackSignals,
+      relevantSignals: matchedSignals,
     };
   } catch (err: any) {
     console.warn('Bedrock ask Dori fallback:', err.message);
-    const primary = fallbackSignals[0];
+    const primary = matchedSignals[0];
     const answer = primary 
       ? `Regarding ${primary.aws_services.join(' and ')}: ${primary.summary} The key developer impact is that it ${primary.why_it_matters.why_it_matters.toLowerCase()}`
-      : `I've checked our live AWS feeds. We're actively tracking hundreds of releases across Amazon Bedrock, AWS Lambda, ECS, and DynamoDB with zero deduplication noise.`;
+      : `I've checked our live AWS telemetry matrix. We're actively tracking all releases across ${normalizedQuery}, Lambda, S3, and Bedrock with zero deduplication noise!`;
 
     return {
       answer,
-      relevantSignals: fallbackSignals,
+      relevantSignals: matchedSignals,
     };
   }
 }
