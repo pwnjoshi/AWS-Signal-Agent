@@ -1,5 +1,5 @@
 import React from 'react';
-import { Play, RefreshCw, Bell, Search, UserCheck } from 'lucide-react';
+import { Play, RefreshCw, Bell, Search, UserCheck, Layout, Sparkles } from 'lucide-react';
 import { Logo } from './Logo';
 import { UserProfile } from '../types/clientTypes';
 
@@ -11,6 +11,7 @@ interface HeaderProps {
   onOpenSettings?: () => void;
   userProfile?: UserProfile | null;
   onOpenAuthModal?: () => void;
+  onToggleLanding?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -21,6 +22,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenSettings,
   userProfile,
   onOpenAuthModal,
+  onToggleLanding,
 }) => {
   return (
     <header className="h-16 bg-white border-b border-slate-200 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs">
@@ -44,6 +46,16 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Action Controls & Agent Status */}
       <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        {/* Landing Page Quick Toggle */}
+        <button
+          onClick={onToggleLanding}
+          className="hidden md:flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-full text-xs font-bold transition-all border border-slate-200"
+          title="Switch to Landing Showcase Page"
+        >
+          <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+          <span>Showcase</span>
+        </button>
+
         {/* AWS Builder ID Profile Badge */}
         <button
           onClick={onOpenAuthModal}

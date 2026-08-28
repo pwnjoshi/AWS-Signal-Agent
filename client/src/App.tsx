@@ -130,7 +130,25 @@ export function App() {
   };
 
   if (showLanding) {
-    return <LandingPage onGetStarted={() => setShowLanding(false)} />;
+    return (
+      <>
+        <LandingPage 
+          onGetStarted={() => setShowLanding(false)} 
+          onOpenAuthModal={() => setShowAuthModal(true)}
+        />
+        {showAuthModal && (
+          <BuilderIdAuthModal
+            currentProfile={userProfile}
+            onClose={() => setShowAuthModal(false)}
+            onSuccess={(profile) => {
+              setUserProfile(profile);
+              setShowLanding(false);
+              loadAllData();
+            }}
+          />
+        )}
+      </>
+    );
   }
 
   const savedSignalsCount = signals.filter(s => s.is_saved).length;
@@ -168,6 +186,7 @@ export function App() {
           onOpenSettings={() => setShowAlertSettings(true)}
           userProfile={userProfile}
           onOpenAuthModal={() => setShowAuthModal(true)}
+          onToggleLanding={() => setShowLanding(true)}
         />
 
         <main className="p-4 sm:p-6 md:p-8 pb-24 md:pb-8 max-w-7xl mx-auto w-full flex-1">
