@@ -11,7 +11,6 @@ export const NotFoundPage: React.FC = () => {
       {/* Background Particle Mesh & Grid */}
       <div className="fixed inset-0 pointer-events-none -z-10">
         <div className="absolute inset-0 site-main-grid opacity-30" />
-        <div className="site-gradient-glows" />
         <ParticleBackground />
       </div>
 
@@ -22,7 +21,7 @@ export const NotFoundPage: React.FC = () => {
         </Link>
         <Link
           to="/dashboard"
-          className="px-5 py-2 btn-geu-primary text-white rounded-full font-mono text-xs font-bold uppercase shadow-purple-glow transition-all"
+          className="px-4 py-2 bg-primary hover:bg-primary-container text-white rounded-lg font-mono text-xs font-bold uppercase shadow-sm transition-all"
         >
           Launch Hub
         </Link>
@@ -30,15 +29,15 @@ export const NotFoundPage: React.FC = () => {
 
       {/* Main 404 Hero */}
       <main className="max-w-3xl mx-auto px-6 py-16 text-center space-y-6 relative z-10 font-mono">
-        <div className="w-20 h-20 rounded-3xl bg-primary/15 border border-primary/30 mx-auto flex items-center justify-center text-primary shadow-purple-glow">
-          <Compass className="w-10 h-10 animate-spin" style={{ animationDuration: '10s' }} />
+        <div className="w-16 h-16 rounded-xl bg-surface-low border border-outline mx-auto flex items-center justify-center text-primary shadow-sm">
+          <Compass className="w-8 h-8" />
         </div>
 
         <div className="space-y-2">
-          <span className="text-xs font-bold text-[#fe9800] dark:text-secondary uppercase tracking-widest block">
+          <span className="text-xs font-bold text-[#fe9800] uppercase tracking-widest block">
             404 • SIGNAL LOST
           </span>
-          <h1 className="text-4xl sm:text-6xl font-black font-display text-on-background tracking-tight uppercase">
+          <h1 className="text-3xl sm:text-5xl font-black font-display text-on-background tracking-tight uppercase">
             Out of Orbit
           </h1>
           <p className="text-on-surface-variant text-xs sm:text-sm max-w-md mx-auto leading-relaxed font-mono">
@@ -49,7 +48,7 @@ export const NotFoundPage: React.FC = () => {
         <div className="pt-4 flex flex-wrap items-center justify-center gap-3">
           <Link
             to="/dashboard"
-            className="inline-flex items-center gap-2 px-6 py-3 btn-geu-primary text-white rounded-xl text-xs font-bold uppercase shadow-purple-glow transition-all active:scale-95"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary hover:bg-primary-container text-white rounded-lg text-xs font-bold uppercase shadow-sm transition-all active:scale-98"
           >
             <Radio className="w-4 h-4" />
             <span>Return to Command Hub</span>
@@ -57,7 +56,7 @@ export const NotFoundPage: React.FC = () => {
 
           <Link
             to="/"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-surface hover:bg-surface-container text-on-background border border-outline rounded-xl text-xs font-bold uppercase transition-all"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-surface hover:bg-surface-container text-on-background border border-outline rounded-lg text-xs font-bold uppercase transition-all"
           >
             <Home className="w-4 h-4 text-primary" />
             <span>Showcase Home</span>
@@ -66,8 +65,8 @@ export const NotFoundPage: React.FC = () => {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-outline py-8 text-center text-xs text-on-surface-variant font-mono relative z-10">
-        AWS Signal • AWS Student Builder Group Graphic Era University
+      <footer className="border-t border-outline py-6 text-center text-xs text-on-surface-variant font-mono relative z-10">
+        © {new Date().getFullYear()} AWS Signal • Autonomous Cloud Intelligence Platform
       </footer>
 
     </div>

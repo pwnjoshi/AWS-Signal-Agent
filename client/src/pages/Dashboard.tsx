@@ -8,7 +8,7 @@ import {
 import { WhileYouWereAway } from '../components/WhileYouWereAway';
 import { SignalCard } from '../components/SignalCard';
 import { TrendCard } from '../components/TrendCard';
-import { Sparkles, ArrowRight, Zap, Target, BookOpen, ShieldCheck, Radio, Flame, Cpu, CheckCircle2, Activity } from 'lucide-react';
+import { Sparkles, ArrowRight, Zap, Target, BookOpen, ShieldCheck, Radio, Flame, Cpu, CheckCircle2, Activity, FlaskConical, MessageSquare } from 'lucide-react';
 
 interface DashboardProps {
   summary: WhileYouWereAwaySummary | null;
@@ -41,17 +41,17 @@ export const Dashboard: React.FC<DashboardProps> = ({
         <div>
           <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-md bg-surface-low border border-outline text-primary text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-2">
             <span className="w-1.5 h-1.5 rounded-full bg-[#00d294]" />
-            <span>AWS Student Builder Group GEU</span>
+            <span>Autonomous Intelligence Matrix</span>
           </div>
           <h1 className="text-xl sm:text-2xl font-black font-display text-on-background tracking-tight uppercase">
             AWS Signal Command Center
           </h1>
           <p className="text-on-surface-variant text-xs sm:text-sm mt-1 font-sans">
-            Real-time serverless telemetry, SHA-256 content deduplication, and Amazon Bedrock multi-metric ranking.
+            Real-time cloud telemetry, SHA-256 content deduplication, and Amazon Bedrock multi-metric ranking.
           </p>
         </div>
 
-        {/* Quick Ticker Badge */}
+        {/* Quick Deduplication Badge */}
         <div className="flex items-center gap-3 bg-surface-low border border-outline px-3.5 py-2.5 rounded-lg shrink-0">
           <ShieldCheck className="w-6 h-6 text-[#00d294] shrink-0" />
           <div>
@@ -69,7 +69,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         <div className="bg-surface border border-outline rounded-xl p-5 sm:p-6 shadow-sm font-mono transition-colors">
           <div className="flex items-center justify-between gap-2 mb-3 pb-3 border-b border-outline">
             <span className="text-xs font-bold text-primary uppercase tracking-wider flex items-center gap-1.5">
-              <Sparkles className="w-3.5 h-3.5 text-primary" />
+              <Zap className="w-3.5 h-3.5 text-primary" />
               TOP SIGNAL OF THE DAY
             </span>
             <span className="text-xs text-on-surface-variant font-mono">
@@ -159,7 +159,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         {briefing?.try_today && (
           <div className="space-y-2.5 font-mono">
             <h2 className="text-xs sm:text-sm font-bold text-on-background flex items-center gap-2 uppercase tracking-wide">
-              <span>🧪</span>
+              <FlaskConical className="w-4 h-4 text-[#00d294]" />
               <span>10-Minute Practical Lab</span>
             </h2>
 

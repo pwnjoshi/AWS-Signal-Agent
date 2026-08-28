@@ -1,5 +1,5 @@
 import React from 'react';
-import { Filter, SlidersHorizontal, ArrowUpDown } from 'lucide-react';
+import { Filter, SlidersHorizontal, ArrowUpDown, Bookmark } from 'lucide-react';
 
 interface SearchFilterBarProps {
   category: string;
@@ -29,7 +29,7 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
   signalCount,
 }) => {
   return (
-    <div className="bg-surface rounded-2xl border border-outline p-4 mb-6 space-y-3 shadow-sm font-mono transition-colors">
+    <div className="bg-surface rounded-xl border border-outline p-3.5 mb-5 space-y-3 shadow-sm font-mono transition-colors">
       <div className="flex flex-wrap items-center justify-between gap-3">
         {/* Filters Group */}
         <div className="flex flex-wrap items-center gap-2">
@@ -37,7 +37,7 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="bg-surface-low border border-outline rounded-xl px-3 py-1.5 text-xs font-semibold text-on-background focus:outline-none focus:ring-2 focus:ring-primary"
+            className="bg-surface-low border border-outline rounded-lg px-3 py-1.5 text-xs font-semibold text-on-background focus:outline-none focus:ring-1 focus:ring-primary"
           >
             <option value="">All Categories</option>
             <option value="Announcement">Announcements</option>
@@ -51,7 +51,7 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
           <select
             value={service}
             onChange={(e) => setService(e.target.value)}
-            className="bg-surface-low border border-outline rounded-xl px-3 py-1.5 text-xs font-semibold text-on-background focus:outline-none focus:ring-2 focus:ring-primary"
+            className="bg-surface-low border border-outline rounded-lg px-3 py-1.5 text-xs font-semibold text-on-background focus:outline-none focus:ring-1 focus:ring-primary"
           >
             <option value="">All AWS Services</option>
             <option value="Amazon Bedrock">Amazon Bedrock</option>
@@ -66,7 +66,7 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
           <select
             value={source}
             onChange={(e) => setSource(e.target.value)}
-            className="bg-surface-low border border-outline rounded-xl px-3 py-1.5 text-xs font-semibold text-on-background focus:outline-none focus:ring-2 focus:ring-primary"
+            className="bg-surface-low border border-outline rounded-lg px-3 py-1.5 text-xs font-semibold text-on-background focus:outline-none focus:ring-1 focus:ring-primary"
           >
             <option value="">All Public Sources</option>
             <option value="AWS What's New">AWS What's New</option>
@@ -78,13 +78,14 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
           {/* Saved Toggle */}
           <button
             onClick={() => setSavedOnly(!savedOnly)}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border cursor-pointer flex items-center gap-1.5 ${
               savedOnly
-                ? 'bg-[#fe6e00]/15 text-[#fe9800] dark:text-[#ffc080] border-[#fe6e00]/50'
+                ? 'bg-[#fe6e00]/15 text-[#fe9800] border-[#fe6e00]/40'
                 : 'bg-surface-low text-on-surface-variant border-outline hover:bg-surface-container hover:text-on-background'
             }`}
           >
-            {savedOnly ? '★ Saved Only' : 'Saved Filter'}
+            <Bookmark className={`w-3 h-3 ${savedOnly ? 'fill-[#fe9800]' : ''}`} />
+            <span>{savedOnly ? 'Saved Only' : 'Saved Filter'}</span>
           </button>
         </div>
 
@@ -94,7 +95,7 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
             Showing <strong className="text-on-background">{signalCount}</strong> signals
           </span>
 
-          <div className="flex items-center gap-1.5 bg-surface-low border border-outline rounded-xl px-2.5 py-1">
+          <div className="flex items-center gap-1.5 bg-surface-low border border-outline rounded-lg px-2.5 py-1">
             <ArrowUpDown className="w-3.5 h-3.5 text-on-surface-variant" />
             <select
               value={sort}

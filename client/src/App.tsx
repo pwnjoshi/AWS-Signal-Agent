@@ -415,16 +415,16 @@ function AppRoutes() {
               <div className="space-y-6">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 font-mono">
                   <div>
-                    <h1 className="text-xl sm:text-2xl font-black text-on-background font-display uppercase tracking-tight">
-                      ✉ Intelligent SES Alert History
+                    <h1 className="text-xl sm:text-2xl font-black text-on-background font-display uppercase tracking-tight flex items-center gap-2">
+                      <span>Intelligent SES Alert History</span>
                     </h1>
                     <p className="text-on-surface-variant text-xs sm:text-sm mt-1">
-                      Signals that triggered high-priority automated email alerts to {userProfile?.builder_id || 'your Builder ID profile'}.
+                      Signals that triggered high-priority automated email alerts to {userProfile?.builder_id || 'your profile'}.
                     </p>
                   </div>
                   <button
                     onClick={() => setShowAlertSettings(true)}
-                    className="btn-geu-primary text-white px-4 py-2 rounded-xl text-xs font-bold shadow-purple-glow cursor-pointer"
+                    className="bg-primary hover:bg-primary-container text-white px-4 py-2 rounded-lg text-xs font-bold shadow-sm cursor-pointer"
                   >
                     Alert Settings
                   </button>

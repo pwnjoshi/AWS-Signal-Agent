@@ -24,9 +24,14 @@ import {
   Mail, 
   Users, 
   Database,
-  Flame
+  Flame,
+  Brain,
+  Clock,
+  FlaskConical,
+  Scale,
+  Target
 } from 'lucide-react';
-import { GEUNavbar } from './GEUNavbar';
+import { GEUNavbar as Navbar } from './GEUNavbar';
 import { ParticleBackground } from './ParticleBackground';
 import { DoriCompanion } from './DoriCompanion';
 import { useTheme } from '../context/ThemeContext';
@@ -88,7 +93,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
       return;
     }
 
-    const textToSpeak = `Good morning AWS builders! This is Dori, your autonomous cloud intelligence companion. In the last 24 hours across the AWS cloud matrix: 247 announcements ingested, 18 high-relevance updates identified, and 4 critical signals flagged for your architecture. Lambda SnapStart latency reduced by 90%, Amazon Bedrock cross-region inference profiles activated, and zero duplicate signals in your deduplication vault. Stay informed and happy building!`;
+    const textToSpeak = `Good morning builders! This is Dori, your autonomous cloud intelligence companion. In the last 24 hours across the AWS cloud matrix: 247 announcements ingested, 18 high-relevance updates identified, and 4 critical signals flagged for your architecture. Lambda SnapStart latency reduced by 90%, Amazon Bedrock cross-region inference profiles activated, and zero duplicate signals in your deduplication vault. Stay informed and happy building!`;
 
     const utterance = new SpeechSynthesisUtterance(textToSpeak);
     utterance.rate = 1.05;
@@ -108,18 +113,18 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
         <ParticleBackground />
       </div>
 
-      {/* Capsule Navigation */}
-      <GEUNavbar onOpenAuthModal={onOpenAuthModal} onLaunchDashboard={onGetStarted} />
+      {/* Standalone Navigation */}
+      <Navbar onOpenAuthModal={onOpenAuthModal} onLaunchDashboard={onGetStarted} />
 
       {/* ── Section 1: Hero Section ── */}
       <section id="home" className="relative pt-28 sm:pt-36 pb-16 sm:pb-24 min-h-[85vh] flex items-center justify-center">
 
         <div className="max-w-5xl mx-auto px-4 sm:px-6 text-center space-y-7 relative z-10">
           
-          {/* Active Builder Status Badge */}
-          <div className="inline-flex items-center gap-2.5 px-3.5 py-1 rounded-lg bg-surface border border-outline shadow-sm font-mono text-xs text-on-surface-variant hover:border-primary/40 transition-all">
+          {/* Standalone Status Badge */}
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-lg bg-surface border border-outline shadow-sm font-mono text-xs text-on-surface-variant hover:border-primary/40 transition-all">
             <span className="w-2 h-2 rounded-full bg-[#00d294]" />
-            <span className="font-bold text-on-background">800+ Active Builders • GEU</span>
+            <span className="font-bold text-on-background">Autonomous Cloud Intelligence</span>
             <span className="text-outline">•</span>
             <span className="text-primary font-bold">AWS Signal 2.0</span>
           </div>
@@ -137,7 +142,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
             </h1>
 
             <p className="max-w-2xl mx-auto text-xs sm:text-sm text-on-surface-variant leading-relaxed font-sans">
-              An autonomous cloud intelligence agent powered by Amazon Bedrock. AWS Signal monitors hundreds of release feeds, analyzes developer friction on re:Post, and delivers personalized audio briefings before breaking your stack.
+              An autonomous cloud intelligence platform powered by Amazon Bedrock. AWS Signal monitors hundreds of release feeds, analyzes developer friction on re:Post, and delivers personalized audio briefings before breaking your stack.
             </p>
           </div>
 
@@ -186,9 +191,18 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
           </div>
 
           <div className="flex flex-wrap items-center gap-5 text-[11px] text-on-surface-variant">
-            <span>⚡ Deduplication: <strong className="text-on-background font-bold">SHA-256 Memory</strong></span>
-            <span>🧠 Model: <strong className="text-primary font-bold">Amazon Bedrock Claude 3.5</strong></span>
-            <span>⏱ Interval: <strong className="text-[#fe9800] font-bold">EventBridge Cron</strong></span>
+            <span className="flex items-center gap-1.5">
+              <Zap className="w-3.5 h-3.5 text-primary" />
+              <span>Deduplication: <strong className="text-on-background font-bold">SHA-256 Memory</strong></span>
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Brain className="w-3.5 h-3.5 text-primary" />
+              <span>Model: <strong className="text-primary font-bold">Amazon Bedrock Claude 3.5</strong></span>
+            </span>
+            <span className="flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5 text-[#fe9800]" />
+              <span>Interval: <strong className="text-[#fe9800] font-bold">EventBridge Cron</strong></span>
+            </span>
           </div>
         </div>
       </section>
@@ -362,56 +376,48 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
         </div>
       </section>
 
-      {/* ── Section 5: Leadership Roster ── */}
-      <section className="py-16 sm:py-24 border-t border-outline">
+      {/* ── Section 5: Core Engineering Pillars ── */}
+      <section id="architecture" className="py-16 sm:py-24 border-t border-outline">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
           
           <div className="text-center space-y-2 font-mono">
             <span className="text-xs font-bold text-primary uppercase tracking-widest block">
-              Graphic Era University Chapter
+              Architecture & Capabilities
             </span>
             <h2 className="text-2xl sm:text-3xl font-black font-display text-on-background tracking-tight uppercase">
-              Founded & Driven by Builders
+              Engineered for Modern Cloud Teams
             </h2>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-2 gap-4 max-w-2xl mx-auto">
-            {/* Faculty Lead */}
-            <div className="group relative rounded-xl overflow-hidden border border-outline bg-surface aspect-[3/4] shadow-sm">
-              <img 
-                src="/faculty/dr_amit_kumar.jpg" 
-                alt="Dr. Amit Kumar" 
-                className="absolute inset-0 w-full h-full object-cover object-[center_15%]"
-                onError={(e: any) => { e.target.src = 'https://images.unsplash.com/photo-1568602471122-7832951cc4c5?auto=format&fit=crop&q=80&w=800'; }}
-              />
-              <div className="absolute bottom-0 inset-x-0 h-1/2 bg-gradient-to-t from-black/95 via-black/50 to-transparent pointer-events-none" />
-              <div className="absolute bottom-0 left-0 w-full p-3 flex flex-col justify-end font-mono">
-                <span className="text-[8px] font-bold text-primary uppercase tracking-wider bg-black/60 px-1.5 py-0.5 rounded w-fit mb-0.5">
-                  Faculty Lead
-                </span>
-                <h3 className="text-xs sm:text-sm font-bold text-white uppercase tracking-tight truncate">
-                  Dr. Amit Kumar
-                </h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            <div className="p-6 rounded-xl bg-surface border border-outline shadow-sm space-y-3 font-mono">
+              <div className="w-10 h-10 rounded-lg bg-surface-low border border-outline flex items-center justify-center text-primary">
+                <Cpu className="w-5 h-5" />
               </div>
+              <h3 className="text-base font-bold text-on-background uppercase font-display">Serverless Autonomous Agent</h3>
+              <p className="text-xs text-on-surface-variant leading-relaxed font-sans">
+                Runs 24/7 on AWS Lambda, EventBridge Scheduler, and Amazon DynamoDB with zero idle container costs.
+              </p>
             </div>
 
-            {/* Group Lead */}
-            <div className="group relative rounded-xl overflow-hidden border border-outline bg-surface aspect-[3/4] shadow-sm">
-              <img 
-                src="/team/pawan_joshi.jpg" 
-                alt="Pawan Joshi" 
-                className="absolute inset-0 w-full h-full object-cover object-[center_15%]"
-                onError={(e: any) => { e.target.src = 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=800'; }}
-              />
-              <div className="absolute bottom-0 inset-x-0 h-1/2 bg-gradient-to-t from-black/95 via-black/50 to-transparent pointer-events-none" />
-              <div className="absolute bottom-0 left-0 w-full p-3 flex flex-col justify-end font-mono">
-                <span className="text-[8px] font-bold text-primary uppercase tracking-wider bg-black/60 px-1.5 py-0.5 rounded w-fit mb-0.5">
-                  Student Lead
-                </span>
-                <h3 className="text-xs sm:text-sm font-bold text-white uppercase tracking-tight truncate">
-                  Pawan Joshi
-                </h3>
+            <div className="p-6 rounded-xl bg-surface border border-outline shadow-sm space-y-3 font-mono">
+              <div className="w-10 h-10 rounded-lg bg-surface-low border border-outline flex items-center justify-center text-[#fe9800]">
+                <ShieldCheck className="w-5 h-5" />
               </div>
+              <h3 className="text-base font-bold text-on-background uppercase font-display">Cryptographic Deduplication</h3>
+              <p className="text-xs text-on-surface-variant leading-relaxed font-sans">
+                SHA-256 content hashing guarantees you never read duplicate release updates or syndicated press releases.
+              </p>
+            </div>
+
+            <div className="p-6 rounded-xl bg-surface border border-outline shadow-sm space-y-3 font-mono">
+              <div className="w-10 h-10 rounded-lg bg-surface-low border border-outline flex items-center justify-center text-[#00d294]">
+                <Volume2 className="w-5 h-5" />
+              </div>
+              <h3 className="text-base font-bold text-on-background uppercase font-display">Audio Voice Synthesizer</h3>
+              <p className="text-xs text-on-surface-variant leading-relaxed font-sans">
+                Dori's built-in neural speech engine reads out executive morning digests so you can listen hands-free.
+              </p>
             </div>
           </div>
 
@@ -425,7 +431,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
           <div className="py-6 border-b border-outline flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div>
               <p className="text-xs font-bold text-primary uppercase tracking-wider mb-1">
-                AWS Student Builder Group • GEU Chapter
+                AWS Signal Intelligence Platform
               </p>
               <h2 className="text-xl sm:text-3xl font-black text-on-background uppercase tracking-tight">
                 Build. Ship. Stay Ahead.
@@ -442,8 +448,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
           </div>
 
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-on-surface-variant">
-            <span>© {new Date().getFullYear()} AWS Student Builder Group at Graphic Era University</span>
-            <span>Founded &amp; Led by <strong className="text-on-background">Pawan Joshi</strong></span>
+            <span>© {new Date().getFullYear()} AWS Signal • Autonomous Cloud Intelligence Platform</span>
+            <span>All AWS Trademarks belong to Amazon Web Services, Inc.</span>
           </div>
 
         </div>
