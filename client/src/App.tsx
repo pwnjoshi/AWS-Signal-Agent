@@ -42,6 +42,22 @@ import { SignalCard } from './components/SignalCard';
 import { ThemeProvider } from './context/ThemeContext';
 import { Bookmark, KeyRound, ArrowRight } from 'lucide-react';
 
+import { useLocation } from 'react-router-dom';
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: 'instant' as ScrollBehavior,
+    });
+  }, [pathname]);
+
+  return null;
+}
+
 function SignalDirectRoute({
   signals,
   onOpenDetail,
@@ -95,7 +111,7 @@ function MainLayout({
   setGlobalSearch: (val: string) => void;
 }) {
   return (
-    <div className="min-h-screen flex bg-slate-50 dark:bg-[#09090b] text-slate-900 dark:text-zinc-100 font-sans transition-colors">
+    <div className="min-h-screen flex bg-slate-50 dark:bg-[#09090b] text-slate-900 dark:text-zinc-100 font-sans transition-colors overflow-x-hidden">
       {/* Desktop Sidebar */}
       <Sidebar
         savedCount={savedCount}
@@ -117,7 +133,7 @@ function MainLayout({
           onOpenAuthModal={onOpenAuthModal}
         />
 
-        <main className="p-4 sm:p-6 md:p-8 pb-24 md:pb-8 max-w-7xl mx-auto w-full flex-1">
+        <main className="p-3.5 sm:p-6 md:p-8 pb-32 md:pb-12 max-w-7xl mx-auto w-full flex-1">
           {children}
         </main>
       </div>
@@ -566,6 +582,7 @@ export function App() {
   return (
     <ThemeProvider>
       <BrowserRouter>
+        <ScrollToTop />
         <AppRoutes />
       </BrowserRouter>
     </ThemeProvider>
