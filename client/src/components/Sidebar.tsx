@@ -132,19 +132,33 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </button>
 
         {/* AWS Builder ID Profile Chip */}
-        <div 
-          onClick={onOpenAuthModal}
-          className="pt-2.5 border-t border-slate-200 dark:border-zinc-800 mt-1.5 flex items-center gap-2.5 px-2 cursor-pointer hover:bg-slate-100 dark:hover:bg-[#18181b] rounded-lg p-2 transition-colors border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-[#18181b]"
-          title="Manage AWS Builder ID profile"
-        >
-          <div className="w-8 h-8 rounded-md bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 flex items-center justify-center font-medium text-blue-600 dark:text-blue-400 text-xs shrink-0">
-            <UserCheck className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+        {userProfile?.is_authenticated ? (
+          <div 
+            onClick={onOpenAuthModal}
+            className="pt-2.5 border-t border-slate-200 dark:border-zinc-800 mt-1.5 flex items-center gap-2.5 px-2 cursor-pointer hover:bg-slate-100 dark:hover:bg-[#18181b] rounded-lg p-2 transition-colors border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-[#18181b]"
+            title="Manage AWS Builder ID profile"
+          >
+            <div className="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-xs shrink-0">
+              {userProfile.display_name.charAt(0).toUpperCase()}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-semibold text-slate-900 dark:text-zinc-100 truncate">{userProfile.display_name}</p>
+              <p className="text-[11px] font-mono text-blue-600 dark:text-blue-400 truncate flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#00d294]" />
+                {userProfile.builder_id}
+              </p>
+            </div>
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-xs font-semibold text-slate-900 dark:text-zinc-100 truncate">{userProfile?.display_name || 'Pawan Joshi'}</p>
-            <p className="text-[11px] font-mono text-slate-500 dark:text-zinc-400 truncate">{userProfile?.builder_id || 'builder_pawan_2026'}</p>
+        ) : (
+          <div 
+            onClick={onOpenAuthModal}
+            className="pt-2.5 border-t border-slate-200 dark:border-zinc-800 mt-1.5 flex items-center gap-2 px-2 cursor-pointer hover:bg-blue-100/50 dark:hover:bg-blue-950/40 rounded-lg p-2 transition-colors border border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400"
+            title="Sign in with AWS Builder ID"
+          >
+            <UserCheck className="w-4 h-4 shrink-0" />
+            <span className="text-xs font-medium truncate">Sign in with Builder ID</span>
           </div>
-        </div>
+        )}
       </div>
     </aside>
   );

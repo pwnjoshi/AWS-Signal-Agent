@@ -23,25 +23,26 @@ function defaultHeaders(extra?: Record<string, string>): Record<string, string> 
   };
 }
 
-// Local Storage Keys
+// Local Storage Keys with Builder ID isolation
 const STORAGE_KEYS = {
   PROFILE: 'aws_signal_builder_profile',
-  SAVED_IDS: 'aws_signal_saved_ids',
   PREFS: 'aws_signal_user_prefs',
 };
 
-function getLocalSavedIds(): string[] {
+export function getLocalSavedIds(builderId: string = 'guest'): string[] {
   try {
-    const raw = localStorage.getItem(STORAGE_KEYS.SAVED_IDS);
+    const key = `aws_signal_saved_ids_${builderId}`;
+    const raw = localStorage.getItem(key);
     return raw ? JSON.parse(raw) : [];
   } catch {
     return [];
   }
 }
 
-function setLocalSavedIds(ids: string[]) {
+export function setLocalSavedIds(ids: string[], builderId: string = 'guest') {
   try {
-    localStorage.setItem(STORAGE_KEYS.SAVED_IDS, JSON.stringify(ids));
+    const key = `aws_signal_saved_ids_${builderId}`;
+    localStorage.setItem(key, JSON.stringify(ids));
   } catch (err) {
     console.error('Error saving to localStorage:', err);
   }
@@ -49,11 +50,12 @@ function setLocalSavedIds(ids: string[]) {
 
 // AWS Builder ID Auth & Profile API with instant localStorage persistence
 export async function authenticateBuilderId(builder_id: string, display_name?: string, email?: string): Promise<UserProfile> {
+  const cleanId = builder_id.trim();
   const localProfile: UserProfile = {
-    builder_id: builder_id.trim(),
-    display_name: display_name?.trim() || builder_id.trim(),
-    email: email?.trim() || `${builder_id.trim()}@builder.aws`,
-    email_list: [email?.trim() || `${builder_id.trim()}@builder.aws`],
+    builder_id: cleanId,
+    display_name: display_name?.trim() || cleanId,
+    email: email?.trim() || `${cleanId}@builder.aws`,
+    email_list: [email?.trim() || `${cleanId}@builder.aws`],
     is_authenticated: true,
     logged_in_at: new Date().toISOString(),
   };
@@ -64,7 +66,7 @@ export async function authenticateBuilderId(builder_id: string, display_name?: s
     const res = await fetch(`${BASE_URL}/api/auth/builder-id`, {
       method: 'POST',
       headers: defaultHeaders(),
-      body: JSON.stringify({ builder_id, display_name, email }),
+      body: JSON.stringify({ builder_id: cleanId, display_name: localProfile.display_name, email: localProfile.email }),
     });
     if (res.ok) {
       const data = await res.json();
@@ -80,6 +82,19 @@ export async function authenticateBuilderId(builder_id: string, display_name?: s
   return localProfile;
 }
 
+export async function signOutBuilderId(): Promise<UserProfile> {
+  const guestProfile: UserProfile = {
+    builder_id: 'guest',
+    display_name: 'Guest Builder',
+    email: '',
+    email_list: [],
+    is_authenticated: false,
+    logged_in_at: new Date().toISOString(),
+  };
+  localStorage.setItem(STORAGE_KEYS.PROFILE, JSON.stringify(guestProfile));
+  return guestProfile;
+}
+
 export async function fetchActiveProfile(): Promise<UserProfile> {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.PROFILE);
@@ -89,25 +104,13 @@ export async function fetchActiveProfile(): Promise<UserProfile> {
     }
   } catch {}
 
-  try {
-    const res = await fetch(`${BASE_URL}/api/auth/profile`, {
-      headers: defaultHeaders(),
-    });
-    if (res.ok) {
-      const data = await res.json();
-      localStorage.setItem(STORAGE_KEYS.PROFILE, JSON.stringify(data));
-      return data;
-    }
-  } catch (err) {
-    console.warn('Failed to fetch profile from API, using default:', err);
-  }
-
+  // Default guest session for new visitors
   return {
-    builder_id: 'builder_pawan_2026',
-    display_name: 'Pawan Joshi',
-    email: 'pawan@example.com',
-    email_list: ['pawan@example.com'],
-    is_authenticated: true,
+    builder_id: 'guest',
+    display_name: 'Guest Builder',
+    email: '',
+    email_list: [],
+    is_authenticated: false,
     logged_in_at: new Date().toISOString(),
   };
 }
@@ -144,6 +147,7 @@ export async function fetchSignals(params?: {
   source?: string;
   sort?: string;
   savedOnly?: boolean;
+  builderId?: string;
 }): Promise<{ count: number; signals: AWSSignal[] }> {
   const query = new URLSearchParams();
   if (params?.search) query.set('search', params.search);
@@ -154,7 +158,8 @@ export async function fetchSignals(params?: {
   if (params?.sort) query.set('sort', params.sort);
   if (params?.savedOnly) query.set('savedOnly', 'true');
 
-  const savedIds = new Set(getLocalSavedIds());
+  const builderId = params?.builderId || 'guest';
+  const savedIds = new Set(getLocalSavedIds(builderId));
 
   try {
     const res = await fetch(`${BASE_URL}/api/signals?${query.toString()}`, {
@@ -164,7 +169,7 @@ export async function fetchSignals(params?: {
       const data = await res.json();
       const signals = (data.signals || []).map((s: AWSSignal) => ({
         ...s,
-        is_saved: savedIds.has(s.signal_id) || !!s.is_saved,
+        is_saved: savedIds.has(s.signal_id),
       }));
       return { count: signals.length, signals };
     }
@@ -175,11 +180,11 @@ export async function fetchSignals(params?: {
   return { count: 0, signals: [] };
 }
 
-export async function toggleSaveSignal(id: string): Promise<AWSSignal> {
-  const savedIds = getLocalSavedIds();
+export async function toggleSaveSignal(id: string, builderId: string = 'guest'): Promise<AWSSignal> {
+  const savedIds = getLocalSavedIds(builderId);
   const exists = savedIds.includes(id);
   const updatedIds = exists ? savedIds.filter(i => i !== id) : [...savedIds, id];
-  setLocalSavedIds(updatedIds);
+  setLocalSavedIds(updatedIds, builderId);
 
   try {
     const res = await fetch(`${BASE_URL}/api/signals/${id}/toggle-save`, { 
@@ -373,5 +378,3 @@ export async function askDoriQuestionApi(question: string): Promise<{
     relevantSignals: [],
   };
 }
-
-

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { BrowserRouter, Routes, Route, useNavigate, useParams } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useNavigate, useParams, Link } from 'react-router-dom';
 import { 
   AWSSignal, 
   CommunityTopic, 
@@ -21,7 +21,8 @@ import {
   fetchActiveProfile, 
   fetchAgentStatus, 
   triggerAgentRun, 
-  toggleSaveSignal 
+  toggleSaveSignal,
+  getLocalSavedIds
 } from './services/apiClient';
 
 import { LandingPage } from './components/LandingPage';
@@ -37,7 +38,9 @@ import { BuilderIdAuthModal } from './components/BuilderIdAuthModal';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { Sidebar, MobileBottomNav } from './components/Sidebar';
 import { Header } from './components/Header';
+import { SignalCard } from './components/SignalCard';
 import { ThemeProvider } from './context/ThemeContext';
+import { Bookmark, KeyRound, ArrowRight } from 'lucide-react';
 
 function SignalDirectRoute({
   signals,
@@ -149,8 +152,13 @@ function AppRoutes() {
   const [showAlertSettings, setShowAlertSettings] = useState<boolean>(false);
   const [globalSearch, setGlobalSearch] = useState<string>('');
 
-  const loadAllData = useCallback(async () => {
+  const loadAllData = useCallback(async (activeBuilderId?: string) => {
     try {
+      const profile = await fetchActiveProfile().catch(() => null);
+      if (profile) setUserProfile(profile);
+
+      const bId = activeBuilderId || profile?.builder_id || 'guest';
+
       const [
         statusRes,
         sigRes,
@@ -160,17 +168,15 @@ function AppRoutes() {
         servicesRes,
         summaryRes,
         prefsRes,
-        profileRes,
       ] = await Promise.all([
         fetchAgentStatus().catch(() => null),
-        fetchSignals().catch(() => ({ signals: [] })),
+        fetchSignals({ builderId: bId }).catch(() => ({ signals: [] })),
         fetchTrends().catch(() => []),
         fetchLatestBriefing().catch(() => null),
         fetchBriefings().catch(() => []),
         fetchServicesExplorer().catch(() => []),
         fetchWhileYouWereAway().catch(() => null),
         fetchPreferences().catch(() => null),
-        fetchActiveProfile().catch(() => null),
       ]);
 
       if (statusRes) {
@@ -186,7 +192,6 @@ function AppRoutes() {
       setServices(servicesRes || []);
       setSummary(summaryRes);
       setPreferences(prefsRes);
-      setUserProfile(profileRes);
     } catch (err) {
       console.error('Error loading data:', err);
     }
@@ -231,15 +236,21 @@ function AppRoutes() {
   };
 
   const handleToggleSave = async (id: string) => {
+    if (!userProfile?.is_authenticated) {
+      setShowAuthModal(true);
+      return;
+    }
+
     try {
-      const updated = await toggleSaveSignal(id);
-      setSignals(prev => prev.map(s => s.signal_id === id ? updated : s));
+      const updated = await toggleSaveSignal(id, userProfile.builder_id);
+      setSignals(prev => prev.map(s => s.signal_id === id ? { ...s, is_saved: updated.is_saved } : s));
     } catch (err) {
       console.error('Error toggling save:', err);
     }
   };
 
-  const savedSignalsCount = signals.filter(s => s.is_saved).length;
+  const currentSavedIds = new Set(getLocalSavedIds(userProfile?.is_authenticated ? userProfile.builder_id : 'guest'));
+  const savedSignalsCount = userProfile?.is_authenticated ? signals.filter(s => currentSavedIds.has(s.signal_id)).length : 0;
 
   return (
     <>
@@ -255,7 +266,7 @@ function AppRoutes() {
           } 
         />
 
-        {/* Dashboard & App Routes inside Layout */}
+        {/* Dashboard Route */}
         <Route
           path="/dashboard"
           element={
@@ -283,6 +294,7 @@ function AppRoutes() {
           }
         />
 
+        {/* Signals Stream Route */}
         <Route
           path="/signals"
           element={
@@ -329,6 +341,7 @@ function AppRoutes() {
           }
         />
 
+        {/* Personal Bookmarks Vault Route */}
         <Route
           path="/saved"
           element={
@@ -343,16 +356,40 @@ function AppRoutes() {
               globalSearch={globalSearch}
               setGlobalSearch={setGlobalSearch}
             >
-              <SignalsPage
-                signals={signals}
-                onOpenSignalDetail={(sig) => setSelectedSignal(sig)}
-                onToggleSave={handleToggleSave}
-                savedOnlyDefault={true}
-              />
+              {!userProfile?.is_authenticated ? (
+                <div className="bg-white dark:bg-[#121216] rounded-xl border border-slate-200 dark:border-zinc-800 p-8 sm:p-12 text-center space-y-4 max-w-lg mx-auto shadow-sm">
+                  <div className="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 mx-auto flex items-center justify-center">
+                    <KeyRound className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-semibold text-slate-900 dark:text-zinc-100">
+                      Sign in to View Your Vault
+                    </h2>
+                    <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1 font-normal leading-relaxed">
+                      Authenticate with your AWS Builder ID handle to save articles, sync custom topics, and manage bookmarked signals.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowAuthModal(true)}
+                    className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg text-xs font-medium shadow-sm transition-all cursor-pointer"
+                  >
+                    <span>Sign in with Builder ID</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <SignalsPage
+                  signals={signals.filter(s => currentSavedIds.has(s.signal_id))}
+                  onOpenSignalDetail={(sig) => setSelectedSignal(sig)}
+                  onToggleSave={handleToggleSave}
+                  savedOnlyDefault={true}
+                />
+              )}
             </MainLayout>
           }
         />
 
+        {/* Friction Matrix Route */}
         <Route
           path="/trending"
           element={
@@ -372,6 +409,7 @@ function AppRoutes() {
           }
         />
 
+        {/* Cloud Mesh Route */}
         <Route
           path="/services"
           element={
@@ -394,6 +432,7 @@ function AppRoutes() {
           }
         />
 
+        {/* Daily Briefings Route */}
         <Route
           path="/briefings"
           element={
@@ -417,6 +456,7 @@ function AppRoutes() {
           }
         />
 
+        {/* Intelligent SES Alerts History Route */}
         <Route
           path="/alerts"
           element={
@@ -438,7 +478,7 @@ function AppRoutes() {
                       Intelligent SES Alert History
                     </h1>
                     <p className="text-slate-500 dark:text-zinc-400 text-xs sm:text-sm mt-1 font-normal">
-                      Signals that triggered high-priority automated email alerts to {userProfile?.builder_id || 'your profile'}.
+                      High-priority signals (score ≥ 80) dispatched via Amazon SES to {userProfile?.is_authenticated ? userProfile.email : 'subscribed Builder IDs'}.
                     </p>
                   </div>
                   <button
@@ -452,14 +492,9 @@ function AppRoutes() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {signals.filter(s => s.signal_score >= 80).map((sig) => (
                     <div key={sig.signal_id} className="relative">
-                      <div className="absolute top-2 right-2 z-10">
-                        <span className="bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 text-[10px] font-medium px-2 py-0.5 rounded border border-red-200 dark:border-red-800">
-                          Dispatched via SES
-                        </span>
-                      </div>
-                      <SignalsPage
-                        signals={[sig]}
-                        onOpenSignalDetail={(s) => setSelectedSignal(s)}
+                      <SignalCard
+                        signal={sig}
+                        onOpenDetail={(s) => setSelectedSignal(s)}
                         onToggleSave={handleToggleSave}
                       />
                     </div>
@@ -470,6 +505,7 @@ function AppRoutes() {
           }
         />
 
+        {/* Telemetry Route */}
         <Route
           path="/telemetry"
           element={
@@ -518,7 +554,7 @@ function AppRoutes() {
           onClose={() => setShowAuthModal(false)}
           onSuccess={(profile) => {
             setUserProfile(profile);
-            loadAllData();
+            loadAllData(profile.builder_id);
           }}
         />
       )}
