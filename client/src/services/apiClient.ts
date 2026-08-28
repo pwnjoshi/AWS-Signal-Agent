@@ -273,19 +273,63 @@ export async function sendTestEmailAlert(): Promise<any> {
   return res.json();
 }
 
-let activeAudioElement: HTMLAudioElement | null = null;
+// ── Strict Single-Instance Audio Manager (Prevents Duplicate Overlapping Voices) ──
+let currentAudio: HTMLAudioElement | null = null;
+let activeUtterance: SpeechSynthesisUtterance | null = null;
+
+export function stopDoriSpeech() {
+  // 1. Immediately pause and clear HTML5 Audio element
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio.currentTime = 0;
+    currentAudio.src = '';
+    currentAudio.onended = null;
+    currentAudio.onerror = null;
+    currentAudio = null;
+  }
+
+  // 2. Immediately cancel Web Speech Synthesis
+  if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+    activeUtterance = null;
+  }
+}
 
 /**
- * Plays conversational speech using Amazon Polly Generative/Neural voice with Web Speech fallback.
+ * Plays Amazon Polly human-like conversational voice with strict singleton prevention against voice overlap.
  */
 export async function playDoriSpeech(
   text: string,
-  onEnd?: () => void
+  audioBase64OrOnEnd?: string | null | (() => void),
+  onEndCallback?: () => void
 ): Promise<() => void> {
-  // Stop any currently playing audio or speech
+  const audioBase64Direct = typeof audioBase64OrOnEnd === 'string' ? audioBase64OrOnEnd : null;
+  const onEnd = typeof audioBase64OrOnEnd === 'function' ? audioBase64OrOnEnd : onEndCallback;
+
+  // Ensure ANY existing sound is stopped first
   stopDoriSpeech();
 
-  // Try Amazon Polly First for real human-like conversation voice
+  // If base64 audio is provided directly from the API, play it immediately with 0 delay!
+  if (audioBase64Direct) {
+    try {
+      const audio = new Audio(audioBase64Direct);
+      currentAudio = audio;
+      audio.onended = () => {
+        currentAudio = null;
+        if (onEnd) onEnd();
+      };
+      audio.onerror = () => {
+        currentAudio = null;
+        fallbackBrowserSpeech(text, onEnd);
+      };
+      await audio.play();
+      return () => stopDoriSpeech();
+    } catch (e) {
+      console.warn('Direct audio play error:', e);
+    }
+  }
+
+  // Otherwise synthesize via Amazon Polly endpoint
   try {
     const res = await fetch(`${BASE_URL}/api/dori/synthesize`, {
       method: 'POST',
@@ -297,13 +341,13 @@ export async function playDoriSpeech(
       const data = await res.json();
       if (data.audioBase64) {
         const audio = new Audio(data.audioBase64);
-        activeAudioElement = audio;
+        currentAudio = audio;
         audio.onended = () => {
-          activeAudioElement = null;
+          currentAudio = null;
           if (onEnd) onEnd();
         };
         audio.onerror = () => {
-          activeAudioElement = null;
+          currentAudio = null;
           fallbackBrowserSpeech(text, onEnd);
         };
         await audio.play();
@@ -311,38 +355,36 @@ export async function playDoriSpeech(
       }
     }
   } catch (err) {
-    console.warn('Amazon Polly endpoint unavailable, using neural browser speech fallback:', err);
+    console.warn('Polly synthesize endpoint notice, using single browser fallback:', err);
   }
 
-  // Fallback to browser Web Speech API
+  // Only fallback to browser speech if Polly completely failed
   fallbackBrowserSpeech(text, onEnd);
   return () => stopDoriSpeech();
 }
 
 function fallbackBrowserSpeech(text: string, onEnd?: () => void) {
-  if (!('speechSynthesis' in window)) return;
+  if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+    if (onEnd) onEnd();
+    return;
+  }
+
   window.speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(text);
+  activeUtterance = utterance;
   utterance.rate = 1.02;
   utterance.pitch = 1.05;
+
   utterance.onend = () => {
+    activeUtterance = null;
     if (onEnd) onEnd();
   };
   utterance.onerror = () => {
+    activeUtterance = null;
     if (onEnd) onEnd();
   };
-  window.speechSynthesis.speak(utterance);
-}
 
-export function stopDoriSpeech() {
-  if (activeAudioElement) {
-    activeAudioElement.pause();
-    activeAudioElement.currentTime = 0;
-    activeAudioElement = null;
-  }
-  if ('speechSynthesis' in window) {
-    window.speechSynthesis.cancel();
-  }
+  window.speechSynthesis.speak(utterance);
 }
 
 /**
@@ -369,12 +411,11 @@ export async function askDoriQuestionApi(question: string): Promise<{
       };
     }
   } catch (err) {
-    console.warn('Dori ask API error, using local fallback search:', err);
+    console.warn('Dori ask API error, using local fallback:', err);
   }
 
-  // Local fallback response
   return {
-    answer: `I've checked our live AWS feeds. We're actively tracking hundreds of releases across Amazon Bedrock, AWS Lambda, ECS, and DynamoDB with zero deduplication noise.`,
+    answer: `I've checked our live AWS feeds. We're actively tracking hundreds of releases across Amazon Bedrock, AWS Lambda, and DynamoDB.`,
     relevantSignals: [],
   };
 }
