@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { 
   Home, 
   Radio, 
@@ -17,65 +18,56 @@ import {
 import { Logo } from './Logo';
 import { UserProfile } from '../types/clientTypes';
 
-export type NavTab = 
-  | 'home' 
-  | 'signals' 
-  | 'trending' 
-  | 'services' 
-  | 'alerts' 
-  | 'briefings' 
-  | 'saved' 
-  | 'settings' 
-  | 'demo';
-
 interface SidebarProps {
-  activeTab: NavTab;
-  setActiveTab: (tab: NavTab) => void;
   savedCount?: number;
   alertCount?: number;
   userProfile?: UserProfile | null;
   onOpenAuthModal?: () => void;
+  onOpenSettings?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
-  activeTab,
-  setActiveTab,
   savedCount = 0,
   alertCount = 0,
   userProfile,
   onOpenAuthModal,
+  onOpenSettings,
 }) => {
+  const location = useLocation();
+
   const navItems = [
-    { id: 'home' as NavTab, label: 'Command Hub', icon: Home },
-    { id: 'signals' as NavTab, label: 'Radar Signals', icon: Radio },
-    { id: 'trending' as NavTab, label: 'Friction Matrix', icon: Flame },
-    { id: 'services' as NavTab, label: 'Cloud Mesh', icon: Cloud },
-    { id: 'briefings' as NavTab, label: 'Daily Digest', icon: BookOpen },
-    { id: 'alerts' as NavTab, label: 'SES Dispatch', icon: Mail, badge: alertCount },
-    { id: 'saved' as NavTab, label: 'Vault', icon: Bookmark, badge: savedCount },
+    { path: '/dashboard', label: 'Command Hub', icon: Home },
+    { path: '/signals', label: 'Radar Signals', icon: Radio },
+    { path: '/trending', label: 'Friction Matrix', icon: Flame },
+    { path: '/services', label: 'Cloud Mesh', icon: Cloud },
+    { path: '/briefings', label: 'Daily Digest', icon: BookOpen },
+    { path: '/alerts', label: 'SES Dispatch', icon: Mail, badge: alertCount },
+    { path: '/saved', label: 'Vault', icon: Bookmark, badge: savedCount },
   ];
 
   return (
-    <aside className="hidden md:flex w-64 bg-[#09090b] border-r border-zinc-800/80 flex-col justify-between h-screen sticky top-0 z-20 shrink-0 text-zinc-100 font-sans">
+    <aside className="hidden md:flex w-64 bg-[#09090b] border-r border-[#27272a] flex-col justify-between h-screen sticky top-0 z-20 shrink-0 text-zinc-100 font-sans">
       <div>
         {/* Brand Header */}
-        <div className="p-5 border-b border-zinc-800/80">
-          <Logo size="md" />
+        <div className="p-5 border-b border-[#27272a]">
+          <Link to="/">
+            <Logo size="md" />
+          </Link>
         </div>
 
         {/* Primary Navigation */}
-        <nav className="p-4 space-y-1.5">
+        <nav className="p-4 space-y-1.5 font-mono">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const isActive = activeTab === item.id;
+            const isActive = location.pathname === item.path;
             return (
-              <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl font-semibold text-xs tracking-wide transition-all duration-200 ${
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl font-bold text-xs tracking-wide transition-all duration-200 ${
                   isActive
-                    ? 'btn-geu-gradient text-white font-bold shadow-lg shadow-[#ad5cff]/20'
-                    : 'text-zinc-400 hover:bg-zinc-900/90 hover:text-white'
+                    ? 'btn-geu-primary shadow-purple-glow text-white'
+                    : 'text-zinc-400 hover:bg-[#18181b] hover:text-white'
                 }`}
               >
                 <div className="flex items-center gap-3">
@@ -89,20 +81,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     {item.badge}
                   </span>
                 )}
-              </button>
+              </Link>
             );
           })}
         </nav>
       </div>
 
       {/* Footer Navigation */}
-      <div className="p-4 border-t border-zinc-800/80 space-y-1.5">
-        <button
-          onClick={() => setActiveTab('demo')}
-          className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold text-xs transition-all duration-200 ${
-            activeTab === 'demo'
-              ? 'bg-[#fe6e00]/20 text-[#ffc080] border border-[#fe6e00]/40 font-bold'
-              : 'text-zinc-400 hover:bg-zinc-900/90 hover:text-white'
+      <div className="p-4 border-t border-[#27272a] space-y-1.5 font-mono">
+        <Link
+          to="/telemetry"
+          className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 ${
+            location.pathname === '/telemetry'
+              ? 'bg-[#fe6e00]/20 text-[#ffc080] border border-[#fe6e00]/40'
+              : 'text-zinc-400 hover:bg-[#18181b] hover:text-white'
           }`}
         >
           <Activity className="w-4 h-4 text-[#fe6e00] animate-pulse" />
@@ -110,15 +102,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <span className="text-[9px] bg-[#fe6e00]/20 text-[#ffc080] border border-[#fe6e00]/30 px-1.5 py-0.5 rounded-md font-extrabold uppercase tracking-wider">
             HUD
           </span>
-        </button>
+        </Link>
 
         <button
-          onClick={() => setActiveTab('settings')}
-          className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold text-xs transition-all duration-200 ${
-            activeTab === 'settings'
-              ? 'bg-[#ad5cff]/20 text-[#ad5cff] border border-[#ad5cff]/40 font-bold'
-              : 'text-zinc-400 hover:bg-zinc-900/90 hover:text-white'
-          }`}
+          onClick={onOpenSettings}
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-xs transition-all duration-200 text-zinc-400 hover:bg-[#18181b] hover:text-white"
         >
           <Settings className="w-4 h-4 text-zinc-500" />
           <span>Config</span>
@@ -127,10 +115,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* AWS Builder ID Profile Chip */}
         <div 
           onClick={onOpenAuthModal}
-          className="pt-3 border-t border-zinc-800/80 mt-2 flex items-center gap-3 px-2 cursor-pointer hover:bg-zinc-900/80 rounded-2xl p-2 transition-colors border border-zinc-800"
+          className="pt-3 border-t border-[#27272a] mt-2 flex items-center gap-3 px-2 cursor-pointer hover:bg-[#18181b] rounded-2xl p-2 transition-colors border border-[#27272a]"
           title="Click to manage AWS Builder ID profile"
         >
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#ad5cff] to-[#fe6e00] flex items-center justify-center font-extrabold text-white text-xs shadow-md shadow-[#ad5cff]/20">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#AD5CFF] to-[#fe6e00] flex items-center justify-center font-extrabold text-white text-xs shadow-purple-glow">
             <UserCheck className="w-4 h-4 text-white" />
           </div>
           <div className="flex-1 min-w-0">
@@ -145,43 +133,53 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
 // Touch-Friendly Mobile Bottom Navigation Component
 export const MobileBottomNav: React.FC<SidebarProps> = ({
-  activeTab,
-  setActiveTab,
   alertCount = 0,
+  onOpenSettings,
 }) => {
+  const location = useLocation();
+
   const items = [
-    { id: 'home' as NavTab, label: 'Hub', icon: Home },
-    { id: 'signals' as NavTab, label: 'Radar', icon: Radio },
-    { id: 'briefings' as NavTab, label: 'Digest', icon: BookOpen },
-    { id: 'services' as NavTab, label: 'Mesh', icon: Cloud },
-    { id: 'settings' as NavTab, label: 'Config', icon: Settings, badge: alertCount },
+    { path: '/dashboard', label: 'Hub', icon: Home },
+    { path: '/signals', label: 'Radar', icon: Radio },
+    { path: '/briefings', label: 'Digest', icon: BookOpen },
+    { path: '/services', label: 'Mesh', icon: Cloud },
   ];
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#09090b]/95 backdrop-blur-xl border-t border-zinc-800 px-2 py-1.5 flex items-center justify-around shadow-2xl">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#09090b]/95 backdrop-blur-xl border-t border-[#27272a] px-2 py-1.5 flex items-center justify-around shadow-2xl font-mono">
       {items.map((item) => {
         const Icon = item.icon;
-        const isActive = activeTab === item.id;
+        const isActive = location.pathname === item.path;
         return (
-          <button
-            key={item.id}
-            onClick={() => setActiveTab(item.id)}
+          <Link
+            key={item.path}
+            to={item.path}
             className={`flex flex-col items-center justify-center py-1.5 px-3 rounded-2xl transition-all relative ${
-              isActive ? 'text-[#ad5cff] font-bold' : 'text-zinc-400 font-medium hover:text-zinc-200'
+              isActive ? 'text-[#AD5CFF] font-bold' : 'text-zinc-400 font-medium hover:text-zinc-200'
             }`}
           >
             <div className="relative">
-              <Icon className={`w-5 h-5 ${isActive ? 'scale-110 text-[#ad5cff]' : 'text-zinc-500'}`} />
-              {item.badge !== undefined && item.badge > 0 && (
-                <span className="absolute -top-1 -right-2.5 w-4 h-4 bg-[#fe6e00] text-white text-[9px] font-extrabold rounded-full flex items-center justify-center">
-                  {item.badge}
-                </span>
-              )}
+              <Icon className={`w-5 h-5 ${isActive ? 'scale-110 text-[#AD5CFF]' : 'text-zinc-500'}`} />
             </div>
             <span className="text-[10px] mt-1 tracking-tight">{item.label}</span>
-          </button>
+          </Link>
         );
       })}
+      
+      <button
+        onClick={onOpenSettings}
+        className="flex flex-col items-center justify-center py-1.5 px-3 rounded-2xl transition-all relative text-zinc-400 font-medium hover:text-zinc-200"
+      >
+        <div className="relative">
+          <Settings className="w-5 h-5 text-zinc-500" />
+          {alertCount > 0 && (
+            <span className="absolute -top-1 -right-2.5 w-3.5 h-3.5 bg-[#fe6e00] text-white text-[8px] font-extrabold rounded-full flex items-center justify-center">
+              {alertCount}
+            </span>
+          )}
+        </div>
+        <span className="text-[10px] mt-1 tracking-tight">Config</span>
+      </button>
     </nav>
   );
 };

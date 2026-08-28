@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Sidebar, MobileBottomNav, NavTab } from './components/Sidebar';
+import { BrowserRouter, Routes, Route, useNavigate, useParams, Outlet } from 'react-router-dom';
+import { Sidebar, MobileBottomNav } from './components/Sidebar';
 import { Header } from './components/Header';
 import { Dashboard } from './pages/Dashboard';
 import { SignalsPage } from './pages/SignalsPage';
@@ -11,6 +12,7 @@ import { SignalDetailModal } from './components/SignalDetailModal';
 import { AlertSettingsModal } from './components/AlertSettingsModal';
 import { BuilderIdAuthModal } from './components/BuilderIdAuthModal';
 import { LandingPage } from './components/LandingPage';
+import { NotFoundPage } from './pages/NotFoundPage';
 import { 
   AWSSignal, 
   CommunityTopic, 
@@ -35,9 +37,97 @@ import {
   triggerAgentRun 
 } from './services/apiClient';
 
-export function App() {
-  const [activeTab, setActiveTab] = useState<NavTab>('home');
-  const [showLanding, setShowLanding] = useState<boolean>(true);
+function SignalDirectRoute({ 
+  signals, 
+  onOpenDetail, 
+  onToggleSave 
+}: { 
+  signals: AWSSignal[]; 
+  onOpenDetail: (sig: AWSSignal) => void; 
+  onToggleSave: (id: string) => void; 
+}) {
+  const { id } = useParams<{ id: string }>();
+
+  useEffect(() => {
+    if (id && signals.length > 0) {
+      const match = signals.find(s => s.signal_id === id);
+      if (match) {
+        onOpenDetail(match);
+      }
+    }
+  }, [id, signals, onOpenDetail]);
+
+  return (
+    <SignalsPage
+      signals={signals}
+      onOpenSignalDetail={onOpenDetail}
+      onToggleSave={onToggleSave}
+    />
+  );
+}
+
+function MainLayout({
+  children,
+  savedCount,
+  alertCount,
+  userProfile,
+  onOpenAuthModal,
+  onOpenSettings,
+  onRunAgent,
+  isAgentRunning,
+  globalSearch,
+  setGlobalSearch,
+}: {
+  children: React.ReactNode;
+  savedCount: number;
+  alertCount: number;
+  userProfile: UserProfile | null;
+  onOpenAuthModal: () => void;
+  onOpenSettings: () => void;
+  onRunAgent: () => void;
+  isAgentRunning: boolean;
+  globalSearch: string;
+  setGlobalSearch: (val: string) => void;
+}) {
+  return (
+    <div className="min-h-screen flex bg-[#09090b] text-zinc-100 font-sans">
+      {/* Desktop Sidebar */}
+      <Sidebar
+        savedCount={savedCount}
+        alertCount={alertCount}
+        userProfile={userProfile}
+        onOpenAuthModal={onOpenAuthModal}
+        onOpenSettings={onOpenSettings}
+      />
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0">
+        <Header
+          onRunAgent={onRunAgent}
+          isAgentRunning={isAgentRunning}
+          searchTerm={globalSearch}
+          onSearchChange={setGlobalSearch}
+          onOpenSettings={onOpenSettings}
+          userProfile={userProfile}
+          onOpenAuthModal={onOpenAuthModal}
+        />
+
+        <main className="p-4 sm:p-6 md:p-8 pb-24 md:pb-8 max-w-7xl mx-auto w-full flex-1">
+          {children}
+        </main>
+      </div>
+
+      {/* Mobile Touch Bottom Navigation */}
+      <MobileBottomNav
+        alertCount={alertCount}
+        onOpenSettings={onOpenSettings}
+      />
+    </div>
+  );
+}
+
+function AppRoutes() {
+  const navigate = useNavigate();
 
   // Profile & Auth State
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -129,167 +219,255 @@ export function App() {
     }
   };
 
-  if (showLanding) {
-    return (
-      <>
-        <LandingPage 
-          onGetStarted={() => setShowLanding(false)} 
-          onOpenAuthModal={() => setShowAuthModal(true)}
-        />
-        {showAuthModal && (
-          <BuilderIdAuthModal
-            currentProfile={userProfile}
-            onClose={() => setShowAuthModal(false)}
-            onSuccess={(profile) => {
-              setUserProfile(profile);
-              setShowLanding(false);
-              loadAllData();
-            }}
-          />
-        )}
-      </>
-    );
-  }
-
   const savedSignalsCount = signals.filter(s => s.is_saved).length;
 
   return (
-    <div className="min-h-screen flex bg-[#07090e] text-slate-100 font-sans">
-      {/* Desktop Sidebar */}
-      <Sidebar
-        activeTab={activeTab}
-        setActiveTab={(tab) => {
-          if (tab === 'settings') {
-            setShowAlertSettings(true);
-          } else {
-            setActiveTab(tab);
-          }
-        }}
-        savedCount={savedSignalsCount}
-        alertCount={summary?.high_priority_alerts ?? 1}
-        userProfile={userProfile}
-        onOpenAuthModal={() => setShowAuthModal(true)}
-      />
-
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0">
-        <Header
-          onRunAgent={handleRunAgentNow}
-          isAgentRunning={isAgentRunning}
-          searchTerm={globalSearch}
-          onSearchChange={(val) => {
-            setGlobalSearch(val);
-            if (val && activeTab !== 'signals') {
-              setActiveTab('signals');
-            }
-          }}
-          onOpenSettings={() => setShowAlertSettings(true)}
-          userProfile={userProfile}
-          onOpenAuthModal={() => setShowAuthModal(true)}
-          onToggleLanding={() => setShowLanding(true)}
+    <>
+      <Routes>
+        {/* Landing Page Route */}
+        <Route 
+          path="/" 
+          element={
+            <LandingPage 
+              onGetStarted={() => navigate('/dashboard')} 
+              onOpenAuthModal={() => setShowAuthModal(true)}
+            />
+          } 
         />
 
-        <main className="p-4 sm:p-6 md:p-8 pb-24 md:pb-8 max-w-7xl mx-auto w-full flex-1">
-          {activeTab === 'home' && (
-            <Dashboard
-              summary={summary}
-              signals={signals}
-              briefing={briefing}
-              trends={trends}
-              onOpenSignalDetail={(sig) => setSelectedSignal(sig)}
-              onToggleSave={handleToggleSave}
-              onExploreSignals={() => setActiveTab('signals')}
-            />
-          )}
+        {/* Dashboard & App Routes inside Layout */}
+        <Route
+          path="/dashboard"
+          element={
+            <MainLayout
+              savedCount={savedSignalsCount}
+              alertCount={summary?.high_priority_alerts ?? 1}
+              userProfile={userProfile}
+              onOpenAuthModal={() => setShowAuthModal(true)}
+              onOpenSettings={() => setShowAlertSettings(true)}
+              onRunAgent={handleRunAgentNow}
+              isAgentRunning={isAgentRunning}
+              globalSearch={globalSearch}
+              setGlobalSearch={setGlobalSearch}
+            >
+              <Dashboard
+                summary={summary}
+                signals={signals}
+                briefing={briefing}
+                trends={trends}
+                onOpenSignalDetail={(sig) => setSelectedSignal(sig)}
+                onToggleSave={handleToggleSave}
+                onExploreSignals={() => navigate('/signals')}
+              />
+            </MainLayout>
+          }
+        />
 
-          {activeTab === 'signals' && (
-            <SignalsPage
-              signals={signals}
-              onOpenSignalDetail={(sig) => setSelectedSignal(sig)}
-              onToggleSave={handleToggleSave}
-            />
-          )}
-
-          {activeTab === 'saved' && (
-            <SignalsPage
-              signals={signals}
-              onOpenSignalDetail={(sig) => setSelectedSignal(sig)}
-              onToggleSave={handleToggleSave}
-              savedOnlyDefault={true}
-            />
-          )}
-
-          {activeTab === 'trending' && (
-            <TrendingPage trends={trends} />
-          )}
-
-          {activeTab === 'services' && (
-            <ServiceExplorer
-              services={services}
-              onOpenSignalDetail={(sig) => setSelectedSignal(sig)}
-            />
-          )}
-
-          {activeTab === 'briefings' && (
-            <BriefingsPage
-              briefing={briefing}
-              allBriefings={allBriefings}
-              onOpenSignalDetail={(sig) => setSelectedSignal(sig)}
-            />
-          )}
-
-          {activeTab === 'alerts' && (
-            <div className="space-y-6">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div>
-                  <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 font-rounded">
-                    ✉ Intelligent SES Alert History
-                  </h1>
-                  <p className="text-slate-500 text-xs sm:text-sm mt-1">
-                    Signals that triggered high-priority automated email alerts to {userProfile?.builder_id || 'your Builder ID profile'}.
-                  </p>
-                </div>
-                <button
-                  onClick={() => setShowAlertSettings(true)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-sm"
-                >
-                  Alert Settings
-                </button>
-              </div>
-
+        <Route
+          path="/signals"
+          element={
+            <MainLayout
+              savedCount={savedSignalsCount}
+              alertCount={summary?.high_priority_alerts ?? 1}
+              userProfile={userProfile}
+              onOpenAuthModal={() => setShowAuthModal(true)}
+              onOpenSettings={() => setShowAlertSettings(true)}
+              onRunAgent={handleRunAgentNow}
+              isAgentRunning={isAgentRunning}
+              globalSearch={globalSearch}
+              setGlobalSearch={setGlobalSearch}
+            >
               <SignalsPage
-                signals={signals.filter(s => s.signal_score >= 80)}
+                signals={signals}
                 onOpenSignalDetail={(sig) => setSelectedSignal(sig)}
                 onToggleSave={handleToggleSave}
               />
-            </div>
-          )}
-
-          {activeTab === 'demo' && (
-            <AgentStatusTimeline
-              latestLog={latestLog}
-              isRunning={isAgentRunning}
-              nextRun={nextRun}
-              onRunNow={handleRunAgentNow}
-            />
-          )}
-        </main>
-      </div>
-
-      {/* Mobile Touch Bottom Navigation */}
-      <MobileBottomNav
-        activeTab={activeTab}
-        setActiveTab={(tab) => {
-          if (tab === 'settings') {
-            setShowAlertSettings(true);
-          } else {
-            setActiveTab(tab);
+            </MainLayout>
           }
-        }}
-        alertCount={summary?.high_priority_alerts ?? 1}
-      />
+        />
 
-      {/* Modals */}
+        <Route
+          path="/signals/:id"
+          element={
+            <MainLayout
+              savedCount={savedSignalsCount}
+              alertCount={summary?.high_priority_alerts ?? 1}
+              userProfile={userProfile}
+              onOpenAuthModal={() => setShowAuthModal(true)}
+              onOpenSettings={() => setShowAlertSettings(true)}
+              onRunAgent={handleRunAgentNow}
+              isAgentRunning={isAgentRunning}
+              globalSearch={globalSearch}
+              setGlobalSearch={setGlobalSearch}
+            >
+              <SignalDirectRoute
+                signals={signals}
+                onOpenDetail={(sig) => setSelectedSignal(sig)}
+                onToggleSave={handleToggleSave}
+              />
+            </MainLayout>
+          }
+        />
+
+        <Route
+          path="/saved"
+          element={
+            <MainLayout
+              savedCount={savedSignalsCount}
+              alertCount={summary?.high_priority_alerts ?? 1}
+              userProfile={userProfile}
+              onOpenAuthModal={() => setShowAuthModal(true)}
+              onOpenSettings={() => setShowAlertSettings(true)}
+              onRunAgent={handleRunAgentNow}
+              isAgentRunning={isAgentRunning}
+              globalSearch={globalSearch}
+              setGlobalSearch={setGlobalSearch}
+            >
+              <SignalsPage
+                signals={signals}
+                onOpenSignalDetail={(sig) => setSelectedSignal(sig)}
+                onToggleSave={handleToggleSave}
+                savedOnlyDefault={true}
+              />
+            </MainLayout>
+          }
+        />
+
+        <Route
+          path="/trending"
+          element={
+            <MainLayout
+              savedCount={savedSignalsCount}
+              alertCount={summary?.high_priority_alerts ?? 1}
+              userProfile={userProfile}
+              onOpenAuthModal={() => setShowAuthModal(true)}
+              onOpenSettings={() => setShowAlertSettings(true)}
+              onRunAgent={handleRunAgentNow}
+              isAgentRunning={isAgentRunning}
+              globalSearch={globalSearch}
+              setGlobalSearch={setGlobalSearch}
+            >
+              <TrendingPage trends={trends} />
+            </MainLayout>
+          }
+        />
+
+        <Route
+          path="/services"
+          element={
+            <MainLayout
+              savedCount={savedSignalsCount}
+              alertCount={summary?.high_priority_alerts ?? 1}
+              userProfile={userProfile}
+              onOpenAuthModal={() => setShowAuthModal(true)}
+              onOpenSettings={() => setShowAlertSettings(true)}
+              onRunAgent={handleRunAgentNow}
+              isAgentRunning={isAgentRunning}
+              globalSearch={globalSearch}
+              setGlobalSearch={setGlobalSearch}
+            >
+              <ServiceExplorer
+                services={services}
+                onOpenSignalDetail={(sig) => setSelectedSignal(sig)}
+              />
+            </MainLayout>
+          }
+        />
+
+        <Route
+          path="/briefings"
+          element={
+            <MainLayout
+              savedCount={savedSignalsCount}
+              alertCount={summary?.high_priority_alerts ?? 1}
+              userProfile={userProfile}
+              onOpenAuthModal={() => setShowAuthModal(true)}
+              onOpenSettings={() => setShowAlertSettings(true)}
+              onRunAgent={handleRunAgentNow}
+              isAgentRunning={isAgentRunning}
+              globalSearch={globalSearch}
+              setGlobalSearch={setGlobalSearch}
+            >
+              <BriefingsPage
+                briefing={briefing}
+                allBriefings={allBriefings}
+                onOpenSignalDetail={(sig) => setSelectedSignal(sig)}
+              />
+            </MainLayout>
+          }
+        />
+
+        <Route
+          path="/alerts"
+          element={
+            <MainLayout
+              savedCount={savedSignalsCount}
+              alertCount={summary?.high_priority_alerts ?? 1}
+              userProfile={userProfile}
+              onOpenAuthModal={() => setShowAuthModal(true)}
+              onOpenSettings={() => setShowAlertSettings(true)}
+              onRunAgent={handleRunAgentNow}
+              isAgentRunning={isAgentRunning}
+              globalSearch={globalSearch}
+              setGlobalSearch={setGlobalSearch}
+            >
+              <div className="space-y-6">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 font-mono">
+                  <div>
+                    <h1 className="text-xl sm:text-2xl font-black text-white font-display uppercase tracking-tight">
+                      ✉ Intelligent SES Alert History
+                    </h1>
+                    <p className="text-zinc-400 text-xs sm:text-sm mt-1">
+                      Signals that triggered high-priority automated email alerts to {userProfile?.builder_id || 'your Builder ID profile'}.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowAlertSettings(true)}
+                    className="btn-geu-primary text-white px-4 py-2 rounded-xl text-xs font-bold shadow-purple-glow"
+                  >
+                    Alert Settings
+                  </button>
+                </div>
+
+                <SignalsPage
+                  signals={signals.filter(s => s.signal_score >= 80)}
+                  onOpenSignalDetail={(sig) => setSelectedSignal(sig)}
+                  onToggleSave={handleToggleSave}
+                />
+              </div>
+            </MainLayout>
+          }
+        />
+
+        <Route
+          path="/telemetry"
+          element={
+            <MainLayout
+              savedCount={savedSignalsCount}
+              alertCount={summary?.high_priority_alerts ?? 1}
+              userProfile={userProfile}
+              onOpenAuthModal={() => setShowAuthModal(true)}
+              onOpenSettings={() => setShowAlertSettings(true)}
+              onRunAgent={handleRunAgentNow}
+              isAgentRunning={isAgentRunning}
+              globalSearch={globalSearch}
+              setGlobalSearch={setGlobalSearch}
+            >
+              <AgentStatusTimeline
+                latestLog={latestLog}
+                isRunning={isAgentRunning}
+                nextRun={nextRun}
+                onRunNow={handleRunAgentNow}
+              />
+            </MainLayout>
+          }
+        />
+
+        {/* 404 Catch-All Route */}
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+
+      {/* Global Modals */}
       <SignalDetailModal
         signal={selectedSignal}
         onClose={() => setSelectedSignal(null)}
@@ -313,7 +491,15 @@ export function App() {
           }}
         />
       )}
-    </div>
+    </>
+  );
+}
+
+export function App() {
+  return (
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
   );
 }
 
