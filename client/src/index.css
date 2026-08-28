@@ -48,3 +48,22 @@ html.dark, html.dark body {
     linear-gradient(to right, rgba(96, 165, 250, 0.06) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(96, 165, 250, 0.06) 1px, transparent 1px);
 }
+
+/* ── Moving Lightning Shimmer Border Animation ── */
+@keyframes lightning-shimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.lightning-border-wrapper {
+  background: linear-gradient(90deg, #2563eb, #6366f1, #00d294, #38bdf8, #2563eb);
+  background-size: 300% 300%;
+  animation: lightning-shimmer 2.5s ease infinite;
+}

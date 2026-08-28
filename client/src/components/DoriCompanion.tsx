@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Volume2, VolumeX, Sparkles } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Volume2, VolumeX, Mic, MicOff } from 'lucide-react';
 
 export type DoriEmotion = 'happy' | 'curious' | 'thinking' | 'alert' | 'excited' | 'sleeping' | 'working';
 
@@ -10,7 +10,9 @@ interface DoriCompanionProps {
   showSpeechBubble?: boolean;
   interactive?: boolean;
   isSpeaking?: boolean;
+  isListening?: boolean;
   onToggleSpeech?: () => void;
+  onTranscribedQuestion?: (question: string) => void;
 }
 
 export const DoriCompanion: React.FC<DoriCompanionProps> = ({
@@ -20,10 +22,15 @@ export const DoriCompanion: React.FC<DoriCompanionProps> = ({
   showSpeechBubble = true,
   interactive = true,
   isSpeaking = false,
+  isListening = false,
   onToggleSpeech,
+  onTranscribedQuestion,
 }) => {
   const [isBlinking, setIsBlinking] = useState(false);
   const [localEmotion, setLocalEmotion] = useState<DoriEmotion>(emotion);
+  const [localListening, setLocalListening] = useState(false);
+  const [micError, setMicError] = useState<string | null>(null);
+  const recognitionRef = useRef<any>(null);
 
   // Natural blinking eyes animation every 3.5 seconds
   useEffect(() => {
@@ -38,16 +45,81 @@ export const DoriCompanion: React.FC<DoriCompanionProps> = ({
   useEffect(() => {
     if (isSpeaking) {
       setLocalEmotion('excited');
+    } else if (localListening || isListening) {
+      setLocalEmotion('curious');
     } else {
       setLocalEmotion(emotion);
     }
-  }, [isSpeaking, emotion]);
+  }, [isSpeaking, localListening, isListening, emotion]);
+
+  const startVoiceConversation = () => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      // Fallback: If browser does not support Web Speech Recognition, trigger direct briefing
+      if (onToggleSpeech) onToggleSpeech();
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRecognition();
+      recognitionRef.current = recognition;
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = 'en-US';
+
+      recognition.onstart = () => {
+        setLocalListening(true);
+        setMicError(null);
+      };
+
+      recognition.onresult = (event: any) => {
+        const transcript = event.results[0][0].transcript;
+        setLocalListening(false);
+        if (onTranscribedQuestion && transcript) {
+          onTranscribedQuestion(transcript);
+        }
+      };
+
+      recognition.onerror = (event: any) => {
+        console.warn('Speech recognition notice:', event.error);
+        setLocalListening(false);
+        // If mic denied or errored, fallback to audio briefing narration
+        if (onToggleSpeech) {
+          onToggleSpeech();
+        }
+      };
+
+      recognition.onend = () => {
+        setLocalListening(false);
+      };
+
+      recognition.start();
+    } catch (err) {
+      console.warn('Failed to start speech recognition:', err);
+      setLocalListening(false);
+      if (onToggleSpeech) onToggleSpeech();
+    }
+  };
 
   const handleClick = () => {
     if (!interactive) return;
-    if (onToggleSpeech) {
-      onToggleSpeech();
+
+    if (isSpeaking) {
+      if (onToggleSpeech) onToggleSpeech();
+      return;
     }
+
+    if (localListening) {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+      setLocalListening(false);
+      return;
+    }
+
+    // Start voice conversation flow
+    startVoiceConversation();
   };
 
   const getDimensions = () => {
@@ -61,17 +133,21 @@ export const DoriCompanion: React.FC<DoriCompanionProps> = ({
 
   const { width, height } = getDimensions();
 
+  const isCurrentlyActive = isSpeaking || localListening || isListening;
+
   return (
     <div className="relative inline-flex flex-col items-center select-none group font-sans">
       
-      {/* Speech Bubble on Top of Dori's Head */}
+      {/* Speech Bubble on Top of Dori's Head (No Star Icon) */}
       {showSpeechBubble && (
         <div 
           onClick={handleClick}
-          className={`mb-3.5 max-w-xs sm:max-w-sm px-4 py-2.5 rounded-xl border text-center shadow-md relative z-10 transition-all duration-200 cursor-pointer active:scale-98 ${
+          className={`mb-3.5 max-w-xs sm:max-w-md px-4 py-2.5 rounded-xl border text-center shadow-md relative z-10 transition-all duration-200 cursor-pointer active:scale-98 ${
             isSpeaking 
               ? 'bg-blue-600 text-white border-blue-500 shadow-blue-500/20' 
-              : 'bg-white dark:bg-[#18181b] text-slate-900 dark:text-zinc-100 border-slate-200 dark:border-zinc-700 hover:border-blue-400'
+              : localListening
+                ? 'bg-emerald-600 text-white border-emerald-500 shadow-emerald-500/20 animate-pulse'
+                : 'bg-white dark:bg-[#18181b] text-slate-900 dark:text-zinc-100 border-slate-200 dark:border-zinc-700 hover:border-blue-400'
           }`}
         >
           <div className="flex items-center justify-center gap-1.5 mb-0.5">
@@ -80,23 +156,33 @@ export const DoriCompanion: React.FC<DoriCompanionProps> = ({
                 <Volume2 className="w-3.5 h-3.5 animate-pulse" />
                 Dori is Speaking (Click to Mute)
               </span>
+            ) : localListening ? (
+              <span className="text-[11px] font-semibold flex items-center gap-1 text-white">
+                <Mic className="w-3.5 h-3.5 animate-pulse text-amber-300" />
+                Listening to your microphone... (Ask anything)
+              </span>
             ) : (
               <span className="text-[11px] font-semibold text-blue-600 dark:text-blue-400 flex items-center gap-1">
-                <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                Click me to talk with me!
+                <Mic className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+                Click me to talk with me
               </span>
             )}
           </div>
           
-          <p className={`text-xs leading-relaxed font-normal ${isSpeaking ? 'text-blue-50' : 'text-slate-600 dark:text-zinc-400'}`}>
-            {message}
+          <p className={`text-xs leading-relaxed font-normal ${isCurrentlyActive ? 'text-blue-50' : 'text-slate-600 dark:text-zinc-400'}`}>
+            {localListening 
+              ? "Speak your question now (e.g., 'What happened with Lambda SnapStart?')..."
+              : message
+            }
           </p>
 
           {/* Speech Bubble Pointer Arrow */}
           <div className={`absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 rotate-45 border-b border-r ${
             isSpeaking
               ? 'bg-blue-600 border-blue-500'
-              : 'bg-white dark:bg-[#18181b] border-slate-200 dark:border-zinc-700'
+              : localListening
+                ? 'bg-emerald-600 border-emerald-500'
+                : 'bg-white dark:bg-[#18181b] border-slate-200 dark:border-zinc-700'
           }`} />
         </div>
       )}
@@ -106,12 +192,12 @@ export const DoriCompanion: React.FC<DoriCompanionProps> = ({
         onClick={handleClick} 
         className={`relative cursor-pointer transition-all duration-300 ${
           interactive ? 'hover:scale-105 active:scale-95' : ''
-        } ${isSpeaking ? 'animate-bounce' : ''}`}
-        title={isSpeaking ? "Click to stop Dori's voice" : "Click to talk with Dori"}
+        } ${isSpeaking ? 'animate-bounce' : localListening ? 'animate-pulse' : ''}`}
+        title={isCurrentlyActive ? "Click to stop" : "Click to talk with Dori (Microphone access)"}
       >
-        {/* Glowing aura when speaking */}
-        {isSpeaking && (
-          <div className="absolute -inset-3 bg-blue-500/20 rounded-full blur-lg animate-pulse" />
+        {/* Glowing aura when speaking or listening */}
+        {isCurrentlyActive && (
+          <div className="absolute -inset-3 bg-blue-500/25 rounded-full blur-lg animate-pulse" />
         )}
 
         <svg
@@ -124,7 +210,7 @@ export const DoriCompanion: React.FC<DoriCompanionProps> = ({
         >
           {/* Antenna / Sensor with Pulse */}
           <line x1="60" y1="18" x2="60" y2="8" stroke="#2563EB" strokeWidth="4" strokeLinecap="round" />
-          <circle cx="60" cy="7" r="5" fill={isSpeaking ? '#00D294' : localEmotion === 'alert' ? '#EF4444' : '#3B82F6'} />
+          <circle cx="60" cy="7" r="5" fill={localListening ? '#10B981' : isSpeaking ? '#00D294' : '#3B82F6'} />
 
           {/* Main Robotic Cloud Body */}
           <rect x="20" y="18" width="80" height="78" rx="39" fill="#2563EB" />

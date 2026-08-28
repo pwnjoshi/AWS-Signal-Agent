@@ -9,14 +9,12 @@ import {
   Volume2, 
   Cpu, 
   Clock, 
-  Brain,
-  Sparkles,
-  BookOpen
+  Brain
 } from 'lucide-react';
 import { GEUNavbar as Navbar } from './GEUNavbar';
 import { ParticleBackground } from './ParticleBackground';
 import { DoriCompanion } from './DoriCompanion';
-import { playDoriSpeech, stopDoriSpeech } from '../services/apiClient';
+import { playDoriSpeech, stopDoriSpeech, askDoriQuestionApi } from '../services/apiClient';
 
 interface LandingPageProps {
   onGetStarted: () => void;
@@ -25,20 +23,45 @@ interface LandingPageProps {
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAuthModal }) => {
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [currentSpeechMessage, setCurrentSpeechMessage] = useState<string>(
+    "Click me to talk with me! Ask about any AWS release or click to hear today's briefing."
+  );
 
   const toggleDoriNarration = async () => {
     if (isSpeaking) {
       stopDoriSpeech();
       setIsSpeaking(false);
+      setCurrentSpeechMessage("Click me to talk with me! Ask about any AWS release or click to hear today's briefing.");
       return;
     }
 
     const textToSpeak = `Good day builders! This is Dori, your cloud specialist. In the last 24 hours across the AWS cloud matrix: 247 announcements ingested, 18 high-relevance updates identified, and 4 critical signals flagged for your architecture. Lambda SnapStart latency is down by 90%, Amazon Bedrock cross-region inference is active, and zero duplicate signals exist in your vault. Click me anytime to pause. Stay informed and happy building!`;
 
+    setCurrentSpeechMessage("Speaking today's live AWS intelligence briefing... (Click me to pause)");
     setIsSpeaking(true);
     await playDoriSpeech(textToSpeak, () => {
       setIsSpeaking(false);
+      setCurrentSpeechMessage("Click me to talk with me! Ask about any AWS release or click to hear today's briefing.");
     });
+  };
+
+  const handleTranscribedVoiceQuestion = async (question: string) => {
+    setCurrentSpeechMessage(`Searching cloud feeds for: "${question}"...`);
+    try {
+      const res = await askDoriQuestionApi(question);
+      setCurrentSpeechMessage(res.answer);
+      setIsSpeaking(true);
+      await playDoriSpeech(res.answer, () => {
+        setIsSpeaking(false);
+      });
+    } catch (err) {
+      const fallback = "I've checked our live AWS feeds. We're actively tracking updates across Amazon Bedrock, AWS Lambda, and DynamoDB.";
+      setCurrentSpeechMessage(fallback);
+      setIsSpeaking(true);
+      await playDoriSpeech(fallback, () => {
+        setIsSpeaking(false);
+      });
+    }
   };
 
   return (
@@ -57,15 +80,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
       <section id="home" className="relative pt-32 sm:pt-40 pb-8 sm:pb-12 min-h-[70vh] flex flex-col items-center justify-center text-center">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 space-y-6 relative z-10">
           
-          {/* Redesigned Animated Hero Badge without Star Icon */}
-          <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-slate-100/80 dark:bg-zinc-900/80 backdrop-blur-md border border-slate-200/80 dark:border-zinc-700/80 shadow-sm hover:border-blue-500/50 transition-all duration-300 group select-none">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00d294] opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00d294]" />
-            </span>
-            <span className="text-xs font-medium text-slate-700 dark:text-zinc-300 tracking-normal">
-              Autonomous AWS Intelligence • Powered by Bedrock & Polly
-            </span>
+          {/* Animated Lightning Shimmer Border Badge (No Star, No Dot) */}
+          <div className="inline-block p-[1.5px] rounded-full lightning-border-wrapper shadow-sm select-none">
+            <div className="px-4 py-1.5 rounded-full bg-white dark:bg-[#121216] backdrop-blur-md">
+              <span className="text-xs font-medium text-slate-800 dark:text-zinc-200 tracking-normal">
+                Autonomous AWS Intelligence • Powered by Bedrock & Polly
+              </span>
+            </div>
           </div>
 
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight text-slate-900 dark:text-zinc-100 leading-[1.15]">
@@ -76,11 +97,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
             An autonomous cloud intelligence platform. AWS Signal monitors hundreds of release feeds, analyzes developer friction on re:Post, and delivers personalized audio briefings before breaking your stack.
           </p>
 
-          {/* Clean Action CTAs */}
-          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+          {/* Exactly Two Main Action CTAs */}
+          <div className="flex flex-wrap items-center justify-center gap-3.5 pt-2">
             <Link
               to="/dashboard"
-              className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs sm:text-sm font-medium shadow-sm active:scale-98 transition-all flex items-center gap-2"
+              className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs sm:text-sm font-medium shadow-sm active:scale-98 transition-all flex items-center gap-2"
             >
               <span>Get Started</span>
               <ArrowRight className="w-4 h-4" />
@@ -88,18 +109,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
 
             <Link
               to="/signals"
-              className="px-4 py-2.5 rounded-lg text-xs sm:text-sm font-medium border border-slate-200 dark:border-zinc-800 bg-white dark:bg-[#18181b] hover:bg-slate-50 dark:hover:bg-[#202026] text-slate-800 dark:text-zinc-200 transition-all flex items-center gap-2"
+              className="px-5 py-2.5 rounded-lg text-xs sm:text-sm font-medium border border-slate-200 dark:border-zinc-800 bg-white dark:bg-[#18181b] hover:bg-slate-50 dark:hover:bg-[#202026] text-slate-800 dark:text-zinc-200 transition-all flex items-center gap-2"
             >
               <Radio className="w-4 h-4 text-blue-600 dark:text-blue-400" />
               <span>Explore Live Radar</span>
-            </Link>
-
-            <Link
-              to="/briefings"
-              className="px-4 py-2.5 rounded-lg text-xs sm:text-sm font-medium border border-slate-200 dark:border-zinc-800 bg-white dark:bg-[#18181b] hover:bg-slate-50 dark:hover:bg-[#202026] text-slate-800 dark:text-zinc-200 transition-all flex items-center gap-2"
-            >
-              <BookOpen className="w-4 h-4 text-slate-500 dark:text-zinc-400" />
-              <span>Daily Briefings</span>
             </Link>
           </div>
         </div>
@@ -111,11 +124,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
             emotion={isSpeaking ? 'excited' : 'happy'}
             isSpeaking={isSpeaking}
             onToggleSpeech={toggleDoriNarration}
-            message={
-              isSpeaking
-                ? "Speaking today's live AWS intelligence briefing... (Click me to pause)"
-                : "Click me to talk with me! I'll read today's 60-second AWS intelligence summary."
-            }
+            onTranscribedQuestion={handleTranscribedVoiceQuestion}
+            message={currentSpeechMessage}
             showSpeechBubble={true}
           />
         </div>
