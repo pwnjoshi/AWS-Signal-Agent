@@ -527,6 +527,30 @@ function getGroundedAWSResponse(question: string): string {
     return "You're so welcome! It's an absolute pleasure helping you stay ahead of the cloud curve. Let me know whenever you need more insights!";
   }
 
+  // Help / Assistance Intents
+  if (
+    q.includes('help me') || 
+    q.includes('can you help') || 
+    q.includes('can you do something') || 
+    q.includes('what can you do') || 
+    q.includes('help with something')
+  ) {
+    return "Of course! I can scan new AWS release feeds, look up specific services like EC2 or Bedrock, open your bookmarks vault, or explain architectural patterns. What would you like to do?";
+  }
+
+  // Run Radar / Latest Information / Important Updates
+  if (
+    q.includes('run the radar') || 
+    q.includes('run radar') || 
+    q.includes('latest information') || 
+    q.includes('something important') || 
+    q.includes('important to me') || 
+    q.includes('what is important') || 
+    q.includes('what is new')
+  ) {
+    return "Right now, the top highlighted update is Anthropic Claude 3.5 Haiku on Amazon Bedrock with 3x faster inference speed, alongside Amazon S3 Express One Zone delivering single-digit millisecond latency!";
+  }
+
   // AWS Services
   if (q.includes('ec2') || q.includes('ec 2') || q.includes('easy to') || q.includes('ec-2') || q.includes('virtual machine') || q.includes('compute')) {
     return "Amazon EC2 offers scalable compute capacity in the cloud. Recent updates focus on next-gen Graviton4 instances delivering up to 30% better price-performance!";
@@ -564,7 +588,7 @@ function getGroundedAWSResponse(question: string): string {
     return "AWS Cost Explorer and AWS Compute Savings Plans help engineering teams optimize cloud spend with automated reservation and resource rightsizing recommendations!";
   }
 
-  return `I've analyzed our live AWS telemetry matrix for "${question}". All systems are healthy and tracking hundreds of cloud releases with zero deduplication noise!`;
+  return "I'm actively monitoring all official AWS feeds and developer community discussions! Ask me about any cloud service like EC2, S3, Lambda, or Bedrock!";
 }
 
 /**

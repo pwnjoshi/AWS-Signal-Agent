@@ -392,58 +392,34 @@ export const DoriCompanion: React.FC<DoriCompanionProps> = ({
   return (
     <div className="relative inline-flex flex-col items-center select-none group font-sans">
       
-      {/* ── Expressive Clean Speech Bubble ── */}
+      {/* ── Sleek Zero-Layout-Shift Status Pill ── */}
       {showSpeechBubble && (
         <div 
           onClick={handleToggleVoiceSession}
-          className={`mb-4 max-w-xs sm:max-w-md px-4 py-2.5 rounded-2xl border text-center shadow-xl relative z-10 transition-all duration-300 cursor-pointer active:scale-98 ${
-            conversationState === 'speaking'
-              ? 'bg-blue-600 text-white border-blue-400 shadow-blue-500/30' 
-              : conversationState === 'listening'
-                ? 'bg-emerald-600 text-white border-emerald-400 shadow-emerald-500/30 animate-pulse'
-                : conversationState === 'thinking'
-                  ? 'bg-indigo-600 text-white border-indigo-400 shadow-indigo-500/30'
-                  : 'bg-white dark:bg-[#18181b] text-slate-900 dark:text-zinc-100 border-slate-200 dark:border-zinc-700 hover:border-blue-400 hover:shadow-md'
-          }`}
+          className="mb-3 cursor-pointer select-none transition-all active:scale-95"
+          title={isActive ? "Click to stop" : "Click to talk with Dori"}
         >
-          <div className="flex items-center justify-center gap-1.5 mb-1">
-            {conversationState === 'speaking' ? (
-              <span className="text-[11px] font-bold flex items-center gap-1 text-white">
-                <Volume2 className="w-3.5 h-3.5 animate-pulse" />
-                Dori is Talking (Click to Stop)
-              </span>
-            ) : conversationState === 'listening' ? (
-              <span className="text-[11px] font-bold flex items-center gap-1 text-white">
-                <Mic className="w-3.5 h-3.5 animate-bounce text-amber-300" />
-                Listening to you... (Click to End)
-              </span>
-            ) : conversationState === 'thinking' ? (
-              <span className="text-[11px] font-bold flex items-center gap-1 text-white">
-                <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-300" />
-                Processing Cloud Intelligence...
-              </span>
-            ) : (
-              <span className="text-[11px] font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1">
-                <Mic className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-                Talk with Dori
-              </span>
-            )}
-          </div>
-          
-          <p className={`text-xs leading-relaxed font-medium min-h-[1.25rem] ${isActive ? 'text-white' : 'text-slate-700 dark:text-zinc-300'}`}>
-            {displayedText}
-          </p>
-
-          {/* Speech Bubble Pointer Arrow */}
-          <div className={`absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 rotate-45 border-b border-r ${
-            conversationState === 'speaking'
-              ? 'bg-blue-600 border-blue-400'
-              : conversationState === 'listening'
-                ? 'bg-emerald-600 border-emerald-400'
-                : conversationState === 'thinking'
-                  ? 'bg-indigo-600 border-indigo-400'
-                  : 'bg-white dark:bg-[#18181b] border-slate-200 dark:border-zinc-700'
-          }`} />
+          {conversationState === 'speaking' ? (
+            <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-blue-600 text-white shadow-md shadow-blue-500/25 animate-in fade-in zoom-in-95 duration-150">
+              <Volume2 className="w-3.5 h-3.5 animate-pulse" />
+              <span>Dori is Speaking (Click to Stop)</span>
+            </div>
+          ) : conversationState === 'listening' ? (
+            <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-emerald-600 text-white shadow-md shadow-emerald-500/25 animate-pulse">
+              <Mic className="w-3.5 h-3.5 animate-bounce text-amber-300" />
+              <span>Listening to you... (Click to End)</span>
+            </div>
+          ) : conversationState === 'thinking' ? (
+            <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-indigo-600 text-white shadow-md shadow-indigo-500/25">
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-300" />
+              <span>Thinking...</span>
+            </div>
+          ) : (
+            <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-white dark:bg-[#18181b] border border-slate-200 dark:border-zinc-800 text-slate-700 dark:text-zinc-300 shadow-sm hover:border-blue-400 dark:hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-all">
+              <Mic className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+              <span>Talk with Dori</span>
+            </div>
+          )}
         </div>
       )}
 

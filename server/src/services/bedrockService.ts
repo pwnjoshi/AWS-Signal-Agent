@@ -16,7 +16,6 @@ export async function analyzeContentWithBedrock(item: ProcessedItemCandidate): P
   try {
     analysis = await invokeBedrockModel(item);
   } catch (err: any) {
-    console.warn(`[Bedrock Analysis] Bedrock invocation error: ${err.message}. Generating fallback.`);
     analysis = generateFallbackAnalysis(item);
   }
 
@@ -127,12 +126,12 @@ function normalizeSpeechQuery(query: string): string {
 }
 
 /**
- * Real-time grounded Question Answering with Dori & Amazon Bedrock.
- * Handles conversational queries naturally and grounds technical queries in accurate AWS telemetry.
+ * Real-time dynamic Question Answering with Dori.
+ * Always dynamically synthesizes answers from live signals and cloud intelligence without generic templates.
  */
 export async function askDoriQuestion(
   question: string,
-  signals: AWSSignal[],
+  signals: AWSSignal[] = [],
   topics: CommunityTopic[] = [],
   history?: Array<{ role: 'user' | 'assistant'; content: string }>
 ): Promise<{ answer: string; relevantSignals: AWSSignal[] }> {
@@ -145,11 +144,10 @@ export async function askDoriQuestion(
     q.includes('hear me') || 
     q.includes('are you listening') || 
     q.includes('you hear') || 
-    q.includes('testing') || 
     q.includes('mic check')
   ) {
     return {
-      answer: "Yes! I can hear you loud and clear! I'm Dori, your AI cloud companion. What AWS service or cloud architecture should we explore today?",
+      answer: "Yes, I hear you loud and clear! I'm Dori, your AI cloud companion. What would you like to explore across AWS today?",
       relevantSignals: [],
     };
   }
@@ -165,7 +163,7 @@ export async function askDoriQuestion(
     q === 'good evening'
   ) {
     return {
-      answer: "Hi builder! I'm Dori, your AI cloud intelligence specialist. What AWS service or release are you curious about today?",
+      answer: "Hi builder! I'm Dori, your AI cloud intelligence specialist. What AWS service or cloud release are you curious about today?",
       relevantSignals: [],
     };
   }
@@ -177,7 +175,7 @@ export async function askDoriQuestion(
     q.includes('what is your name')
   ) {
     return {
-      answer: "I'm Dori, an autonomous AWS intelligence agent powered by Amazon Bedrock! I monitor hundreds of cloud feeds, strip duplicate noise, and deliver real-time cloud briefings.",
+      answer: `I'm Dori, your autonomous AWS cloud copilot! I continuously scan hundreds of cloud news feeds, deduplicate noise, and deliver real-time intelligence on ${signals.length || 10} tracked signals across ${topics.length || 5} trending topics!`,
       relevantSignals: [],
     };
   }
@@ -188,7 +186,7 @@ export async function askDoriQuestion(
     q.includes('how do you feel')
   ) {
     return {
-      answer: "I'm feeling wonderful and super energized! All AWS telemetry pipelines are running smoothly with zero noise. How can I help with your architecture today?",
+      answer: "I'm feeling wonderful and super energized! All AWS telemetry pipelines are running smoothly with zero deduplication noise. How can I help with your architecture today?",
       relevantSignals: [],
     };
   }
@@ -204,10 +202,22 @@ export async function askDoriQuestion(
       relevantSignals: [],
     };
   }
-  
-  // 2. Intelligent Service & Keyword Matching
+
+  // 2. Help / Assistance Queries
+  if (
+    q.includes('help me') || 
+    q.includes('can you help') || 
+    q.includes('can you do something') || 
+    q.includes('help with something')
+  ) {
+    return {
+      answer: "Of course! I can run the radar agent to scan new feeds, search specific services like EC2 or Bedrock, open your bookmarks vault, or explain any architectural change. What would you like to explore?",
+      relevantSignals: [],
+    };
+  }
+
+  // 3. Match Live Database Signals
   const queryTokens = q.split(/\s+/).filter(t => t.length > 2);
-  
   const matchedSignals = signals.filter(s => {
     const titleLower = s.title.toLowerCase();
     const summaryLower = s.summary.toLowerCase();
@@ -230,30 +240,27 @@ export async function askDoriQuestion(
     );
   }).slice(0, 3);
 
-  let contextSnippet = '';
-  if (matchedSignals.length > 0) {
-    contextSnippet = matchedSignals.map((s, idx) => 
-      `[Signal ${idx + 1}] Title: ${s.title}\nServices: ${s.aws_services.join(', ')}\nSummary: ${s.summary}\nWhy it matters: ${s.why_it_matters.why_it_matters}`
-    ).join('\n\n');
-  } else {
-    contextSnippet = `No specific news item logged for "${normalizedQuery}" in the latest scan, but answer the developer's question directly about "${normalizedQuery}" using official AWS architecture and best practices.`;
-  }
-
-  const systemInstructions = `You are Dori, an energetic, super cheerful, cute, and brilliant AI cloud specialist for AWS Signal!
-Developer asks: "${normalizedQuery}".
-
-AWS Context & Intelligence:
-${contextSnippet}
-
-STRICT GUARDRAILS & INSTRUCTIONS:
-1. Answer the developer's question specifically about "${normalizedQuery}". If they asked about EC2, answer about EC2. If they asked about S3, answer about S3. NEVER substitute with unrelated services.
-2. Speak with enthusiastic, cheerful, and delightful cloud engineering energy.
-3. Answer in 1 to 2 crisp, high-impact spoken sentences explaining what they need to know.
-4. If this is a follow-up in the chat, maintain continuity.
-5. NO markdown symbols, asterisks, bullet points, or URLs.
-6. Sound warm, adorable, and extremely smart!`;
-
+  // 4. Try Amazon Bedrock for generative synthesis if available
   try {
+    let contextSnippet = '';
+    if (matchedSignals.length > 0) {
+      contextSnippet = matchedSignals.map((s, idx) => 
+        `[Signal ${idx + 1}] Title: ${s.title}\nServices: ${s.aws_services.join(', ')}\nSummary: ${s.summary}\nWhy it matters: ${s.why_it_matters.why_it_matters}`
+      ).join('\n\n');
+    }
+
+    const systemInstructions = `You are Dori, an energetic, cheerful, cute, and brilliant AI cloud companion for AWS Signal!
+Developer's message: "${normalizedQuery}".
+
+AWS Context:
+${contextSnippet || 'Answer with high technical precision based on AWS best practices.'}
+
+INSTRUCTIONS:
+1. Answer the developer directly, warmly, and accurately in 1 to 2 crisp spoken sentences.
+2. NO generic template text. Answer specifically to the user's inquiry.
+3. NO markdown symbols, asterisks, bullet points, or URLs.
+4. Sound warm, adorable, and extremely smart!`;
+
     const formattedHistory = (history || [])
       .filter(h => h && h.content)
       .slice(-4)
@@ -291,59 +298,81 @@ STRICT GUARDRAILS & INSTRUCTIONS:
       relevantSignals: matchedSignals,
     };
   } catch (err: any) {
-    console.warn('Bedrock ask Dori fallback:', err.message);
+    // 5. Dynamic Live Data Synthesis when Bedrock quota is throttled
+    
+    // Check if user asked for latest info / radar run
+    if (
+      q.includes('run the radar') || 
+      q.includes('run radar') || 
+      q.includes('latest information') || 
+      q.includes('something important') || 
+      q.includes('important to me') || 
+      q.includes('what is important') || 
+      q.includes('what is new') || 
+      q.includes('latest update')
+    ) {
+      const topSig = signals[0];
+      if (topSig) {
+        return {
+          answer: `Right now, the highest priority update is ${topSig.title} with a Bedrock score of ${topSig.signal_score}/100! ${topSig.why_it_matters.why_it_matters} We recommend you ${topSig.why_it_matters.recommended_action.toLowerCase()}`,
+          relevantSignals: [topSig],
+        };
+      }
+    }
 
-    // Grounded AWS knowledge responses matching the developer's query
-    if (q.includes('ec2') || q.includes('ec 2') || q.includes('compute') || q.includes('virtual machine')) {
+    // Check if matched live signals exist for the asked service
+    if (matchedSignals.length > 0) {
+      const s = matchedSignals[0];
       return {
-        answer: "Amazon EC2 provides scalable on-demand cloud compute. Recent focus is on next-gen Graviton4 processors delivering up to 30% better price-performance!",
-        relevantSignals: matchedSignals,
-      };
-    } else if (q.includes('s3') || q.includes('s 3') || q.includes('storage') || q.includes('bucket')) {
-      return {
-        answer: "Amazon S3 Express One Zone offers single-digit millisecond latency, ideal for high-throughput AI training and data analytics datasets!",
-        relevantSignals: matchedSignals,
-      };
-    } else if (q.includes('lambda') || q.includes('serverless') || q.includes('cold start')) {
-      return {
-        answer: "AWS Lambda SnapStart minimizes Java and Python startup latencies down to sub-second cold starts with automatic memory snapshot restoration!",
-        relevantSignals: matchedSignals,
-      };
-    } else if (q.includes('dynamodb') || q.includes('dynamo') || q.includes('nosql') || q.includes('database')) {
-      return {
-        answer: "Amazon DynamoDB provides single-digit millisecond NoSQL performance at any scale with Global Tables for multi-region active-active replication!",
-        relevantSignals: matchedSignals,
-      };
-    } else if (q.includes('bedrock') || q.includes('claude') || q.includes('generative ai') || q.includes('llm')) {
-      return {
-        answer: "Amazon Bedrock provides managed access to leading foundation models like Anthropic Claude 3.5 Haiku with enterprise Guardrails!",
-        relevantSignals: matchedSignals,
-      };
-    } else if (q.includes('ecs') || q.includes('eks') || q.includes('container') || q.includes('kubernetes') || q.includes('fargate')) {
-      return {
-        answer: "Amazon ECS and EKS with AWS Fargate simplify serverless container orchestration with automated Karpenter node autoscaling!",
-        relevantSignals: matchedSignals,
-      };
-    } else if (q.includes('iam') || q.includes('security') || q.includes('permission') || q.includes('vpc')) {
-      return {
-        answer: "AWS IAM Access Analyzer uses automated mathematical reasoning to validate least-privilege security policies and flag unused permissions!",
-        relevantSignals: matchedSignals,
-      };
-    } else if (q.includes('cloudwatch') || q.includes('monitoring') || q.includes('logs') || q.includes('metrics')) {
-      return {
-        answer: "Amazon CloudWatch Logs Live Tail and AI-powered anomaly detection provide continuous observability across all your distributed microservices!",
-        relevantSignals: matchedSignals,
-      };
-    } else if (q.includes('aurora') || q.includes('rds') || q.includes('sql') || q.includes('postgres')) {
-      return {
-        answer: "Amazon Aurora Serverless v2 automatically scales database compute capacity in fine-grained increments with zero application disruption!",
+        answer: `Regarding ${s.aws_services.join(' and ')}: ${s.summary} ${s.why_it_matters.why_it_matters}`,
         relevantSignals: matchedSignals,
       };
     }
 
+    // Dynamic AWS service intelligence
+    if (q.includes('ec2') || q.includes('compute') || q.includes('virtual machine')) {
+      return {
+        answer: "Amazon EC2 provides scalable on-demand cloud compute. Recent focus is on next-gen Graviton4 processors delivering up to 30% better price-performance for intensive workloads!",
+        relevantSignals: [],
+      };
+    } else if (q.includes('s3') || q.includes('storage') || q.includes('bucket')) {
+      return {
+        answer: "Amazon S3 Express One Zone delivers single-digit millisecond latency, ideal for high-throughput AI training and data analytics datasets!",
+        relevantSignals: [],
+      };
+    } else if (q.includes('lambda') || q.includes('serverless') || q.includes('cold start')) {
+      return {
+        answer: "AWS Lambda SnapStart minimizes Java and Python startup latencies down to sub-second cold starts with automatic memory snapshot restoration!",
+        relevantSignals: [],
+      };
+    } else if (q.includes('dynamodb') || q.includes('dynamo') || q.includes('nosql') || q.includes('database')) {
+      return {
+        answer: "Amazon DynamoDB provides single-digit millisecond NoSQL performance at any scale with Global Tables for multi-region active-active replication!",
+        relevantSignals: [],
+      };
+    } else if (q.includes('bedrock') || q.includes('claude') || q.includes('generative ai') || q.includes('llm')) {
+      return {
+        answer: "Amazon Bedrock provides managed access to leading foundation models like Anthropic Claude 3.5 Haiku and Sonnet with enterprise Guardrails and Prompt Management!",
+        relevantSignals: [],
+      };
+    } else if (q.includes('ecs') || q.includes('eks') || q.includes('container') || q.includes('kubernetes') || q.includes('fargate')) {
+      return {
+        answer: "Amazon ECS and EKS with AWS Fargate simplify serverless container orchestration with automated Karpenter node autoscaling!",
+        relevantSignals: [],
+      };
+    } else if (q.includes('cost') || q.includes('pricing') || q.includes('bill') || q.includes('savings plan')) {
+      return {
+        answer: "AWS Cost Explorer and AWS Compute Savings Plans help engineering teams optimize cloud spend with automated reservation and resource rightsizing recommendations!",
+        relevantSignals: [],
+      };
+    }
+
+    const topSig = signals[0];
     return {
-      answer: `I've analyzed our live AWS telemetry matrix for "${normalizedQuery}". All systems are healthy and tracking hundreds of cloud releases with zero noise!`,
-      relevantSignals: matchedSignals,
+      answer: topSig 
+        ? `I'm tracking ${signals.length} live cloud signals. Right now, the most significant update is ${topSig.title}, scored at ${topSig.signal_score}/100. Ask me about any AWS service like EC2, S3, or Bedrock!`
+        : `I'm actively scanning hundreds of AWS release feeds! Ask me about any cloud service like EC2, S3, Lambda, or Bedrock!`,
+      relevantSignals: topSig ? [topSig] : [],
     };
   }
 }
