@@ -66,19 +66,19 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
       {/* ── Section 1: Hero Showcase ── */}
       <section className="relative overflow-hidden pt-8 pb-10 sm:pt-14 sm:pb-14 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto flex flex-col items-center text-center">
         
-        {/* Animated Moving Lightning Shimmer Border Pill (No blinking dot) */}
+        {/* Animated Moving Shimmer Border Pill */}
         <div className="relative p-[1.5px] rounded-full overflow-hidden inline-flex mb-5 shadow-sm">
           <div className="absolute inset-[-100%] animate-[spin_3s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#2563eb_0%,#38bdf8_40%,#10b981_70%,#2563eb_100%)]" />
           <div className="relative px-4 py-1.5 rounded-full bg-white dark:bg-[#121216] text-blue-600 dark:text-blue-400 text-xs font-semibold tracking-wide flex items-center gap-1.5">
-            <Zap className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+            <Radio className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
             <span>Autonomous AWS Intelligence</span>
           </div>
         </div>
 
-        {/* Crisp High-Impact Heading in Exactly 2 Rows */}
-        <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 dark:text-zinc-100 tracking-tight leading-tight max-w-4xl flex flex-col items-center">
-          <span className="block">AWS updates without noise.</span>
-          <span className="block mt-1 sm:mt-2">
+        {/* Crisp High-Impact Heading in Exactly 2 Lines on All Screens */}
+        <h1 className="text-xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 dark:text-zinc-100 tracking-tight leading-tight max-w-5xl flex flex-col items-center justify-center">
+          <span className="block sm:whitespace-nowrap">AWS updates without noise.</span>
+          <span className="block mt-1 sm:mt-2 sm:whitespace-nowrap">
             Scored by <span className="text-blue-600 dark:text-blue-400">Bedrock</span>. Spoken by <span className="text-indigo-600 dark:text-indigo-400">Dori</span>.
           </span>
         </h1>
