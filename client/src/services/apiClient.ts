@@ -338,8 +338,28 @@ function fallbackBrowserSpeech(
   window.speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(text);
   activeUtterance = utterance;
+
+  // Pick cute female / young robotic voice
+  const voices = window.speechSynthesis.getVoices();
+  const cuteVoice = voices.find(v => 
+    v.lang.startsWith('en') && (
+      v.name.includes('Google US English') ||
+      v.name.includes('Samantha') ||
+      v.name.includes('Victoria') ||
+      v.name.includes('Jenny') ||
+      v.name.includes('Zira') ||
+      v.name.includes('Karen') ||
+      v.name.includes('Female')
+    )
+  ) || voices.find(v => v.lang.startsWith('en')) || voices[0];
+
+  if (cuteVoice) {
+    utterance.voice = cuteVoice;
+  }
+
   utterance.rate = 1.12;
-  utterance.pitch = 1.35; // Cute energetic child voice pitch
+  utterance.pitch = 1.52; // Sweet, cute robotic girl pitch
+  utterance.volume = 1.0;
 
   // Word-by-word boundary sync
   if (onWordBoundary) {

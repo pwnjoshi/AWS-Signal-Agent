@@ -584,6 +584,27 @@ export const DoriCompanion: React.FC<DoriCompanionProps> = ({
             <path d="M 52 51 Q 60 60 68 51" stroke="#1E293B" strokeWidth="2.5" strokeLinecap="round" fill="none" />
           )}
 
+          {/* ── Animated Gesturing Cute Hands ── */}
+          {conversationState === 'speaking' ? (
+            // Waving & gesturing hands while talking!
+            <>
+              <ellipse cx="15" cy="56" rx="6" ry="6" fill="#FFFFFF" stroke="#3B82F6" strokeWidth="2" className="animate-bounce" />
+              <ellipse cx="105" cy="56" rx="6" ry="6" fill="#FFFFFF" stroke="#3B82F6" strokeWidth="2" className="animate-bounce" />
+            </>
+          ) : conversationState === 'listening' ? (
+            // Hands raised attentively listening!
+            <>
+              <circle cx="16" cy="46" r="6.5" fill="#FFFFFF" stroke="#10B981" strokeWidth="2.5" />
+              <circle cx="104" cy="46" r="6.5" fill="#FFFFFF" stroke="#10B981" strokeWidth="2.5" />
+            </>
+          ) : (
+            // Resting cute little cloud paws
+            <>
+              <circle cx="18" cy="62" r="5.5" fill="#FFFFFF" stroke="#3B82F6" strokeWidth="1.5" />
+              <circle cx="102" cy="62" r="5.5" fill="#FFFFFF" stroke="#3B82F6" strokeWidth="1.5" />
+            </>
+          )}
+
           {/* Cute Blue Feet */}
           <ellipse cx="44" cy="97" rx="10" ry="5.5" fill="#1D4ED8" />
           <ellipse cx="76" cy="97" rx="10" ry="5.5" fill="#1D4ED8" />
