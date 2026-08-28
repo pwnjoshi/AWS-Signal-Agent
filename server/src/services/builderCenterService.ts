@@ -15,8 +15,23 @@ export interface BuilderCenterVerificationResult extends BuilderCenterProfile {
 const VERIFIED_BUILDER_REGISTRY: Record<string, { display_name: string; email: string; tier: string }> = {
   'pawanjoshidev': {
     display_name: 'Pawan Joshi',
-    email: 'pawan@builder.aws',
+    email: 'joshipawan2021@gmail.com',
     tier: 'AWS Community Builder & AI Specialist',
+  },
+  'pawanjoshi': {
+    display_name: 'Pawan Joshi',
+    email: 'joshipawan2021@gmail.com',
+    tier: 'AWS Community Builder',
+  },
+  'joshipawan2021': {
+    display_name: 'Pawan Joshi',
+    email: 'joshipawan2021@gmail.com',
+    tier: 'AWS Community Builder',
+  },
+  'pawan': {
+    display_name: 'Pawan Joshi',
+    email: 'joshipawan2021@gmail.com',
+    tier: 'AWS Community Builder',
   },
   'builder_srijana_2026': {
     display_name: 'Srijana',
@@ -97,7 +112,7 @@ export async function verifyWithAWSBuilderCenter(
     };
   }
 
-  // 2. Direct Registry Match
+  // 2. Direct Registry Match in AWS Builder Center Directory
   const registered = VERIFIED_BUILDER_REGISTRY[cleanId];
   if (registered) {
     return {
@@ -110,30 +125,7 @@ export async function verifyWithAWSBuilderCenter(
     };
   }
 
-  // 3. AWS Builder Center Live Handle Validation:
-  // Detects valid developer usernames, names, and builder handles (e.g. pawanjoshidev, srijanadev, benfowleraws, alex_aws, etc.)
-  const hasVowels = /[aeiouy]/.test(cleanId);
-  const isNotKeyboardSmash = cleanId.length >= 3 && hasVowels;
-
-  if (isNotKeyboardSmash) {
-    // Generate clean human-readable name if not provided
-    const formattedName = displayName?.trim() || cleanId
-      .replace(/^builder_/, '')
-      .replace(/(_aws|_builder|dev|_dev)$/, '')
-      .replace(/[_.-]/g, ' ')
-      .replace(/\b\w/g, c => c.toUpperCase());
-
-    return {
-      verified: true,
-      builder_id: cleanId,
-      display_name: formattedName,
-      email: email?.trim() || `${cleanId}@builder.aws`,
-      tier: 'Verified AWS Builder',
-      builder_center_status: 'ACTIVE',
-    };
-  }
-
-  // 4. Non-existent / Unverified username in AWS Builder Center
+  // 3. Non-existent / Unverified username in AWS Builder Center Directory
   return {
     verified: false,
     builder_id: cleanId,
@@ -141,6 +133,6 @@ export async function verifyWithAWSBuilderCenter(
     email: '',
     tier: '',
     builder_center_status: 'NOT_FOUND',
-    error: `Handle '@${cleanId}' was not found in the AWS Builder Center directory. Please enter a registered AWS Builder ID (e.g. pawanjoshidev, builder_srijana_2026, benfowleraws).`,
+    error: `Handle '@${cleanId}' was not found in the AWS Builder Center directory. Please enter a registered AWS Builder ID (e.g. pawanjoshidev, builder_srijana_2026, srijana_aws, benfowleraws).`,
   };
 }
