@@ -260,10 +260,11 @@ export async function updatePreferences(prefs: Partial<UserPreferences>): Promis
   return res.json();
 }
 
-export async function sendTestEmailAlert(): Promise<any> {
+export async function sendTestEmailAlert(email?: string): Promise<any> {
   const res = await fetch(`${BASE_URL}/api/alerts/test`, { 
     method: 'POST',
     headers: defaultHeaders(),
+    body: JSON.stringify({ email }),
   });
   if (!res.ok) throw new Error('Failed to send test alert');
   return res.json();

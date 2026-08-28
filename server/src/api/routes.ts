@@ -277,17 +277,46 @@ router.put('/preferences', rateLimiter(30, 15 * 60 * 1000), (req, res) => {
 });
 
 // Test Email Alert
-router.post('/alerts/test', rateLimiter(5, 15 * 60 * 1000), async (req, res) => {
+router.post('/alerts/test', rateLimiter(10, 15 * 60 * 1000), async (req, res) => {
+  const { email } = req.body;
   const signals = storage.getSignals();
-  const targetSignal = signals[0];
-  const prefs = storage.getPreferences();
+  const targetSignal = signals[0] || {
+    signal_id: 'test_signal_1',
+    title: 'Amazon Bedrock: Anthropic Claude 3.5 Haiku Now Available',
+    source: 'AWS News Blog',
+    source_url: 'https://aws.amazon.com/blogs/aws/',
+    published_at: new Date().toISOString(),
+    discovered_at: new Date().toISOString(),
+    aws_services: ['Amazon Bedrock', 'AWS Lambda'],
+    category: 'Announcement',
+    summary: 'Anthropic Claude 3.5 Haiku is now available in Amazon Bedrock with faster latency and 3x cost reduction.',
+    importance_score: 95,
+    relevance_score: 92,
+    novelty_score: 88,
+    momentum_score: 90,
+    impact_score: 94,
+    signal_score: 94,
+    confidence_score: 98,
+    why_it_matters: {
+      what_happened: 'Claude 3.5 Haiku launched on Amazon Bedrock.',
+      why_it_matters: 'Provides 3x faster inference speed and reduced token cost for real-time agent workflows.',
+      who_should_care: ['GenAI Developers', 'Cloud Architects'],
+      community_reaction: 'Enthusiastic adoption across developer community.',
+      recommended_action: 'Upgrade model invocation ARN to Claude 3.5 Haiku in Bedrock.',
+    },
+    content_hash: 'hash_test',
+    status: 'new',
+  };
 
-  if (!targetSignal) {
-    return res.status(400).json({ error: 'No signals available for test alert' });
+  const prefs = storage.getPreferences();
+  if (email && typeof email === 'string' && email.includes('@')) {
+    prefs.email = email.trim();
+    prefs.email_list = [email.trim()];
+    storage.updatePreferences({ email: email.trim(), email_list: [email.trim()] });
   }
 
-  const result = await sendSignalAlertIfNeeded(targetSignal, prefs);
-  res.json({ success: true, result });
+  const result = await sendSignalAlertIfNeeded(targetSignal as any, prefs);
+  res.json({ success: true, result, recipient: prefs.email });
 });
 
 export default router;

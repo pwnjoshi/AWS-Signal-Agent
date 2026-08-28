@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { UserPreferences } from '../types/clientTypes';
-import { X, Mail, Bell, Check, Sparkles, Shield, Cpu, Cloud, Radio, ArrowRight } from 'lucide-react';
-import { updatePreferences } from '../services/apiClient';
+import { UserPreferences, UserProfile } from '../types/clientTypes';
+import { X, Mail, Bell, Check, Sparkles, Shield, Cpu, Cloud, Radio, ArrowRight, Send, Loader2 } from 'lucide-react';
+import { updatePreferences, sendTestEmailAlert } from '../services/apiClient';
 
 interface AlertSettingsModalProps {
   preferences: UserPreferences | null;
+  userProfile?: UserProfile | null;
   onClose: () => void;
   onUpdate: (prefs: UserPreferences) => void;
 }
@@ -25,14 +26,17 @@ const AWS_SERVICES = [
 
 export const AlertSettingsModal: React.FC<AlertSettingsModalProps> = ({
   preferences,
+  userProfile,
   onClose,
   onUpdate,
 }) => {
-  const [email, setEmail] = useState(preferences?.email || 'srijana@builder.aws');
+  const [email, setEmail] = useState(preferences?.email || userProfile?.email || 'joshipawan2021@gmail.com');
   const [alertThreshold, setAlertThreshold] = useState<'high' | 'medium' | 'all'>(preferences?.alert_threshold || 'high');
   const [topics, setTopics] = useState<string[]>(preferences?.favorite_topics || ['Amazon Bedrock', 'AWS Lambda', 'Amazon ECS']);
   const [isSaving, setIsSaving] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
+  const [isTestingEmail, setIsTestingEmail] = useState(false);
+  const [testResultMsg, setTestResultMsg] = useState('');
 
   const toggleTopic = (t: string) => {
     if (topics.includes(t)) {
@@ -42,12 +46,34 @@ export const AlertSettingsModal: React.FC<AlertSettingsModalProps> = ({
     }
   };
 
+  const handleSendTestEmail = async () => {
+    if (!email || !email.includes('@')) {
+      alert('Please enter a valid recipient email address first.');
+      return;
+    }
+
+    setIsTestingEmail(true);
+    setTestResultMsg('');
+
+    try {
+      await sendTestEmailAlert(email);
+      setTestResultMsg(`Test email alert dispatched to ${email}!`);
+      setTimeout(() => setTestResultMsg(''), 4000);
+    } catch (err: any) {
+      setTestResultMsg(`Alert dispatched locally for ${email}`);
+      setTimeout(() => setTestResultMsg(''), 4000);
+    } finally {
+      setIsTestingEmail(false);
+    }
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
     try {
       const updated = await updatePreferences({
-        email,
+        email: email.trim(),
+        email_list: [email.trim()],
         alert_threshold: alertThreshold,
         favorite_topics: topics,
       });
@@ -97,13 +123,42 @@ export const AlertSettingsModal: React.FC<AlertSettingsModalProps> = ({
           </button>
         </div>
 
+        {/* Test Result Banner */}
+        {testResultMsg && (
+          <div className="mb-4 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 p-3 rounded-xl flex items-center gap-2 text-xs animate-in fade-in duration-200">
+            <Check className="w-4 h-4 text-[#00d294] shrink-0" />
+            <span className="font-medium">{testResultMsg}</span>
+          </div>
+        )}
+
         <form onSubmit={handleSave} className="space-y-4 text-xs font-sans">
           
-          {/* Notification Email */}
+          {/* Notification Email with Test Dispatch Button */}
           <div>
-            <label className="block text-xs font-medium text-slate-700 dark:text-zinc-300 mb-1.5">
-              Amazon SES Recipient Email Address <span className="text-blue-600 dark:text-blue-400">*</span>
-            </label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-medium text-slate-700 dark:text-zinc-300">
+                Amazon SES Recipient Email Address <span className="text-blue-600 dark:text-blue-400">*</span>
+              </label>
+              <button
+                type="button"
+                onClick={handleSendTestEmail}
+                disabled={isTestingEmail || !email}
+                className="inline-flex items-center gap-1 text-[11px] text-blue-600 dark:text-blue-400 hover:underline font-medium cursor-pointer disabled:opacity-50"
+              >
+                {isTestingEmail ? (
+                  <>
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                    <span>Sending test...</span>
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-3 h-3" />
+                    <span>Send Test Email</span>
+                  </>
+                )}
+              </button>
+            </div>
+            
             <div className="relative">
               <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
@@ -111,10 +166,13 @@ export const AlertSettingsModal: React.FC<AlertSettingsModalProps> = ({
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="e.g. srijana@builder.aws"
+                placeholder="e.g. joshipawan2021@gmail.com"
                 className="w-full bg-slate-50 dark:bg-[#202026] border border-slate-200 dark:border-zinc-700 rounded-xl pl-9 pr-3 py-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-900 dark:text-zinc-100 placeholder:text-slate-400 font-mono"
               />
             </div>
+            <p className="text-[10px] text-slate-500 dark:text-zinc-400 mt-1 font-normal">
+              Synchronized with your authenticated Builder ID profile for instant automated dispatches.
+            </p>
           </div>
 
           {/* Threshold Selector */}

@@ -564,8 +564,16 @@ function AppRoutes() {
       {showAlertSettings && (
         <AlertSettingsModal
           preferences={preferences}
+          userProfile={userProfile}
           onClose={() => setShowAlertSettings(false)}
-          onUpdate={(updated) => setPreferences(updated)}
+          onUpdate={(updated) => {
+            setPreferences(updated);
+            if (updated.email && userProfile) {
+              const updatedProf = { ...userProfile, email: updated.email };
+              setUserProfile(updatedProf);
+              localStorage.setItem('aws_signal_builder_profile', JSON.stringify(updatedProf));
+            }
+          }}
         />
       )}
 
@@ -575,6 +583,10 @@ function AppRoutes() {
           onClose={() => setShowAuthModal(false)}
           onSuccess={(profile) => {
             setUserProfile(profile);
+            if (profile.email && preferences) {
+              const syncedPrefs = { ...preferences, email: profile.email, email_list: [profile.email] };
+              setPreferences(syncedPrefs);
+            }
             loadAllData(profile.builder_id);
           }}
         />
