@@ -86,37 +86,37 @@ export const AlertSettingsModal: React.FC<AlertSettingsModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 p-6 sm:p-8 animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 font-mono text-zinc-100">
+      <div className="bg-[#121216] rounded-3xl max-w-lg w-full shadow-2xl border border-[#27272a] p-6 sm:p-8 animate-in fade-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto">
         
         {/* Header */}
-        <div className="flex items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-100">
+        <div className="flex items-center justify-between gap-4 mb-6 pb-4 border-b border-[#27272a]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 font-bold">
+            <div className="w-10 h-10 rounded-2xl bg-[#AD5CFF]/15 border border-[#AD5CFF]/30 flex items-center justify-center text-[#AD5CFF] font-bold">
               <Mail className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-xl font-extrabold text-slate-900 leading-tight font-rounded">
+              <h2 className="text-base sm:text-lg font-black font-display uppercase tracking-tight text-white">
                 Schedule & Alert Settings
               </h2>
-              <p className="text-xs text-slate-400">Configure Autonomous Agent Frequency & Email List</p>
+              <p className="text-xs text-zinc-400 font-sans">Configure Autonomous Agent Frequency & Email List</p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-all"
+            className="p-2 text-zinc-400 hover:text-white hover:bg-[#18181b] rounded-full transition-all border border-[#27272a]"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Options Form */}
-        <div className="space-y-6 text-sm text-slate-700">
+        <div className="space-y-6 text-xs text-zinc-300">
 
           {/* 1. Recipient Email List */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+            <label className="block text-xs font-bold text-white uppercase tracking-wider mb-2">
               Notification Recipient Emails
             </label>
             <div className="flex gap-2 mb-2">
@@ -126,12 +126,12 @@ export const AlertSettingsModal: React.FC<AlertSettingsModalProps> = ({
                 onChange={(e) => setEmailInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddEmail())}
                 placeholder="Add email address (e.g. devops@company.com)..."
-                className="flex-1 bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                className="flex-1 bg-[#18181b] border border-[#27272a] rounded-xl px-4 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-[#AD5CFF] text-zinc-100 placeholder:text-zinc-500 font-medium"
               />
               <button
                 type="button"
                 onClick={handleAddEmail}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1"
+                className="bg-[#AD5CFF] hover:bg-[#9C47FF] text-white px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 uppercase"
               >
                 <Plus className="w-4 h-4" />
                 Add
@@ -141,13 +141,13 @@ export const AlertSettingsModal: React.FC<AlertSettingsModalProps> = ({
             {/* Email Chips */}
             <div className="flex flex-wrap gap-2 pt-1">
               {emailList.map((addr) => (
-                <span key={addr} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-blue-50 text-blue-700 border border-blue-200 text-xs font-bold">
+                <span key={addr} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-[#09090b] text-[#AD5CFF] border border-[#AD5CFF]/30 text-xs font-bold">
                   <span>{addr}</span>
                   {emailList.length > 1 && (
                     <button
                       type="button"
                       onClick={() => handleRemoveEmail(addr)}
-                      className="text-blue-400 hover:text-red-500 transition-colors"
+                      className="text-zinc-400 hover:text-red-400 transition-colors"
                     >
                       <Trash2 className="w-3 h-3" />
                     </button>
@@ -159,8 +159,8 @@ export const AlertSettingsModal: React.FC<AlertSettingsModalProps> = ({
 
           {/* 2. Autonomous Agent Execution Schedule */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5 text-blue-600" />
+            <label className="block text-xs font-bold text-white uppercase tracking-wider mb-2 flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5 text-[#AD5CFF]" />
               Autonomous Agent Scan Frequency
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -175,41 +175,41 @@ export const AlertSettingsModal: React.FC<AlertSettingsModalProps> = ({
                   key={opt.id}
                   type="button"
                   onClick={() => setScheduleFreq(opt.id as any)}
-                  className={`p-3 rounded-xl border text-left transition-all ${
+                  className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
                     scheduleFreq === opt.id
-                      ? 'border-blue-600 bg-blue-50 text-blue-700 font-bold shadow-sm'
-                      : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                      ? 'border-[#AD5CFF] bg-[#AD5CFF]/15 text-white font-bold shadow-purple-glow'
+                      : 'border-[#27272a] bg-[#09090b] text-zinc-400 hover:bg-[#18181b] hover:text-zinc-200'
                   }`}
                 >
                   <span className="text-xs block font-bold">{opt.label}</span>
-                  <span className="text-[10px] text-slate-400 font-mono block mt-0.5">{opt.cron}</span>
+                  <span className="text-[10px] text-zinc-500 font-mono block mt-0.5">{opt.cron}</span>
                 </button>
               ))}
             </div>
           </div>
 
           {/* 3. Enable Toggle */}
-          <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-200">
+          <div className="flex items-center justify-between p-4 bg-[#09090b] rounded-2xl border border-[#27272a]">
             <div>
-              <span className="font-bold text-slate-900 block text-sm">Enable Email Alerts</span>
-              <span className="text-xs text-slate-500">Sends alerts to all emails in your list.</span>
+              <span className="font-bold text-white block text-xs uppercase tracking-wide">Enable Email Alerts</span>
+              <span className="text-[11px] text-zinc-400 font-sans">Sends alerts to all emails in your list.</span>
             </div>
             <input
               type="checkbox"
               checked={emailEnabled}
               onChange={(e) => setEmailEnabled(e.target.checked)}
-              className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500 cursor-pointer"
+              className="w-5 h-5 accent-[#AD5CFF] rounded cursor-pointer"
             />
           </div>
 
           {/* 4. Alert Threshold */}
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+            <label className="block text-xs font-bold text-white uppercase tracking-wider mb-2">
               Alert Priority Threshold
             </label>
             <div className="grid grid-cols-3 gap-2">
               {[
-                { id: 'high', label: 'High Priority Only', sub: 'Score >= 80' },
+                { id: 'high', label: 'High Priority', sub: 'Score >= 80' },
                 { id: 'medium', label: 'Medium & Above', sub: 'Score >= 60' },
                 { id: 'all', label: 'All Signals', sub: 'Every update' },
               ].map((opt) => (
@@ -217,14 +217,14 @@ export const AlertSettingsModal: React.FC<AlertSettingsModalProps> = ({
                   key={opt.id}
                   type="button"
                   onClick={() => setThreshold(opt.id as any)}
-                  className={`p-3 rounded-xl border text-left transition-all ${
+                  className={`p-3 rounded-xl border text-left transition-all cursor-pointer ${
                     threshold === opt.id
-                      ? 'border-blue-600 bg-blue-50 text-blue-700 font-bold shadow-sm'
-                      : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                      ? 'border-[#AD5CFF] bg-[#AD5CFF]/15 text-white font-bold shadow-purple-glow'
+                      : 'border-[#27272a] bg-[#09090b] text-zinc-400 hover:bg-[#18181b] hover:text-zinc-200'
                   }`}
                 >
                   <span className="text-xs block font-bold">{opt.label}</span>
-                  <span className="text-[10px] text-slate-400 font-normal">{opt.sub}</span>
+                  <span className="text-[10px] text-zinc-500 font-normal">{opt.sub}</span>
                 </button>
               ))}
             </div>
@@ -236,13 +236,13 @@ export const AlertSettingsModal: React.FC<AlertSettingsModalProps> = ({
               type="button"
               onClick={handleSendTest}
               disabled={sendingTest}
-              className="w-full flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-xl font-bold text-xs transition-all disabled:opacity-50"
+              className="w-full flex items-center justify-center gap-2 bg-[#18181b] hover:bg-[#27272a] text-zinc-200 border border-[#27272a] px-4 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all disabled:opacity-50"
             >
-              <Send className="w-3.5 h-3.5" />
+              <Send className="w-3.5 h-3.5 text-[#AD5CFF]" />
               <span>{sendingTest ? 'Sending Test Alert...' : `Send Test SES Alert to ${emailList.length} Recipient(s)`}</span>
             </button>
             {testResult && (
-              <p className="text-xs font-semibold text-emerald-600 mt-2 text-center">
+              <p className="text-xs font-semibold text-[#00d294] mt-2 text-center">
                 {testResult}
               </p>
             )}
@@ -250,16 +250,16 @@ export const AlertSettingsModal: React.FC<AlertSettingsModalProps> = ({
         </div>
 
         {/* Footer Actions */}
-        <div className="mt-8 pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
+        <div className="mt-8 pt-4 border-t border-[#27272a] flex items-center justify-end gap-3">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 transition-all"
+            className="px-4 py-2 rounded-xl text-xs font-bold text-zinc-400 hover:bg-[#18181b] hover:text-white transition-all uppercase"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-md shadow-blue-500/20 transition-all"
+            className="bg-[#AD5CFF] hover:bg-[#9C47FF] text-white px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider shadow-purple-glow transition-all"
           >
             Save Schedule & Preferences
           </button>
@@ -269,3 +269,4 @@ export const AlertSettingsModal: React.FC<AlertSettingsModalProps> = ({
     </div>
   );
 };
+export default AlertSettingsModal;

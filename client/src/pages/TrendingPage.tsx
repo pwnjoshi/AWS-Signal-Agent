@@ -9,14 +9,14 @@ interface TrendingPageProps {
 
 export const TrendingPage: React.FC<TrendingPageProps> = ({ trends }) => {
   return (
-    <div className="space-y-6 pb-12">
+    <div className="space-y-6 pb-12 font-mono text-zinc-100">
       <div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-rounded flex items-center gap-3">
-          <Flame className="w-7 h-7 text-amber-500" />
-          Emerging AWS Community Signals & Trends
+        <h1 className="text-xl sm:text-2xl font-black text-white font-display uppercase tracking-tight flex items-center gap-3">
+          <Flame className="w-6 h-6 text-[#ffc080]" />
+          Emerging AWS Community Friction & Trends
         </h1>
-        <p className="text-slate-500 text-sm mt-1">
-          Dori monitors re:Post developer questions, blogs, and forums to spot recurring developer challenges before they become official outages.
+        <p className="text-zinc-400 text-xs sm:text-sm mt-1 font-sans">
+          Dori monitors re:Post developer questions, blogs, and forums to spot recurring developer challenges before they become official issues.
         </p>
       </div>
 
@@ -28,3 +28,4 @@ export const TrendingPage: React.FC<TrendingPageProps> = ({ trends }) => {
     </div>
   );
 };
+export default TrendingPage;

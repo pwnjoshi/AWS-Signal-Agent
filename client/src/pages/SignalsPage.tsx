@@ -53,14 +53,14 @@ export const SignalsPage: React.FC<SignalsPageProps> = ({
   }
 
   return (
-    <div className="space-y-6 pb-12">
+    <div className="space-y-6 pb-12 font-mono text-zinc-100">
       <div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-rounded flex items-center gap-3">
-          <Radio className="w-7 h-7 text-blue-600" />
-          {savedOnly ? 'Saved Signals' : 'AWS Signals Intelligence Stream'}
+        <h1 className="text-xl sm:text-2xl font-black text-white font-display uppercase tracking-tight flex items-center gap-3">
+          <Radio className="w-6 h-6 text-[#AD5CFF]" />
+          {savedOnly ? 'Saved Signals Vault' : 'AWS Radar Intelligence Stream'}
         </h1>
-        <p className="text-slate-500 text-sm mt-1">
-          {savedOnly ? 'Bookmarked AWS articles and community discussions.' : 'All discovered, normalized, and Bedrock-ranked AWS items.'}
+        <p className="text-zinc-400 text-xs sm:text-sm mt-1 font-sans">
+          {savedOnly ? 'Your personally bookmarked AWS articles and architecture patterns.' : 'All discovered, normalized, SHA-256 deduplicated, and Bedrock-ranked signals.'}
         </p>
       </div>
 
@@ -79,10 +79,10 @@ export const SignalsPage: React.FC<SignalsPageProps> = ({
       />
 
       {filtered.length === 0 ? (
-        <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center text-slate-500">
-          <Bookmark className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-          <p className="font-semibold text-base text-slate-700">No signals match your current filter settings.</p>
-          <p className="text-xs text-slate-400 mt-1">Try resetting your service or category filters.</p>
+        <div className="bg-[#121216] rounded-3xl border border-[#27272a] p-12 text-center text-zinc-400 space-y-3">
+          <Bookmark className="w-10 h-10 text-zinc-600 mx-auto" />
+          <p className="font-bold text-sm sm:text-base text-white">No signals match your filter criteria.</p>
+          <p className="text-xs text-zinc-500">Try clearing your filters or running the radar agent.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -99,3 +99,4 @@ export const SignalsPage: React.FC<SignalsPageProps> = ({
     </div>
   );
 };
+export default SignalsPage;
