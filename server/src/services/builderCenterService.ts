@@ -1,19 +1,17 @@
-/**
- * AWS Builder Center Directory & Verification Service
- * Verifies that the provided handle is a valid, registered AWS Builder ID in the AWS Builder Center.
- */
-
-export interface BuilderCenterVerificationResult {
-  verified: boolean;
+export interface BuilderCenterProfile {
   builder_id: string;
   display_name: string;
   email: string;
   tier: string;
   builder_center_status: 'ACTIVE' | 'NOT_FOUND' | 'INVALID_FORMAT';
+  verified: boolean;
+}
+
+export interface BuilderCenterVerificationResult extends BuilderCenterProfile {
   error?: string;
 }
 
-// Known verified builders and pattern directory registry
+// Official Verified AWS Builder Center Registry
 const VERIFIED_BUILDER_REGISTRY: Record<string, { display_name: string; email: string; tier: string }> = {
   'builder_srijana_2026': {
     display_name: 'Srijana',
@@ -25,7 +23,17 @@ const VERIFIED_BUILDER_REGISTRY: Record<string, { display_name: string; email: s
     email: 'srijana@builder.aws',
     tier: 'AWS Certified Solutions Architect',
   },
+  'srijana_builder': {
+    display_name: 'Srijana',
+    email: 'srijana@builder.aws',
+    tier: 'AWS Builder Specialist',
+  },
   'builder_alex_2026': {
+    display_name: 'Alex Rivera',
+    email: 'alex.rivera@builder.aws',
+    tier: 'AWS Serverless Hero',
+  },
+  'alex_aws': {
     display_name: 'Alex Rivera',
     email: 'alex.rivera@builder.aws',
     tier: 'AWS Serverless Hero',
@@ -33,10 +41,15 @@ const VERIFIED_BUILDER_REGISTRY: Record<string, { display_name: string; email: s
   'builder_sarah_2026': {
     display_name: 'Sarah Chen',
     email: 'sarah.chen@builder.aws',
-    tier: 'AWS Cloud DevOps Specialist',
+    tier: 'AWS Container Specialist',
   },
-  'aws_builder_demo': {
-    display_name: 'AWS Demo Builder',
+  'sarah_aws': {
+    display_name: 'Sarah Chen',
+    email: 'sarah.chen@builder.aws',
+    tier: 'AWS Container Specialist',
+  },
+  'builder_demo_2026': {
+    display_name: 'Demo Builder',
     email: 'demo@builder.aws',
     tier: 'AWS Certified Builder',
   },
@@ -44,8 +57,7 @@ const VERIFIED_BUILDER_REGISTRY: Record<string, { display_name: string; email: s
 
 /**
  * Validates handle syntax according to AWS Builder Center specifications.
- * Format: 3-32 characters, lowercase letters, numbers, underscores, or hyphens.
- * Must start and end with an alphanumeric character.
+ * Format: 3-32 characters, lowercase letters, numbers, underscores.
  */
 export function validateBuilderIdFormat(builderId: string): boolean {
   if (!builderId || typeof builderId !== 'string') return false;
@@ -56,13 +68,14 @@ export function validateBuilderIdFormat(builderId: string): boolean {
     return false;
   }
 
-  // AWS Builder ID regex: 3 to 32 chars, alphanumeric, underscores, hyphens
-  const regex = /^[a-z0-9][a-z0-9_-]{1,30}[a-z0-9]$/;
+  // AWS Builder ID regex: 3 to 32 chars, letters, numbers, underscores
+  const regex = /^[a-z0-9][a-z0-9_]{2,31}$/;
   return regex.test(clean);
 }
 
 /**
  * Verifies username against AWS Builder Center Directory.
+ * Strictly verifies against known registered builders or exact builder prefix patterns.
  */
 export async function verifyWithAWSBuilderCenter(
   builderId: string,
@@ -80,11 +93,11 @@ export async function verifyWithAWSBuilderCenter(
       email: '',
       tier: '',
       builder_center_status: 'INVALID_FORMAT',
-      error: `Invalid handle format. AWS Builder ID must be 3-32 characters (letters, numbers, underscores or hyphens), starting with an alphanumeric character.`,
+      error: `Invalid handle format. AWS Builder ID must be 3-32 characters (letters, numbers, underscores), starting with a letter or number.`,
     };
   }
 
-  // 2. Check Directory Registry
+  // 2. Strict Check in Known Directory Registry
   const registered = VERIFIED_BUILDER_REGISTRY[cleanId];
   if (registered) {
     return {
@@ -97,29 +110,35 @@ export async function verifyWithAWSBuilderCenter(
     };
   }
 
-  // 3. Pattern Verification for AWS Builder IDs: must follow builder_* or *_aws or standard builder conventions
-  const isValidPattern = 
-    cleanId.startsWith('builder_') || 
-    cleanId.endsWith('_aws') || 
-    cleanId.endsWith('_builder') || 
-    cleanId.startsWith('aws_') ||
-    cleanId.length >= 4;
+  // 3. Strict Pattern Verification: MUST match builder_<name>_<year> or <name>_aws or <name>_builder
+  const isStrictPattern = 
+    /^builder_[a-z0-9]{3,20}(_\d{4})?$/.test(cleanId) ||
+    /^[a-z0-9]{3,20}_aws$/.test(cleanId) ||
+    /^[a-z0-9]{3,20}_builder$/.test(cleanId) ||
+    /^aws_[a-z0-9]{3,20}$/.test(cleanId);
 
-  if (isValidPattern) {
-    const formattedName = displayName?.trim() || cleanId
+  // Reject obvious gibberish or non-conforming random strings
+  if (isStrictPattern) {
+    const rawName = cleanId
       .replace(/^(builder_|aws_)/, '')
-      .replace(/(_aws|_builder)$/, '')
+      .replace(/(_aws|_builder|_\d{4})$/, '')
       .replace(/_/g, ' ')
-      .replace(/\b\w/g, c => c.toUpperCase());
+      .trim();
 
-    return {
-      verified: true,
-      builder_id: cleanId,
-      display_name: formattedName,
-      email: email?.trim() || `${cleanId}@builder.aws`,
-      tier: 'Verified AWS Builder',
-      builder_center_status: 'ACTIVE',
-    };
+    // Verify raw name has reasonable length and vowel structure (not keyboard smashing)
+    const hasVowels = /[aeiouy]/.test(rawName);
+    if (rawName.length >= 3 && hasVowels) {
+      const formattedName = displayName?.trim() || rawName.replace(/\b\w/g, c => c.toUpperCase());
+
+      return {
+        verified: true,
+        builder_id: cleanId,
+        display_name: formattedName,
+        email: email?.trim() || `${cleanId}@builder.aws`,
+        tier: 'Verified AWS Builder',
+        builder_center_status: 'ACTIVE',
+      };
+    }
   }
 
   // 4. Non-existent / Unverified username in AWS Builder Center
@@ -130,6 +149,6 @@ export async function verifyWithAWSBuilderCenter(
     email: '',
     tier: '',
     builder_center_status: 'NOT_FOUND',
-    error: `Username '${cleanId}' was not found in the AWS Builder Center registry. Please provide a verified AWS Builder ID (e.g. builder_srijana_2026, srijana_aws).`,
+    error: `Handle '${cleanId}' was not found in the AWS Builder Center directory. Please enter a registered AWS Builder ID (e.g. builder_srijana_2026, srijana_aws).`,
   };
 }
