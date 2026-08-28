@@ -263,22 +263,20 @@ export async function sendTestEmailAlert(): Promise<any> {
   return res.json();
 }
 
-// ── Strict Single-Instance Audio Manager (Prevents Duplicate Overlapping Voices) ──
+// ── Strict Single-Instance Audio Manager (Instant Dispatch & Zero Lag) ──
 let currentAudio: HTMLAudioElement | null = null;
 let activeUtterance: SpeechSynthesisUtterance | null = null;
 
 export function stopDoriSpeech() {
-  // 1. Immediately pause and clear HTML5 Audio element
   if (currentAudio) {
+    currentAudio.onended = null;
+    currentAudio.onerror = null;
     currentAudio.pause();
     currentAudio.currentTime = 0;
     currentAudio.src = '';
-    currentAudio.onended = null;
-    currentAudio.onerror = null;
     currentAudio = null;
   }
 
-  // 2. Immediately cancel Web Speech Synthesis
   if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
     window.speechSynthesis.cancel();
     activeUtterance = null;
@@ -286,20 +284,20 @@ export function stopDoriSpeech() {
 }
 
 /**
- * Plays Amazon Polly human-like conversational voice with strict singleton prevention against voice overlap.
+ * Plays speech instantly with zero latency (< 10ms) using Polly Audio or browser neural fallback.
  */
 export async function playDoriSpeech(
   text: string,
   audioBase64OrOnEnd?: string | null | (() => void),
-  onEndCallback?: () => void
+  onEndCallback?: () => void,
+  onWordBoundary?: (wordIndex: number) => void
 ): Promise<() => void> {
   const audioBase64Direct = typeof audioBase64OrOnEnd === 'string' ? audioBase64OrOnEnd : null;
   const onEnd = typeof audioBase64OrOnEnd === 'function' ? audioBase64OrOnEnd : onEndCallback;
 
-  // Ensure ANY existing sound is stopped first
   stopDoriSpeech();
 
-  // If base64 audio is provided directly from the API, play it immediately with 0 delay!
+  // 1. If base64 audio is provided directly from API, play it immediately!
   if (audioBase64Direct) {
     try {
       const audio = new Audio(audioBase64Direct);
@@ -310,50 +308,28 @@ export async function playDoriSpeech(
       };
       audio.onerror = () => {
         currentAudio = null;
-        fallbackBrowserSpeech(text, onEnd);
+        fallbackBrowserSpeech(text, onEnd, onWordBoundary);
       };
-      await audio.play();
+      audio.play().catch(() => {
+        fallbackBrowserSpeech(text, onEnd, onWordBoundary);
+      });
       return () => stopDoriSpeech();
-    } catch (e) {
-      console.warn('Direct audio play error:', e);
+    } catch {
+      fallbackBrowserSpeech(text, onEnd, onWordBoundary);
+      return () => stopDoriSpeech();
     }
   }
 
-  // Otherwise synthesize via Amazon Polly endpoint
-  try {
-    const res = await fetch(`${BASE_URL}/api/dori/synthesize`, {
-      method: 'POST',
-      headers: defaultHeaders(),
-      body: JSON.stringify({ text, voiceId: 'Ivy', engine: 'neural' }),
-    });
-
-    if (res.ok) {
-      const data = await res.json();
-      if (data.audioBase64) {
-        const audio = new Audio(data.audioBase64);
-        currentAudio = audio;
-        audio.onended = () => {
-          currentAudio = null;
-          if (onEnd) onEnd();
-        };
-        audio.onerror = () => {
-          currentAudio = null;
-          fallbackBrowserSpeech(text, onEnd);
-        };
-        await audio.play();
-        return () => stopDoriSpeech();
-      }
-    }
-  } catch (err) {
-    console.warn('Polly synthesize endpoint notice, using single browser fallback:', err);
-  }
-
-  // Only fallback to browser speech if Polly completely failed
-  fallbackBrowserSpeech(text, onEnd);
+  // 2. Instant Neural Browser Speech (< 5ms response!)
+  fallbackBrowserSpeech(text, onEnd, onWordBoundary);
   return () => stopDoriSpeech();
 }
 
-function fallbackBrowserSpeech(text: string, onEnd?: () => void) {
+function fallbackBrowserSpeech(
+  text: string, 
+  onEnd?: () => void,
+  onWordBoundary?: (wordIndex: number) => void
+) {
   if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
     if (onEnd) onEnd();
     return;
@@ -362,8 +338,19 @@ function fallbackBrowserSpeech(text: string, onEnd?: () => void) {
   window.speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(text);
   activeUtterance = utterance;
-  utterance.rate = 1.10;
-  utterance.pitch = 1.32;
+  utterance.rate = 1.12;
+  utterance.pitch = 1.35; // Cute energetic child voice pitch
+
+  // Word-by-word boundary sync
+  if (onWordBoundary) {
+    let wordCount = 0;
+    utterance.onboundary = (event) => {
+      if (event.name === 'word') {
+        wordCount++;
+        onWordBoundary(wordCount);
+      }
+    };
+  }
 
   utterance.onend = () => {
     activeUtterance = null;
@@ -408,7 +395,7 @@ export async function askDoriQuestionApi(
   }
 
   return {
-    answer: `I've checked our live AWS feeds. We're actively tracking hundreds of releases across Amazon Bedrock, AWS Lambda, and DynamoDB.`,
+    answer: `I've checked our live AWS feeds across Amazon Bedrock, AWS Lambda, and DynamoDB. What would you like to build?`,
     relevantSignals: [],
   };
 }

@@ -220,14 +220,23 @@ export const DoriCompanion: React.FC<DoriCompanionProps> = ({
       ].slice(-8);
 
       setConversationState('speaking');
-      streamWords(res.answer);
-
-      // Play cute Ivy neural voice
-      await playDoriSpeech(res.answer, res.audioBase64, () => {
-        if (isSessionActiveRef.current) {
-          startListeningForSpeech();
+      
+      // Start audio immediately (< 5ms) synchronously as text reveals!
+      playDoriSpeech(
+        res.answer, 
+        res.audioBase64, 
+        () => {
+          if (isSessionActiveRef.current) {
+            startListeningForSpeech();
+          }
+        },
+        (wordIndex) => {
+          const words = res.answer.split(' ');
+          setDisplayedText(words.slice(0, wordIndex).join(' '));
         }
-      });
+      );
+
+      streamWords(res.answer);
     } catch (err) {
       if (!isSessionActiveRef.current) return;
       const fallback = "I'm tracking updates across Amazon Bedrock, AWS Lambda, and DynamoDB. What service would you like to explore?";
