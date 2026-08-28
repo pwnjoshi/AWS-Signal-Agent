@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { AWSSignal } from '../types/clientTypes';
 import { SearchFilterBar } from '../components/SearchFilterBar';
 import { SignalCard } from '../components/SignalCard';
-import { Radio, Bookmark } from 'lucide-react';
+import { Bookmark } from 'lucide-react';
 
 interface SignalsPageProps {
   signals: AWSSignal[];
@@ -53,13 +53,12 @@ export const SignalsPage: React.FC<SignalsPageProps> = ({
   }
 
   return (
-    <div className="space-y-6 pb-12 font-mono text-slate-900 dark:text-zinc-100">
+    <div className="space-y-6 pb-12 font-sans text-slate-900 dark:text-zinc-100">
       <div>
-        <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-zinc-100 font-display uppercase tracking-tight flex items-center gap-2.5">
-          <Radio className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+        <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-zinc-100 tracking-tight">
           {savedOnly ? 'Saved Signals Vault' : 'AWS Radar Intelligence Stream'}
         </h1>
-        <p className="text-slate-600 dark:text-zinc-400 text-xs sm:text-sm mt-1 font-sans">
+        <p className="text-slate-500 dark:text-zinc-400 text-xs sm:text-sm mt-1 font-normal">
           {savedOnly ? 'Your personally bookmarked AWS articles and architecture patterns.' : 'All discovered, normalized, SHA-256 deduplicated, and Bedrock-ranked signals.'}
         </p>
       </div>
@@ -81,7 +80,7 @@ export const SignalsPage: React.FC<SignalsPageProps> = ({
       {filtered.length === 0 ? (
         <div className="bg-white dark:bg-[#121216] rounded-xl border border-slate-200 dark:border-zinc-800 p-10 text-center text-slate-600 dark:text-zinc-400 space-y-2.5 shadow-sm">
           <Bookmark className="w-8 h-8 text-slate-400 mx-auto opacity-50" />
-          <p className="font-bold text-sm sm:text-base text-slate-900 dark:text-zinc-100">No signals match your filter criteria.</p>
+          <p className="font-semibold text-sm sm:text-base text-slate-900 dark:text-zinc-100">No signals match your filter criteria.</p>
           <p className="text-xs text-slate-500 dark:text-zinc-400">Try clearing your filters or running the radar agent.</p>
         </div>
       ) : (

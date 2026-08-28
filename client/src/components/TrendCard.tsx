@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { CommunityTopic } from '../types/clientTypes';
-import { TrendingUp, AlertTriangle, CheckCircle, ExternalLink, ChevronDown, ChevronUp, Clock, Cloud } from 'lucide-react';
+import { ExternalLink, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface TrendCardProps {
   topic: CommunityTopic;
@@ -21,46 +21,43 @@ export const TrendCard: React.FC<TrendCardProps> = ({ topic }) => {
   };
 
   return (
-    <div className="bg-white dark:bg-[#121216] rounded-xl border border-slate-200 dark:border-zinc-800 p-5 hover:border-blue-400 dark:hover:border-blue-600 transition-all font-mono text-slate-900 dark:text-zinc-100 shadow-sm">
+    <div className="bg-white dark:bg-[#121216] rounded-xl border border-slate-200 dark:border-zinc-800 p-5 hover:border-blue-400 dark:hover:border-blue-600 transition-all font-sans text-slate-900 dark:text-zinc-100 shadow-sm">
       <div className="flex items-start justify-between gap-4 mb-3">
         <div>
-          <div className="flex items-center gap-2 mb-2 flex-wrap">
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-slate-50 dark:bg-[#18181b] text-blue-600 dark:text-blue-400 border border-slate-200 dark:border-zinc-700 uppercase flex items-center gap-1">
-              <Cloud className="w-3 h-3" />
-              <span>{topic.service}</span>
+          <div className="flex items-center gap-2 mb-2 flex-wrap font-mono">
+            <span className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-slate-50 dark:bg-[#18181b] text-blue-600 dark:text-blue-400 border border-slate-200 dark:border-zinc-700">
+              {topic.service}
             </span>
-            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md border capitalize flex items-center gap-1 ${getVelocityBadge(topic.velocity)}`}>
-              <TrendingUp className="w-3 h-3" />
+            <span className={`text-[11px] font-medium px-2 py-0.5 rounded-md border capitalize ${getVelocityBadge(topic.velocity)}`}>
               {topic.velocity}
             </span>
-            <span className="text-xs text-slate-500 dark:text-zinc-400 font-medium">
+            <span className="text-xs text-slate-500 dark:text-zinc-400 font-sans">
               {topic.mention_count} discussions
             </span>
           </div>
 
-          <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-zinc-100 leading-snug font-sans">
+          <h3 className="text-base sm:text-lg font-semibold text-slate-900 dark:text-zinc-100 leading-snug">
             {topic.name}
           </h3>
         </div>
 
-        <div className="text-center shrink-0 bg-slate-50 dark:bg-[#18181b] border border-slate-200 dark:border-zinc-800 px-3 py-1.5 rounded-lg">
-          <span className="text-[10px] text-slate-500 dark:text-zinc-400 font-bold uppercase block tracking-wider">Score</span>
-          <span className="text-xl font-black text-blue-600 dark:text-blue-400">{topic.trend_score}/100</span>
+        <div className="text-center shrink-0 bg-slate-50 dark:bg-[#18181b] border border-slate-200 dark:border-zinc-800 px-3 py-1.5 rounded-lg font-mono">
+          <span className="text-[10px] text-slate-500 dark:text-zinc-400 font-medium uppercase tracking-wider block">Score</span>
+          <span className="text-xl font-bold text-blue-600 dark:text-blue-400">{topic.trend_score}/100</span>
         </div>
       </div>
 
       {/* Intro nuance text */}
-      <p className="text-xs text-slate-600 dark:text-zinc-400 italic mb-3.5 font-sans">
+      <p className="text-xs text-slate-500 dark:text-zinc-400 italic mb-3.5">
         "Dori detected this discussion friction pattern across AWS re:Post and technical blogs."
       </p>
 
       {/* Common Symptoms */}
       <div className="space-y-1.5 mb-3.5">
-        <h4 className="text-xs font-bold text-slate-900 dark:text-zinc-100 uppercase tracking-wider flex items-center gap-1.5">
-          <AlertTriangle className="w-3.5 h-3.5 text-orange-600 dark:text-orange-400" />
+        <h4 className="text-xs font-semibold text-slate-800 dark:text-zinc-200 uppercase tracking-wider">
           Common Symptoms Reported
         </h4>
-        <ul className="space-y-1 text-xs text-slate-600 dark:text-zinc-400 pl-1 font-sans">
+        <ul className="space-y-1 text-xs text-slate-600 dark:text-zinc-400 pl-1 font-normal">
           {topic.common_symptoms.map((sym, idx) => (
             <li key={idx} className="flex items-start gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-orange-500 mt-1.5 shrink-0" />
@@ -72,11 +69,10 @@ export const TrendCard: React.FC<TrendCardProps> = ({ topic }) => {
 
       {/* Suggested Solutions */}
       <div className="space-y-1.5 mb-3.5 bg-slate-50 dark:bg-[#18181b] border border-[#00d294]/30 rounded-lg p-3.5">
-        <h4 className="text-xs font-bold text-[#00d294] uppercase tracking-wider flex items-center gap-1.5">
-          <CheckCircle className="w-3.5 h-3.5 text-[#00d294]" />
+        <h4 className="text-xs font-semibold text-[#00d294] uppercase tracking-wider">
           Suggested Solutions
         </h4>
-        <ul className="space-y-1 text-xs text-slate-800 dark:text-zinc-200 font-sans">
+        <ul className="space-y-1 text-xs text-slate-700 dark:text-zinc-300 font-normal">
           {topic.suggested_solutions.map((sol, idx) => (
             <li key={idx} className="flex items-start gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-[#00d294] mt-1.5 shrink-0" />
@@ -88,15 +84,12 @@ export const TrendCard: React.FC<TrendCardProps> = ({ topic }) => {
 
       {/* Evolution Timeline Accordion */}
       {topic.evolution_timeline && topic.evolution_timeline.length > 0 && (
-        <div className="pt-1">
+        <div className="pt-1 font-mono">
           <button
             onClick={() => setExpanded(!expanded)}
-            className="w-full flex items-center justify-between text-xs font-bold text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100 py-1 transition-colors cursor-pointer"
+            className="w-full flex items-center justify-between text-xs font-medium text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100 py-1 transition-colors cursor-pointer"
           >
-            <span className="flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-              Topic Evolution Stages ({topic.evolution_timeline.length})
-            </span>
+            <span>Topic Evolution Stages ({topic.evolution_timeline.length})</span>
             {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           </button>
 
@@ -104,9 +97,9 @@ export const TrendCard: React.FC<TrendCardProps> = ({ topic }) => {
             <div className="mt-2.5 p-3.5 bg-slate-50 dark:bg-[#18181b] rounded-lg border border-slate-200 dark:border-zinc-800 space-y-2.5">
               {topic.evolution_timeline.map((evo, idx) => (
                 <div key={idx} className="flex items-start gap-2.5 text-xs">
-                  <span className="font-bold text-blue-600 dark:text-blue-400 w-14 shrink-0">{evo.date}</span>
+                  <span className="font-semibold text-blue-600 dark:text-blue-400 w-14 shrink-0">{evo.date}</span>
                   <div className="flex-1">
-                    <span className="font-bold text-slate-900 dark:text-zinc-100 px-1.5 py-0.5 bg-white dark:bg-[#202026] border border-slate-200 dark:border-zinc-700 rounded text-[10px] mr-2">
+                    <span className="font-medium text-slate-900 dark:text-zinc-100 px-1.5 py-0.5 bg-white dark:bg-[#202026] border border-slate-200 dark:border-zinc-700 rounded text-[10px] mr-2">
                       {evo.stage}
                     </span>
                     <span className="text-slate-600 dark:text-zinc-400 font-sans">{evo.note}</span>
@@ -128,7 +121,7 @@ export const TrendCard: React.FC<TrendCardProps> = ({ topic }) => {
               href={doc.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
+              className="text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
             >
               <span>{doc.title}</span>
               <ExternalLink className="w-3 h-3" />

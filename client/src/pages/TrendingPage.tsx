@@ -1,7 +1,6 @@
 import React from 'react';
 import { CommunityTopic } from '../types/clientTypes';
 import { TrendCard } from '../components/TrendCard';
-import { Flame } from 'lucide-react';
 
 interface TrendingPageProps {
   trends: CommunityTopic[];
@@ -9,13 +8,12 @@ interface TrendingPageProps {
 
 export const TrendingPage: React.FC<TrendingPageProps> = ({ trends }) => {
   return (
-    <div className="space-y-6 pb-12 font-mono text-slate-900 dark:text-zinc-100">
+    <div className="space-y-6 pb-12 font-sans text-slate-900 dark:text-zinc-100">
       <div>
-        <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-zinc-100 font-display uppercase tracking-tight flex items-center gap-2.5">
-          <Flame className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+        <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-zinc-100 tracking-tight">
           Emerging AWS Community Friction & Trends
         </h1>
-        <p className="text-slate-600 dark:text-zinc-400 text-xs sm:text-sm mt-1 font-sans">
+        <p className="text-slate-500 dark:text-zinc-400 text-xs sm:text-sm mt-1 font-normal">
           Dori monitors re:Post developer questions, blogs, and forums to spot recurring developer challenges before they become official issues.
         </p>
       </div>
