@@ -20,7 +20,7 @@ export const SignalsPage: React.FC<SignalsPageProps> = ({
   const [category, setCategory] = useState<string>('');
   const [service, setService] = useState<string>('');
   const [source, setSource] = useState<string>('');
-  const [sort, setSort] = useState<string>('newest');
+  const [sort, setSort] = useState<string>('score');
   const [savedOnly, setSavedOnly] = useState<boolean>(savedOnlyDefault);
 
   let filtered = [...signals];
@@ -41,15 +41,22 @@ export const SignalsPage: React.FC<SignalsPageProps> = ({
     filtered = filtered.filter(s => s.is_saved);
   }
 
-  // Sort
+  // Expanded Sorting Logic
   if (sort === 'score') {
-    filtered.sort((a, b) => b.signal_score - a.signal_score);
+    filtered.sort((a, b) => (b.signal_score || 0) - (a.signal_score || 0));
   } else if (sort === 'importance') {
-    filtered.sort((a, b) => b.importance_score - a.importance_score);
+    filtered.sort((a, b) => (b.importance_score || 0) - (a.importance_score || 0));
   } else if (sort === 'relevance') {
-    filtered.sort((a, b) => b.relevance_score - a.relevance_score);
+    filtered.sort((a, b) => (b.relevance_score || 0) - (a.relevance_score || 0));
+  } else if (sort === 'momentum') {
+    filtered.sort((a, b) => (b.momentum_score || 0) - (a.momentum_score || 0));
+  } else if (sort === 'oldest') {
+    filtered.sort((a, b) => new Date(a.published_at || a.discovered_at).getTime() - new Date(b.published_at || b.discovered_at).getTime());
+  } else if (sort === 'title') {
+    filtered.sort((a, b) => a.title.localeCompare(b.title));
   } else {
-    filtered.sort((a, b) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime());
+    // Newest first
+    filtered.sort((a, b) => new Date(b.published_at || b.discovered_at).getTime() - new Date(a.published_at || a.discovered_at).getTime());
   }
 
   return (

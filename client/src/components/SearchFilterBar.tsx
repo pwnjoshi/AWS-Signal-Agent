@@ -1,5 +1,5 @@
 import React from 'react';
-import { Filter, SlidersHorizontal, ArrowUpDown, Bookmark } from 'lucide-react';
+import { ArrowUpDown, Bookmark } from 'lucide-react';
 
 interface SearchFilterBarProps {
   category: string;
@@ -29,7 +29,7 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
   signalCount,
 }) => {
   return (
-    <div className="bg-white dark:bg-[#121216] rounded-xl border border-slate-200 dark:border-zinc-800 p-3.5 mb-5 space-y-3 shadow-sm font-mono transition-colors">
+    <div className="bg-white dark:bg-[#121216] rounded-xl border border-slate-200 dark:border-zinc-800 p-3.5 mb-5 space-y-3 shadow-sm font-sans transition-colors">
       <div className="flex flex-wrap items-center justify-between gap-3">
         {/* Filters Group */}
         <div className="flex flex-wrap items-center gap-2">
@@ -37,7 +37,7 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="bg-slate-50 dark:bg-[#18181b] border border-slate-200 dark:border-zinc-700 rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="bg-slate-50 dark:bg-[#18181b] border border-slate-200 dark:border-zinc-700 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-800 dark:text-zinc-200 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer"
           >
             <option value="">All Categories</option>
             <option value="Announcement">Announcements</option>
@@ -51,7 +51,7 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
           <select
             value={service}
             onChange={(e) => setService(e.target.value)}
-            className="bg-slate-50 dark:bg-[#18181b] border border-slate-200 dark:border-zinc-700 rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="bg-slate-50 dark:bg-[#18181b] border border-slate-200 dark:border-zinc-700 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-800 dark:text-zinc-200 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer"
           >
             <option value="">All AWS Services</option>
             <option value="Amazon Bedrock">Amazon Bedrock</option>
@@ -59,6 +59,7 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
             <option value="Amazon ECS">Amazon ECS</option>
             <option value="Amazon DynamoDB">Amazon DynamoDB</option>
             <option value="Amazon S3">Amazon S3</option>
+            <option value="Amazon SageMaker">Amazon SageMaker</option>
             <option value="Amazon OpenSearch">Amazon OpenSearch</option>
           </select>
 
@@ -66,7 +67,7 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
           <select
             value={source}
             onChange={(e) => setSource(e.target.value)}
-            className="bg-slate-50 dark:bg-[#18181b] border border-slate-200 dark:border-zinc-700 rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="bg-slate-50 dark:bg-[#18181b] border border-slate-200 dark:border-zinc-700 rounded-lg px-3 py-1.5 text-xs font-medium text-slate-800 dark:text-zinc-200 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer"
           >
             <option value="">All Public Sources</option>
             <option value="AWS What's New">AWS What's New</option>
@@ -78,34 +79,37 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
           {/* Saved Toggle */}
           <button
             onClick={() => setSavedOnly(!savedOnly)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all border cursor-pointer flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all border cursor-pointer flex items-center gap-1.5 ${
               savedOnly
                 ? 'bg-orange-50 dark:bg-orange-950/30 text-orange-600 dark:text-orange-400 border-orange-300 dark:border-orange-700'
                 : 'bg-slate-50 dark:bg-[#18181b] text-slate-600 dark:text-zinc-400 border-slate-200 dark:border-zinc-700 hover:bg-slate-100 dark:hover:bg-[#202026] hover:text-slate-900 dark:hover:text-zinc-100'
             }`}
           >
-            <Bookmark className={`w-3 h-3 ${savedOnly ? 'fill-orange-500 text-orange-500' : ''}`} />
-            <span>{savedOnly ? 'Saved Only' : 'Saved Filter'}</span>
+            <Bookmark className={`w-3.5 h-3.5 ${savedOnly ? 'fill-orange-500 text-orange-500' : ''}`} />
+            <span>{savedOnly ? 'Bookmarked Only' : 'Saved Filter'}</span>
           </button>
         </div>
 
         {/* Sort & Count */}
         <div className="flex items-center gap-3 text-xs">
-          <span className="text-slate-600 dark:text-zinc-400 font-medium">
-            Showing <strong className="text-slate-900 dark:text-zinc-100">{signalCount}</strong> signals
+          <span className="text-slate-500 dark:text-zinc-400 font-normal">
+            Showing <strong className="text-slate-900 dark:text-zinc-100 font-medium font-mono">{signalCount}</strong> signals
           </span>
 
           <div className="flex items-center gap-1.5 bg-slate-50 dark:bg-[#18181b] border border-slate-200 dark:border-zinc-700 rounded-lg px-2.5 py-1">
-            <ArrowUpDown className="w-3.5 h-3.5 text-slate-500 dark:text-zinc-400" />
+            <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value)}
-              className="bg-transparent text-xs font-semibold text-slate-900 dark:text-zinc-100 focus:outline-none cursor-pointer"
+              className="bg-transparent text-xs font-medium text-slate-800 dark:text-zinc-200 focus:outline-none cursor-pointer"
             >
-              <option value="newest">Newest First</option>
-              <option value="score">Highest Score</option>
-              <option value="importance">Highest Importance</option>
-              <option value="relevance">Highest Dev Value</option>
+              <option value="score">Sort: Highest Bedrock Score</option>
+              <option value="newest">Sort: Newest First</option>
+              <option value="importance">Sort: Architecture Importance</option>
+              <option value="relevance">Sort: Developer Value</option>
+              <option value="momentum">Sort: Community Momentum</option>
+              <option value="oldest">Sort: Oldest First</option>
+              <option value="title">Sort: Title (A–Z)</option>
             </select>
           </div>
         </div>

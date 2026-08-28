@@ -5,8 +5,26 @@ import { sendSignalAlertIfNeeded } from '../services/emailAlertService';
 import { generateDailyBriefing } from '../services/briefingGenerator';
 import { apiSecurityGuard, rateLimiter } from '../middleware/security';
 import { fetchAWSFeeds } from '../collectors/awsFeedsCollector';
+import { synthesizeDoriSpeech } from '../services/pollyService';
 
 const router = Router();
+
+// Amazon Polly Generative & Neural Speech Endpoint for Dori
+router.post('/dori/synthesize', rateLimiter(60, 15 * 60 * 1000), async (req, res) => {
+  try {
+    const { text, voiceId, engine } = req.body;
+    if (!text || typeof text !== 'string') {
+      return res.status(400).json({ error: 'text string is required' });
+    }
+    const result = await synthesizeDoriSpeech(text, voiceId || 'Ruth', engine || 'generative');
+    if (!result) {
+      return res.status(500).json({ error: 'Speech synthesis failed' });
+    }
+    res.json({ success: true, ...result });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 // Decoupled Public API v1 endpoints (open for external applications to fetch AWS news)
 router.get('/v1/news', rateLimiter(100, 15 * 60 * 1000), async (req, res) => {

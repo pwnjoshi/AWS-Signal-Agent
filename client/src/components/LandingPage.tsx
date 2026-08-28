@@ -98,10 +98,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
           </div>
 
           {/* Action CTAs */}
-          <div className="flex flex-wrap items-center justify-center gap-3 pt-2 font-mono">
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
             <Link
               to="/dashboard"
-              className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium uppercase tracking-wider shadow-sm active:scale-98 transition-all flex items-center gap-2"
+              className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs sm:text-sm font-medium shadow-sm active:scale-98 transition-all flex items-center gap-2"
             >
               <Radio className="w-4 h-4" />
               <span>Launch Command Hub</span>
@@ -109,7 +109,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
 
             <button
               onClick={handleAudioNarration}
-              className={`px-4 py-2.5 rounded-lg text-xs font-medium uppercase tracking-wider border transition-all flex items-center gap-2 cursor-pointer ${
+              className={`px-4 py-2.5 rounded-lg text-xs sm:text-sm font-medium border transition-all flex items-center gap-2 cursor-pointer ${
                 isSpeaking
                   ? 'bg-amber-500 text-white border-amber-400'
                   : 'bg-white dark:bg-[#18181b] border-slate-200 dark:border-zinc-800 hover:bg-slate-50 dark:hover:bg-[#202026] text-slate-800 dark:text-zinc-200'
@@ -133,7 +133,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
       </section>
 
       {/* ── Section 2: Live Status Strip ── */}
-      <section className="border-y border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-[#121216] py-3.5 font-mono text-xs text-slate-700 dark:text-zinc-300">
+      <section className="border-y border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-[#121216] py-3.5 text-xs text-slate-700 dark:text-zinc-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
             <span className="w-2 h-2 rounded-full bg-[#00d294]" />
@@ -141,18 +141,18 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
             <span className="text-slate-500 dark:text-zinc-400">Active Ingestion Pipeline</span>
           </div>
 
-          <div className="flex flex-wrap items-center gap-5 text-[11px] text-slate-600 dark:text-zinc-400">
-            <span className="flex items-center gap-1.5">
+          <div className="flex flex-wrap items-center gap-5 text-[11px] text-slate-600 dark:text-zinc-400 font-mono">
+            <span className="flex items-center gap-1.5 font-sans">
               <Zap className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-              <span>Deduplication: <strong className="text-slate-900 dark:text-zinc-100 font-semibold">SHA-256 Memory</strong></span>
+              <span>Deduplication: <strong className="text-slate-900 dark:text-zinc-100 font-semibold font-mono">SHA-256 Memory</strong></span>
             </span>
-            <span className="flex items-center gap-1.5">
+            <span className="flex items-center gap-1.5 font-sans">
               <Brain className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-              <span>Model: <strong className="text-blue-600 dark:text-blue-400 font-semibold">Amazon Bedrock Claude 3.5</strong></span>
+              <span>Model: <strong className="text-blue-600 dark:text-blue-400 font-semibold font-mono">Amazon Bedrock Claude 3.5</strong></span>
             </span>
-            <span className="flex items-center gap-1.5">
+            <span className="flex items-center gap-1.5 font-sans">
               <Clock className="w-3.5 h-3.5 text-orange-600 dark:text-orange-400" />
-              <span>Interval: <strong className="text-orange-600 dark:text-orange-400 font-semibold">EventBridge Cron</strong></span>
+              <span>Interval: <strong className="text-orange-600 dark:text-orange-400 font-semibold font-mono">EventBridge Cron</strong></span>
             </span>
           </div>
         </div>
@@ -187,19 +187,19 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-5 border-t border-slate-200 dark:border-zinc-800 font-mono">
                 <div className="p-2.5 bg-slate-50 dark:bg-[#18181b] border border-slate-200 dark:border-zinc-800 rounded-lg">
-                  <span className="text-[10px] text-slate-500 dark:text-zinc-400 block font-medium">Announcements</span>
+                  <span className="text-[10px] text-slate-500 dark:text-zinc-400 block font-medium font-sans">Announcements</span>
                   <span className="text-base font-bold text-slate-900 dark:text-zinc-100">03</span>
                 </div>
                 <div className="p-2.5 bg-slate-50 dark:bg-[#18181b] border border-slate-200 dark:border-zinc-800 rounded-lg">
-                  <span className="text-[10px] text-slate-500 dark:text-zinc-400 block font-medium">Discussions</span>
+                  <span className="text-[10px] text-slate-500 dark:text-zinc-400 block font-medium font-sans">Discussions</span>
                   <span className="text-base font-bold text-slate-900 dark:text-zinc-100">07</span>
                 </div>
                 <div className="p-2.5 bg-slate-50 dark:bg-[#18181b] border border-slate-200 dark:border-zinc-800 rounded-lg">
-                  <span className="text-[10px] text-slate-500 dark:text-zinc-400 block font-medium">Emerging</span>
+                  <span className="text-[10px] text-slate-500 dark:text-zinc-400 block font-medium font-sans">Emerging</span>
                   <span className="text-base font-bold text-[#00d294]">02</span>
                 </div>
                 <div className="p-2.5 bg-slate-50 dark:bg-[#18181b] border border-red-500/30 rounded-lg">
-                  <span className="text-[10px] text-red-500 block font-medium">High Alert</span>
+                  <span className="text-[10px] text-red-500 block font-medium font-sans">High Alert</span>
                   <span className="text-base font-bold text-red-500">01</span>
                 </div>
               </div>
@@ -253,7 +253,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
                     <button
                       key={p.category}
                       onClick={() => setActivePromptIdx(idx)}
-                      className={`px-3 py-1 rounded-lg text-xs font-mono font-medium transition-all cursor-pointer ${
+                      className={`px-3 py-1 rounded-lg text-xs font-medium transition-all cursor-pointer ${
                         activePromptIdx === idx
                           ? 'bg-blue-600 text-white'
                           : 'bg-slate-50 dark:bg-[#18181b] border border-slate-200 dark:border-zinc-800 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100'
@@ -266,15 +266,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
               </div>
 
               {/* Dori Simulator Box */}
-              <div className="bg-slate-50 dark:bg-[#18181b] border border-slate-200 dark:border-zinc-800 rounded-lg p-4 sm:p-5 font-mono space-y-2">
-                <div className="flex items-start gap-2.5 text-xs text-blue-600 dark:text-blue-400 font-semibold">
+              <div className="bg-slate-50 dark:bg-[#18181b] border border-slate-200 dark:border-zinc-800 rounded-lg p-4 sm:p-5 space-y-2">
+                <div className="flex items-start gap-2.5 text-xs text-blue-600 dark:text-blue-400 font-semibold font-mono">
                   <Terminal className="w-4 h-4 shrink-0 mt-0.5" />
                   <span>"{DORI_PROMPTS[activePromptIdx].q}"</span>
                 </div>
                 <div className="pl-6 text-xs text-slate-700 dark:text-zinc-300 font-sans leading-relaxed font-normal">
                   {DORI_PROMPTS[activePromptIdx].a}
                 </div>
-                <div className="pl-6 pt-1 flex items-center gap-2 text-[11px] text-slate-500 dark:text-zinc-400">
+                <div className="pl-6 pt-1 flex items-center gap-2 text-[11px] text-slate-500 dark:text-zinc-400 font-sans">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#00d294]" />
                   <span>{DORI_PROMPTS[activePromptIdx].impact}</span>
                 </div>
@@ -373,14 +373,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
 
             <Link
               to="/dashboard"
-              className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium uppercase tracking-wider shadow-sm flex items-center gap-1.5 transition-all"
+              className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs sm:text-sm font-medium shadow-sm flex items-center gap-1.5 transition-all"
             >
               <span>Launch Command Hub</span>
               <ArrowUpRight className="w-3.5 h-3.5" />
             </Link>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 dark:text-zinc-400 font-mono">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 dark:text-zinc-400 font-sans">
             <span>© {new Date().getFullYear()} AWS Signal • Autonomous Cloud Intelligence Platform</span>
             <span>All AWS Trademarks belong to Amazon Web Services, Inc.</span>
           </div>
