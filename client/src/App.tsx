@@ -1,51 +1,52 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, useNavigate, useParams, Outlet } from 'react-router-dom';
-import { Sidebar, MobileBottomNav } from './components/Sidebar';
-import { Header } from './components/Header';
-import { Dashboard } from './pages/Dashboard';
-import { SignalsPage } from './pages/SignalsPage';
-import { TrendingPage } from './pages/TrendingPage';
-import { ServiceExplorer } from './components/ServiceExplorer';
-import { BriefingsPage } from './pages/BriefingsPage';
-import { AgentStatusTimeline } from './components/AgentStatusTimeline';
-import { SignalDetailModal } from './components/SignalDetailModal';
-import { AlertSettingsModal } from './components/AlertSettingsModal';
-import { BuilderIdAuthModal } from './components/BuilderIdAuthModal';
-import { LandingPage } from './components/LandingPage';
-import { NotFoundPage } from './pages/NotFoundPage';
-import { ThemeProvider } from './context/ThemeContext';
+import React, { useState, useEffect, useCallback } from 'react';
+import { BrowserRouter, Routes, Route, useNavigate, useParams } from 'react-router-dom';
 import { 
   AWSSignal, 
   CommunityTopic, 
   DailyBriefing, 
   ServiceExplorerItem, 
   UserPreferences, 
-  UserProfile,
+  UserProfile, 
   WhileYouWereAwaySummary,
   AgentExecutionLog 
 } from './types/clientTypes';
 import { 
-  fetchActiveProfile,
-  fetchAgentStatus, 
-  fetchBriefings, 
-  fetchLatestBriefing, 
-  fetchPreferences, 
-  fetchServicesExplorer, 
   fetchSignals, 
   fetchTrends, 
+  fetchLatestBriefing, 
+  fetchBriefings, 
+  fetchServicesExplorer, 
   fetchWhileYouWereAway, 
-  toggleSaveSignal, 
-  triggerAgentRun 
+  fetchPreferences, 
+  fetchActiveProfile, 
+  fetchAgentStatus, 
+  triggerAgentRun, 
+  toggleSaveSignal 
 } from './services/apiClient';
 
-function SignalDirectRoute({ 
-  signals, 
-  onOpenDetail, 
-  onToggleSave 
-}: { 
-  signals: AWSSignal[]; 
-  onOpenDetail: (sig: AWSSignal) => void; 
-  onToggleSave: (id: string) => void; 
+import { LandingPage } from './components/LandingPage';
+import { Dashboard } from './pages/Dashboard';
+import { SignalsPage } from './pages/SignalsPage';
+import { TrendingPage } from './pages/TrendingPage';
+import { BriefingsPage } from './pages/BriefingsPage';
+import { ServiceExplorer } from './components/ServiceExplorer';
+import { AgentStatusTimeline } from './components/AgentStatusTimeline';
+import { SignalDetailModal } from './components/SignalDetailModal';
+import { AlertSettingsModal } from './components/AlertSettingsModal';
+import { BuilderIdAuthModal } from './components/BuilderIdAuthModal';
+import { NotFoundPage } from './pages/NotFoundPage';
+import { Sidebar, MobileBottomNav } from './components/Sidebar';
+import { Header } from './components/Header';
+import { ThemeProvider } from './context/ThemeContext';
+
+function SignalDirectRoute({
+  signals,
+  onOpenDetail,
+  onToggleSave,
+}: {
+  signals: AWSSignal[];
+  onOpenDetail: (sig: AWSSignal) => void;
+  onToggleSave: (id: string) => void;
 }) {
   const { id } = useParams<{ id: string }>();
 
@@ -130,11 +131,6 @@ function MainLayout({
 function AppRoutes() {
   const navigate = useNavigate();
 
-  // Profile & Auth State
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
-
-  // Application Data States
   const [signals, setSignals] = useState<AWSSignal[]>([]);
   const [trends, setTrends] = useState<CommunityTopic[]>([]);
   const [briefing, setBriefing] = useState<DailyBriefing | null>(null);
@@ -142,16 +138,18 @@ function AppRoutes() {
   const [services, setServices] = useState<ServiceExplorerItem[]>([]);
   const [summary, setSummary] = useState<WhileYouWereAwaySummary | null>(null);
   const [preferences, setPreferences] = useState<UserPreferences | null>(null);
-  const [latestLog, setLatestLog] = useState<AgentExecutionLog | null>(null);
-  const [isAgentRunning, setIsAgentRunning] = useState<boolean>(false);
-  const [nextRun, setNextRun] = useState<string>('');
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
 
-  // UI States
+  const [isAgentRunning, setIsAgentRunning] = useState<boolean>(false);
+  const [nextRun, setNextRun] = useState<string>('Every hour (EventBridge)');
+  const [latestLog, setLatestLog] = useState<AgentExecutionLog | null>(null);
+
+  const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
   const [selectedSignal, setSelectedSignal] = useState<AWSSignal | null>(null);
   const [showAlertSettings, setShowAlertSettings] = useState<boolean>(false);
   const [globalSearch, setGlobalSearch] = useState<string>('');
 
-  const loadAllData = async () => {
+  const loadAllData = useCallback(async () => {
     try {
       const [
         statusRes,
@@ -192,11 +190,32 @@ function AppRoutes() {
     } catch (err) {
       console.error('Error loading data:', err);
     }
-  };
+  }, []);
 
+  // Initial load and background auto-fetcher (every 30 seconds + on tab focus)
   useEffect(() => {
     loadAllData();
-  }, []);
+
+    const interval = setInterval(() => {
+      loadAllData();
+    }, 30000); // Auto-fetch every 30 seconds
+
+    const handleFocus = () => {
+      loadAllData();
+    };
+
+    window.addEventListener('focus', handleFocus);
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        loadAllData();
+      }
+    });
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [loadAllData]);
 
   const handleRunAgentNow = async () => {
     setIsAgentRunning(true);
@@ -413,28 +432,39 @@ function AppRoutes() {
               setGlobalSearch={setGlobalSearch}
             >
               <div className="space-y-6">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 font-mono">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 font-sans">
                   <div>
-                    <h1 className="text-xl sm:text-2xl font-black text-on-background font-display uppercase tracking-tight flex items-center gap-2">
-                      <span>Intelligent SES Alert History</span>
+                    <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-zinc-100 tracking-tight">
+                      Intelligent SES Alert History
                     </h1>
-                    <p className="text-on-surface-variant text-xs sm:text-sm mt-1">
+                    <p className="text-slate-500 dark:text-zinc-400 text-xs sm:text-sm mt-1 font-normal">
                       Signals that triggered high-priority automated email alerts to {userProfile?.builder_id || 'your profile'}.
                     </p>
                   </div>
                   <button
                     onClick={() => setShowAlertSettings(true)}
-                    className="bg-primary hover:bg-primary-container text-white px-4 py-2 rounded-lg text-xs font-bold shadow-sm cursor-pointer"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-medium shadow-sm cursor-pointer"
                   >
                     Alert Settings
                   </button>
                 </div>
 
-                <SignalsPage
-                  signals={signals.filter(s => s.signal_score >= 80)}
-                  onOpenSignalDetail={(sig) => setSelectedSignal(sig)}
-                  onToggleSave={handleToggleSave}
-                />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {signals.filter(s => s.signal_score >= 80).map((sig) => (
+                    <div key={sig.signal_id} className="relative">
+                      <div className="absolute top-2 right-2 z-10">
+                        <span className="bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 text-[10px] font-medium px-2 py-0.5 rounded border border-red-200 dark:border-red-800">
+                          Dispatched via SES
+                        </span>
+                      </div>
+                      <SignalsPage
+                        signals={[sig]}
+                        onOpenSignalDetail={(s) => setSelectedSignal(s)}
+                        onToggleSave={handleToggleSave}
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
             </MainLayout>
           }
