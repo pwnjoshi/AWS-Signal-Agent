@@ -1,7 +1,9 @@
 import React from 'react';
-import { ArrowUpDown, Bookmark } from 'lucide-react';
+import { ArrowUpDown, Bookmark, Search, X } from 'lucide-react';
 
 interface SearchFilterBarProps {
+  searchTerm?: string;
+  setSearchTerm?: (val: string) => void;
   category: string;
   setCategory: (val: string) => void;
   service: string;
@@ -16,6 +18,8 @@ interface SearchFilterBarProps {
 }
 
 export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
+  searchTerm = '',
+  setSearchTerm,
   category,
   setCategory,
   service,
@@ -30,6 +34,29 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
 }) => {
   return (
     <div className="bg-white dark:bg-[#121216] rounded-xl border border-slate-200 dark:border-zinc-800 p-3.5 mb-5 space-y-3 shadow-sm font-sans transition-colors">
+      
+      {/* Top Row: Inline Search Bar with Live Clear */}
+      <div className="relative w-full">
+        <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+        <input
+          type="text"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm && setSearchTerm(e.target.value)}
+          placeholder="Search by keywords, services (EC2, Bedrock, S3, Lambda), architecture patterns..."
+          className="w-full bg-slate-50 dark:bg-[#18181b] border border-slate-200 dark:border-zinc-700 rounded-lg pl-9 pr-9 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all text-slate-900 dark:text-zinc-100 placeholder:text-slate-400 font-sans"
+        />
+        {searchTerm && (
+          <button
+            onClick={() => setSearchTerm && setSearchTerm('')}
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 dark:hover:text-zinc-200 transition-colors"
+            title="Clear search"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        )}
+      </div>
+
+      {/* Bottom Row: Filters & Sort */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         {/* Filters Group */}
         <div className="flex flex-wrap items-center gap-2">
@@ -59,6 +86,7 @@ export const SearchFilterBar: React.FC<SearchFilterBarProps> = ({
             <option value="Amazon ECS">Amazon ECS</option>
             <option value="Amazon DynamoDB">Amazon DynamoDB</option>
             <option value="Amazon S3">Amazon S3</option>
+            <option value="Amazon EC2">Amazon EC2</option>
             <option value="Amazon SageMaker">Amazon SageMaker</option>
             <option value="Amazon OpenSearch">Amazon OpenSearch</option>
           </select>

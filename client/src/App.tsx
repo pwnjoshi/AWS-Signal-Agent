@@ -330,6 +330,8 @@ function AppRoutes() {
                 signals={signals}
                 onOpenSignalDetail={(sig) => setSelectedSignal(sig)}
                 onToggleSave={handleToggleSave}
+                searchTerm={globalSearch}
+                onSearchChange={setGlobalSearch}
               />
             </MainLayout>
           }
@@ -400,6 +402,8 @@ function AppRoutes() {
                   onOpenSignalDetail={(sig) => setSelectedSignal(sig)}
                   onToggleSave={handleToggleSave}
                   savedOnlyDefault={true}
+                  searchTerm={globalSearch}
+                  onSearchChange={setGlobalSearch}
                 />
               )}
             </MainLayout>

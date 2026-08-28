@@ -2,13 +2,15 @@ import React, { useState } from 'react';
 import { AWSSignal } from '../types/clientTypes';
 import { SearchFilterBar } from '../components/SearchFilterBar';
 import { SignalCard } from '../components/SignalCard';
-import { Bookmark } from 'lucide-react';
+import { Bookmark, Search } from 'lucide-react';
 
 interface SignalsPageProps {
   signals: AWSSignal[];
   onOpenSignalDetail: (sig: AWSSignal) => void;
   onToggleSave: (id: string) => void;
   savedOnlyDefault?: boolean;
+  searchTerm?: string;
+  onSearchChange?: (val: string) => void;
 }
 
 export const SignalsPage: React.FC<SignalsPageProps> = ({
@@ -16,32 +18,57 @@ export const SignalsPage: React.FC<SignalsPageProps> = ({
   onOpenSignalDetail,
   onToggleSave,
   savedOnlyDefault = false,
+  searchTerm = '',
+  onSearchChange,
 }) => {
+  const [localSearch, setLocalSearch] = useState<string>(searchTerm);
   const [category, setCategory] = useState<string>('');
   const [service, setService] = useState<string>('');
   const [source, setSource] = useState<string>('');
   const [sort, setSort] = useState<string>('score');
   const [savedOnly, setSavedOnly] = useState<boolean>(savedOnlyDefault);
 
+  const activeSearch = (searchTerm || localSearch).trim();
+
   let filtered = [...signals];
 
+  // 1. Full-Text Search across Title, Summary, Services, Category, Why-It-Matters & Code Labs
+  if (activeSearch.length > 0) {
+    const term = activeSearch.toLowerCase();
+    filtered = filtered.filter(s => {
+      const titleMatch = s.title.toLowerCase().includes(term);
+      const summaryMatch = s.summary.toLowerCase().includes(term);
+      const serviceMatch = s.aws_services.some(srv => srv.toLowerCase().includes(term));
+      const categoryMatch = s.category.toLowerCase().includes(term);
+      const sourceMatch = s.source.toLowerCase().includes(term);
+      const whyMatch = s.why_it_matters?.why_it_matters?.toLowerCase().includes(term) ||
+        s.why_it_matters?.what_happened?.toLowerCase().includes(term) ||
+        s.why_it_matters?.recommended_action?.toLowerCase().includes(term);
+      return titleMatch || summaryMatch || serviceMatch || categoryMatch || sourceMatch || whyMatch;
+    });
+  }
+
+  // 2. Category Filter
   if (category) {
     filtered = filtered.filter(s => s.category === category);
   }
 
+  // 3. Service Filter
   if (service) {
     filtered = filtered.filter(s => s.aws_services.includes(service));
   }
 
+  // 4. Source Filter
   if (source) {
     filtered = filtered.filter(s => s.source === source);
   }
 
+  // 5. Saved Filter
   if (savedOnly) {
     filtered = filtered.filter(s => s.is_saved);
   }
 
-  // Expanded Sorting Logic
+  // 6. Sorting Logic
   if (sort === 'score') {
     filtered.sort((a, b) => (b.signal_score || 0) - (a.signal_score || 0));
   } else if (sort === 'importance') {
@@ -59,6 +86,11 @@ export const SignalsPage: React.FC<SignalsPageProps> = ({
     filtered.sort((a, b) => new Date(b.published_at || b.discovered_at).getTime() - new Date(a.published_at || a.discovered_at).getTime());
   }
 
+  const handleSearchUpdate = (val: string) => {
+    setLocalSearch(val);
+    if (onSearchChange) onSearchChange(val);
+  };
+
   return (
     <div className="space-y-6 pb-12 font-sans text-slate-900 dark:text-zinc-100">
       <div>
@@ -71,6 +103,8 @@ export const SignalsPage: React.FC<SignalsPageProps> = ({
       </div>
 
       <SearchFilterBar
+        searchTerm={searchTerm || localSearch}
+        setSearchTerm={handleSearchUpdate}
         category={category}
         setCategory={setCategory}
         service={service}
@@ -86,9 +120,17 @@ export const SignalsPage: React.FC<SignalsPageProps> = ({
 
       {filtered.length === 0 ? (
         <div className="bg-white dark:bg-[#121216] rounded-xl border border-slate-200 dark:border-zinc-800 p-10 text-center text-slate-600 dark:text-zinc-400 space-y-2.5 shadow-sm">
-          <Bookmark className="w-8 h-8 text-slate-400 mx-auto opacity-50" />
-          <p className="font-semibold text-sm sm:text-base text-slate-900 dark:text-zinc-100">No signals match your filter criteria.</p>
-          <p className="text-xs text-slate-500 dark:text-zinc-400">Try clearing your filters or running the radar agent.</p>
+          <Search className="w-8 h-8 text-slate-400 mx-auto opacity-50" />
+          <p className="font-semibold text-sm sm:text-base text-slate-900 dark:text-zinc-100">No signals match "{activeSearch}" or filter criteria.</p>
+          <p className="text-xs text-slate-500 dark:text-zinc-400">Try clearing search keywords or switching filters.</p>
+          {activeSearch && (
+            <button
+              onClick={() => handleSearchUpdate('')}
+              className="mt-2 px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium transition-all"
+            >
+              Clear Search Query
+            </button>
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
