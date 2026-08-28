@@ -140,6 +140,7 @@ function MainLayout({
 
       {/* Mobile Touch Bottom Navigation */}
       <MobileBottomNav
+        savedCount={savedCount}
         alertCount={alertCount}
         onOpenSettings={onOpenSettings}
       />
