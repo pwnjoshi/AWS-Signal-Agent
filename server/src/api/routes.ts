@@ -13,7 +13,7 @@ const router = Router();
 // Real-time Grounded QA with Dori & Amazon Bedrock
 router.post('/dori/ask', rateLimiter(60, 15 * 60 * 1000), async (req, res) => {
   try {
-    const { question, synthesizeAudio = true } = req.body;
+    const { question, history, synthesizeAudio = true } = req.body;
     if (!question || typeof question !== 'string') {
       return res.status(400).json({ error: 'question string is required' });
     }
@@ -21,11 +21,11 @@ router.post('/dori/ask', rateLimiter(60, 15 * 60 * 1000), async (req, res) => {
     const signals = storage.getSignals();
     const topics = storage.getTopics();
 
-    const { answer, relevantSignals } = await askDoriQuestion(question, signals, topics);
+    const { answer, relevantSignals } = await askDoriQuestion(question, signals, topics, history);
 
     let audioBase64: string | undefined;
     if (synthesizeAudio) {
-      const pollyRes = await synthesizeDoriSpeech(answer, 'Ruth', 'generative');
+      const pollyRes = await synthesizeDoriSpeech(answer, 'Danielle', 'generative');
       if (pollyRes) {
         audioBase64 = pollyRes.audioBase64;
       }

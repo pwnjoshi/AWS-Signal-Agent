@@ -130,7 +130,8 @@ Respond strictly with a valid JSON object matching this schema:
 export async function askDoriQuestion(
   question: string,
   signals: AWSSignal[],
-  topics: CommunityTopic[]
+  topics: CommunityTopic[],
+  history?: Array<{ role: 'user' | 'assistant'; content: string }>
 ): Promise<{ answer: string; relevantSignals: AWSSignal[] }> {
   const q = question.toLowerCase().trim();
 
@@ -172,23 +173,37 @@ export async function askDoriQuestion(
     `[Signal ${idx + 1}] Title: ${s.title}\nServices: ${s.aws_services.join(', ')}\nSummary: ${s.summary}\nWhy it matters: ${s.why_it_matters.why_it_matters}`
   ).join('\n\n');
 
-  const prompt = `You are Dori, the friendly, highly intelligent cloud AI specialist for AWS Signal.
-A developer asked: "${question}".
+  const systemInstructions = `You are Dori, the friendly, cheerful, and expert autonomous AI cloud specialist for AWS Signal.
+Developer asks: "${question}".
 
-Here is the real-time verified AWS intelligence:
+Verified AWS Cloud Telemetry:
 ${contextSnippet}
 
 INSTRUCTIONS:
-1. Provide a crisp, spoken-friendly 1 to 2 sentence answer explaining what happened and the direct developer takeaway.
-2. DO NOT use markdown, bullet points, asterisks, or URLs.
-3. Keep it brief, natural, conversational, and direct.`;
+1. Provide a crisp, cheerful, spoken-friendly 1 to 2 sentence answer explaining the key update and its developer impact.
+2. If this is a follow-up question in the conversation, maintain continuity with the previous dialogue.
+3. DO NOT use markdown symbols, bullet points, asterisks, or URLs.
+4. Keep your answer concise, warm, natural, and helpful for cloud engineers.`;
 
   try {
+    const formattedHistory = (history || [])
+      .filter(h => h && h.content)
+      .slice(-4)
+      .map(h => ({
+        role: h.role,
+        content: h.content,
+      }));
+
+    const messages = [
+      ...formattedHistory,
+      { role: 'user' as const, content: systemInstructions },
+    ];
+
     const payload = {
       anthropic_version: 'bedrock-2023-05-31',
-      max_tokens: 400,
+      max_tokens: 300,
       temperature: 0.3,
-      messages: [{ role: 'user', content: prompt }],
+      messages,
     };
 
     const modelId = process.env.BEDROCK_MODEL_ID || 'anthropic.claude-3-haiku-20240307-v1:0';

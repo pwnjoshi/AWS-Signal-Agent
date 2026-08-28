@@ -17,20 +17,32 @@ export interface PollySynthesisResult {
 }
 
 /**
- * Synthesizes human-like natural conversation speech for Dori using Amazon Polly Neural/Generative voices.
+ * Clean text for human-like conversational speech playback.
+ */
+function cleanTextForSpeech(text: string): string {
+  return text
+    .replace(/[*_#`~[\]()<>]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
+ * Synthesizes expressive, human-like, warm conversation speech for Dori using Amazon Polly Generative voice.
  */
 export async function synthesizeDoriSpeech(
   text: string, 
-  voiceId: VoiceId = 'Ruth', 
+  voiceId: VoiceId = 'Danielle', 
   engine: Engine = 'generative'
 ): Promise<PollySynthesisResult | null> {
+  const cleaned = cleanTextForSpeech(text);
+  if (!cleaned) return null;
+
   try {
-    // Amazon Polly Generative supports conversational tone and human-like inflection
     const command = new SynthesizeSpeechCommand({
-      Text: text,
+      Text: cleaned,
       OutputFormat: 'mp3',
-      VoiceId: voiceId, // Ruth, Danielle, Joanna, Matthew, Amy
-      Engine: engine, // 'generative' or 'neural'
+      VoiceId: voiceId, // Danielle (warm, young, cheerful, expressive)
+      Engine: engine, // 'generative'
       TextType: 'text',
     });
 
@@ -39,7 +51,6 @@ export async function synthesizeDoriSpeech(
       throw new Error('No AudioStream received from Amazon Polly');
     }
 
-    // Convert AudioStream to Buffer and then Base64
     const chunks: Uint8Array[] = [];
     const stream = response.AudioStream as any;
     for await (const chunk of stream) {
@@ -57,12 +68,12 @@ export async function synthesizeDoriSpeech(
   } catch (err: any) {
     console.warn('Amazon Polly synthesis error (falling back to neural/local):', err.message);
     
-    // Fallback to Neural Joanna if Generative is unavailable in the region
+    // Fallback to Neural Joanna / Ruth if Generative is unavailable in the region
     if (engine === 'generative') {
       try {
-        return await synthesizeDoriSpeech(text, 'Joanna', 'neural');
+        return await synthesizeDoriSpeech(cleaned, 'Ruth', 'generative');
       } catch (fallbackErr: any) {
-        console.warn('Polly Neural fallback failed:', fallbackErr.message);
+        console.warn('Polly fallback failed:', fallbackErr.message);
       }
     }
     return null;

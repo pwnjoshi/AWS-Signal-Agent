@@ -388,9 +388,12 @@ function fallbackBrowserSpeech(text: string, onEnd?: () => void) {
 }
 
 /**
- * Ask Dori a question with Amazon Bedrock grounding and Polly audio voice.
+ * Ask Dori a question with Amazon Bedrock grounding, context memory, and Polly audio voice.
  */
-export async function askDoriQuestionApi(question: string): Promise<{
+export async function askDoriQuestionApi(
+  question: string,
+  history?: Array<{ role: 'user' | 'assistant'; content: string }>
+): Promise<{
   answer: string;
   relevantSignals: AWSSignal[];
   audioBase64?: string;
@@ -399,7 +402,7 @@ export async function askDoriQuestionApi(question: string): Promise<{
     const res = await fetch(`${BASE_URL}/api/dori/ask`, {
       method: 'POST',
       headers: defaultHeaders(),
-      body: JSON.stringify({ question, synthesizeAudio: true }),
+      body: JSON.stringify({ question, history, synthesizeAudio: true }),
     });
 
     if (res.ok) {
