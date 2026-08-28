@@ -174,7 +174,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   );
 };
 
-// Native Mobile App Style Bottom Navigation Bar (iOS / Android Feel)
+// Modern Floating Glass Island Navigation Dock (iOS / Linear Style)
 export const MobileBottomNav: React.FC<SidebarProps> = ({
   savedCount = 0,
   alertCount = 0,
@@ -191,53 +191,53 @@ export const MobileBottomNav: React.FC<SidebarProps> = ({
   ];
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-[#121216]/95 backdrop-blur-xl border-t border-slate-200 dark:border-zinc-800 px-2 pt-2 pb-[max(env(safe-area-inset-bottom),0.75rem)] shadow-lg select-none">
-      <div className="flex items-center justify-around max-w-md mx-auto">
+    <nav className="md:hidden fixed bottom-3 inset-x-3 sm:inset-x-auto sm:left-1/2 sm:-translate-x-1/2 sm:w-full sm:max-w-md z-50 select-none pointer-events-none">
+      <div className="pointer-events-auto bg-white/90 dark:bg-[#121216]/90 backdrop-blur-2xl border border-slate-200/80 dark:border-zinc-800/80 rounded-2xl p-1.5 shadow-[0_10px_35px_rgba(0,0,0,0.14)] dark:shadow-[0_10px_35px_rgba(0,0,0,0.6)] flex items-center justify-between gap-1">
         {items.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.path;
+
           return (
             <Link
               key={item.path}
               to={item.path}
-              className={`relative flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-all active:scale-90 ${
-                isActive 
-                  ? 'text-blue-600 dark:text-blue-400 font-semibold' 
-                  : 'text-slate-500 dark:text-zinc-400 font-medium'
+              className={`relative flex-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition-all duration-200 active:scale-92 ${
+                isActive
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-500/25 font-semibold'
+                  : 'text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100 hover:bg-slate-100/60 dark:hover:bg-zinc-800/60 font-medium'
               }`}
             >
-              {/* Active Pill Glow */}
-              {isActive && (
-                <span className="absolute -top-1 w-5 h-1 bg-blue-600 dark:bg-blue-400 rounded-full animate-in fade-in zoom-in duration-200" />
-              )}
-              
-              <div className="relative">
-                <Icon className={`w-5 h-5 transition-transform ${isActive ? 'scale-110' : ''}`} />
+              <div className="relative flex items-center justify-center">
+                <Icon className={`w-4 h-4 transition-transform duration-200 ${isActive ? 'scale-110' : ''}`} />
                 {item.badge !== undefined && item.badge > 0 && (
-                  <span className="absolute -top-1 -right-2 bg-blue-600 text-white text-[8px] font-bold px-1 min-w-[14px] h-[14px] rounded-full flex items-center justify-center">
+                  <span className={`absolute -top-1.5 -right-2.5 text-[8px] font-bold px-1 min-w-[14px] h-[14px] rounded-full flex items-center justify-center shadow-sm ${
+                    isActive ? 'bg-white text-blue-600' : 'bg-blue-600 text-white'
+                  }`}>
                     {item.badge}
                   </span>
                 )}
               </div>
 
-              <span className="text-[10px] mt-1 tracking-tight">{item.label}</span>
+              <span className={`text-[10px] mt-1 tracking-tight leading-none ${isActive ? 'text-white' : ''}`}>
+                {item.label}
+              </span>
             </Link>
           );
         })}
-        
-        {/* Mobile Settings Button */}
+
+        {/* Config Trigger */}
         <button
           onClick={onOpenSettings}
-          className="relative flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-all active:scale-90 text-slate-500 dark:text-zinc-400 font-medium"
+          className="flex-1 flex flex-col items-center justify-center py-1.5 px-1 rounded-xl transition-all duration-200 active:scale-92 text-slate-500 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100 hover:bg-slate-100/60 dark:hover:bg-zinc-800/60 font-medium cursor-pointer"
           aria-label="Settings"
         >
-          <div className="relative">
-            <Settings className="w-5 h-5" />
+          <div className="relative flex items-center justify-center">
+            <Settings className="w-4 h-4" />
             {alertCount > 0 && (
-              <span className="absolute -top-1 -right-1.5 w-2.5 h-2.5 bg-amber-500 rounded-full border-2 border-white dark:border-[#121216]" />
+              <span className="absolute -top-1 -right-1.5 w-2 h-2 bg-amber-500 rounded-full ring-2 ring-white dark:ring-[#121216]" />
             )}
           </div>
-          <span className="text-[10px] mt-1 tracking-tight">Config</span>
+          <span className="text-[10px] mt-1 tracking-tight leading-none">Config</span>
         </button>
       </div>
     </nav>
