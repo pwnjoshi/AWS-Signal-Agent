@@ -9,9 +9,15 @@ import {
   WhileYouWereAwaySummary 
 } from '../types/clientTypes';
 
-const BASE_URL = window.location.hostname.includes('amazonaws.com') 
-  ? 'https://mfolke7x65n2gdosj6i5777c3y0zcmxq.lambda-url.us-east-1.on.aws' 
-  : '';
+const isLocalHost = typeof window !== 'undefined' && (
+  window.location.hostname === 'localhost' || 
+  window.location.hostname === '127.0.0.1' ||
+  window.location.hostname.startsWith('192.168.')
+);
+
+const BASE_URL = isLocalHost
+  ? '' 
+  : 'https://mfolke7x65n2gdosj6i5777c3y0zcmxq.lambda-url.us-east-1.on.aws';
 
 const API_KEY = 'aws-signal-secret-key-2026';
 
