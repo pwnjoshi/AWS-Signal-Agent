@@ -1,35 +1,33 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Volume2, VolumeX, Mic, MicOff } from 'lucide-react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Volume2, Mic, MicOff, Sparkles, Loader2 } from 'lucide-react';
+import { playDoriSpeech, stopDoriSpeech, askDoriQuestionApi } from '../services/apiClient';
 
 export type DoriEmotion = 'happy' | 'curious' | 'thinking' | 'alert' | 'excited' | 'sleeping' | 'working';
 
 interface DoriCompanionProps {
-  emotion?: DoriEmotion;
-  message?: string;
   size?: 'sm' | 'md' | 'lg' | 'hero';
   showSpeechBubble?: boolean;
   interactive?: boolean;
-  isSpeaking?: boolean;
-  isListening?: boolean;
-  onToggleSpeech?: () => void;
-  onTranscribedQuestion?: (question: string) => void;
+  emotion?: DoriEmotion;
+  message?: string;
 }
 
 export const DoriCompanion: React.FC<DoriCompanionProps> = ({
-  emotion = 'happy',
-  message = "Click me to talk with me!",
-  size = 'md',
+  size = 'hero',
   showSpeechBubble = true,
   interactive = true,
-  isSpeaking = false,
-  isListening = false,
-  onToggleSpeech,
-  onTranscribedQuestion,
+  emotion: propEmotion,
+  message: propMessage,
 }) => {
   const [isBlinking, setIsBlinking] = useState(false);
-  const [localEmotion, setLocalEmotion] = useState<DoriEmotion>(emotion);
-  const [localListening, setLocalListening] = useState(false);
-  const [micError, setMicError] = useState<string | null>(null);
+  const [emotion, setEmotion] = useState<DoriEmotion>(propEmotion || 'happy');
+  
+  // Continuous conversation loop states: 'idle' | 'listening' | 'thinking' | 'speaking'
+  const [conversationState, setConversationState] = useState<'idle' | 'listening' | 'thinking' | 'speaking'>('idle');
+  const [bubbleMessage, setBubbleMessage] = useState<string>(propMessage || "Click me to talk with me!");
+  const [transcriptDisplay, setTranscriptDisplay] = useState<string>('');
+
+  const isSessionActiveRef = useRef(false);
   const recognitionRef = useRef<any>(null);
 
   // Natural blinking eyes animation every 3.5 seconds
@@ -42,26 +40,79 @@ export const DoriCompanion: React.FC<DoriCompanionProps> = ({
     return () => clearInterval(blinkInterval);
   }, []);
 
+  // Update visual emotion based on conversational state
   useEffect(() => {
-    if (isSpeaking) {
-      setLocalEmotion('excited');
-    } else if (localListening || isListening) {
-      setLocalEmotion('curious');
+    if (conversationState === 'speaking') {
+      setEmotion('excited');
+    } else if (conversationState === 'listening') {
+      setEmotion('curious');
+    } else if (conversationState === 'thinking') {
+      setEmotion('thinking');
     } else {
-      setLocalEmotion(emotion);
+      setEmotion('happy');
     }
-  }, [isSpeaking, localListening, isListening, emotion]);
+  }, [conversationState]);
 
-  const startVoiceConversation = () => {
+  // Main voice query processor (Bedrock + Polly)
+  const processVoiceQuestion = useCallback(async (question: string) => {
+    if (!isSessionActiveRef.current) return;
+
+    setConversationState('thinking');
+    setBubbleMessage(`Thinking about "${question.slice(0, 45)}${question.length > 45 ? '...' : ''}"...`);
+    setTranscriptDisplay(question);
+
+    try {
+      const res = await askDoriQuestionApi(question);
+      if (!isSessionActiveRef.current) return;
+
+      setConversationState('speaking');
+      setBubbleMessage(res.answer);
+
+      // Play human-like conversational voice using Amazon Polly
+      await playDoriSpeech(res.answer, () => {
+        // Callback when Dori finishes speaking
+        if (isSessionActiveRef.current) {
+          // Continuous Loop: Automatically turn microphone back on for next question!
+          startListeningForSpeech();
+        }
+      });
+    } catch (err) {
+      if (!isSessionActiveRef.current) return;
+      const fallback = "I've checked our live feeds across Amazon Bedrock, AWS Lambda, and DynamoDB. What specific AWS service would you like to explore?";
+      setConversationState('speaking');
+      setBubbleMessage(fallback);
+      await playDoriSpeech(fallback, () => {
+        if (isSessionActiveRef.current) {
+          startListeningForSpeech();
+        }
+      });
+    }
+  }, []);
+
+  // Start microphone listener
+  const startListeningForSpeech = useCallback(() => {
+    if (!isSessionActiveRef.current) return;
+
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
-      // Fallback: If browser does not support Web Speech Recognition, trigger direct briefing
-      if (onToggleSpeech) onToggleSpeech();
+      // Fallback: If Web Speech Recognition API is unavailable
+      const defaultBriefing = "Good day builder! Amazon Bedrock cross-region inferencing and Lambda SnapStart are active. What would you like to build today?";
+      setConversationState('speaking');
+      setBubbleMessage(defaultBriefing);
+      playDoriSpeech(defaultBriefing, () => {
+        setConversationState('idle');
+        isSessionActiveRef.current = false;
+        setBubbleMessage("Click me to talk with me!");
+      });
       return;
     }
 
     try {
+      if (recognitionRef.current) {
+        try { recognitionRef.current.abort(); } catch {}
+      }
+
       const recognition = new SpeechRecognition();
       recognitionRef.current = recognition;
       recognition.continuous = false;
@@ -69,57 +120,75 @@ export const DoriCompanion: React.FC<DoriCompanionProps> = ({
       recognition.lang = 'en-US';
 
       recognition.onstart = () => {
-        setLocalListening(true);
-        setMicError(null);
+        if (isSessionActiveRef.current) {
+          setConversationState('listening');
+          setBubbleMessage("Listening... Speak your AWS question now!");
+        }
       };
 
       recognition.onresult = (event: any) => {
         const transcript = event.results[0][0].transcript;
-        setLocalListening(false);
-        if (onTranscribedQuestion && transcript) {
-          onTranscribedQuestion(transcript);
+        if (transcript && isSessionActiveRef.current) {
+          processVoiceQuestion(transcript);
         }
       };
 
       recognition.onerror = (event: any) => {
         console.warn('Speech recognition notice:', event.error);
-        setLocalListening(false);
-        // If mic denied or errored, fallback to audio briefing narration
-        if (onToggleSpeech) {
-          onToggleSpeech();
+        if (isSessionActiveRef.current && event.error === 'no-speech') {
+          // If silent, prompt gently or re-listen
+          setBubbleMessage("I'm still listening... Ask me anything about AWS!");
+          setTimeout(() => {
+            if (isSessionActiveRef.current && conversationState === 'listening') {
+              startListeningForSpeech();
+            }
+          }, 1000);
         }
       };
 
       recognition.onend = () => {
-        setLocalListening(false);
+        if (isSessionActiveRef.current && conversationState === 'listening') {
+          // If speech recognition ended without result, restart listener
+          setTimeout(() => {
+            if (isSessionActiveRef.current && conversationState === 'listening') {
+              try { recognition.start(); } catch {}
+            }
+          }, 300);
+        }
       };
 
       recognition.start();
     } catch (err) {
       console.warn('Failed to start speech recognition:', err);
-      setLocalListening(false);
-      if (onToggleSpeech) onToggleSpeech();
+      if (isSessionActiveRef.current) {
+        setConversationState('idle');
+        isSessionActiveRef.current = false;
+        setBubbleMessage("Click me to talk with me!");
+      }
     }
-  };
+  }, [processVoiceQuestion, conversationState]);
 
-  const handleClick = () => {
+  // Master click handler: Toggle voice session on / off
+  const handleToggleVoiceSession = () => {
     if (!interactive) return;
 
-    if (isSpeaking) {
-      if (onToggleSpeech) onToggleSpeech();
-      return;
-    }
-
-    if (localListening) {
+    if (isSessionActiveRef.current) {
+      // User clicked to TURN OFF session
+      isSessionActiveRef.current = false;
       if (recognitionRef.current) {
-        recognitionRef.current.stop();
+        try { recognitionRef.current.abort(); } catch {}
       }
-      setLocalListening(false);
-      return;
+      stopDoriSpeech();
+      setConversationState('idle');
+      setBubbleMessage("Click me to talk with me!");
+      setTranscriptDisplay('');
+    } else {
+      // User clicked to TURN ON session
+      isSessionActiveRef.current = true;
+      setConversationState('listening');
+      setBubbleMessage("Listening... Speak your question now!");
+      startListeningForSpeech();
     }
-
-    // Start voice conversation flow
-    startVoiceConversation();
   };
 
   const getDimensions = () => {
@@ -132,34 +201,40 @@ export const DoriCompanion: React.FC<DoriCompanionProps> = ({
   };
 
   const { width, height } = getDimensions();
-
-  const isCurrentlyActive = isSpeaking || localListening || isListening;
+  const isActive = conversationState !== 'idle';
 
   return (
     <div className="relative inline-flex flex-col items-center select-none group font-sans">
       
-      {/* Speech Bubble on Top of Dori's Head (No Star Icon) */}
+      {/* Speech Bubble on Top of Dori's Head */}
       {showSpeechBubble && (
         <div 
-          onClick={handleClick}
-          className={`mb-3.5 max-w-xs sm:max-w-md px-4 py-2.5 rounded-xl border text-center shadow-md relative z-10 transition-all duration-200 cursor-pointer active:scale-98 ${
-            isSpeaking 
-              ? 'bg-blue-600 text-white border-blue-500 shadow-blue-500/20' 
-              : localListening
-                ? 'bg-emerald-600 text-white border-emerald-500 shadow-emerald-500/20 animate-pulse'
-                : 'bg-white dark:bg-[#18181b] text-slate-900 dark:text-zinc-100 border-slate-200 dark:border-zinc-700 hover:border-blue-400'
+          onClick={handleToggleVoiceSession}
+          className={`mb-4 max-w-xs sm:max-w-md px-4 py-2.5 rounded-xl border text-center shadow-lg relative z-10 transition-all duration-300 cursor-pointer active:scale-98 ${
+            conversationState === 'speaking'
+              ? 'bg-blue-600 text-white border-blue-500 shadow-blue-500/25' 
+              : conversationState === 'listening'
+                ? 'bg-emerald-600 text-white border-emerald-500 shadow-emerald-500/25'
+                : conversationState === 'thinking'
+                  ? 'bg-indigo-600 text-white border-indigo-500 shadow-indigo-500/25 animate-pulse'
+                  : 'bg-white dark:bg-[#18181b] text-slate-900 dark:text-zinc-100 border-slate-200 dark:border-zinc-700 hover:border-blue-400'
           }`}
         >
           <div className="flex items-center justify-center gap-1.5 mb-0.5">
-            {isSpeaking ? (
+            {conversationState === 'speaking' ? (
               <span className="text-[11px] font-semibold flex items-center gap-1 text-white">
                 <Volume2 className="w-3.5 h-3.5 animate-pulse" />
-                Dori is Speaking (Click to Mute)
+                Dori is Speaking (Click to End)
               </span>
-            ) : localListening ? (
+            ) : conversationState === 'listening' ? (
               <span className="text-[11px] font-semibold flex items-center gap-1 text-white">
                 <Mic className="w-3.5 h-3.5 animate-pulse text-amber-300" />
-                Listening to your microphone... (Ask anything)
+                Listening to your Voice... (Click to End)
+              </span>
+            ) : conversationState === 'thinking' ? (
+              <span className="text-[11px] font-semibold flex items-center gap-1 text-white">
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-300" />
+                Analyzing Cloud Intelligence...
               </span>
             ) : (
               <span className="text-[11px] font-semibold text-blue-600 dark:text-blue-400 flex items-center gap-1">
@@ -169,35 +244,40 @@ export const DoriCompanion: React.FC<DoriCompanionProps> = ({
             )}
           </div>
           
-          <p className={`text-xs leading-relaxed font-normal ${isCurrentlyActive ? 'text-blue-50' : 'text-slate-600 dark:text-zinc-400'}`}>
-            {localListening 
-              ? "Speak your question now (e.g., 'What happened with Lambda SnapStart?')..."
-              : message
-            }
+          <p className={`text-xs leading-relaxed font-normal ${isActive ? 'text-white' : 'text-slate-600 dark:text-zinc-400'}`}>
+            {bubbleMessage}
           </p>
 
           {/* Speech Bubble Pointer Arrow */}
           <div className={`absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 rotate-45 border-b border-r ${
-            isSpeaking
+            conversationState === 'speaking'
               ? 'bg-blue-600 border-blue-500'
-              : localListening
+              : conversationState === 'listening'
                 ? 'bg-emerald-600 border-emerald-500'
-                : 'bg-white dark:bg-[#18181b] border-slate-200 dark:border-zinc-700'
+                : conversationState === 'thinking'
+                  ? 'bg-indigo-600 border-indigo-500'
+                  : 'bg-white dark:bg-[#18181b] border-slate-200 dark:border-zinc-700'
           }`} />
         </div>
       )}
 
       {/* Dori Animated Character */}
       <div 
-        onClick={handleClick} 
+        onClick={handleToggleVoiceSession} 
         className={`relative cursor-pointer transition-all duration-300 ${
           interactive ? 'hover:scale-105 active:scale-95' : ''
-        } ${isSpeaking ? 'animate-bounce' : localListening ? 'animate-pulse' : ''}`}
-        title={isCurrentlyActive ? "Click to stop" : "Click to talk with Dori (Microphone access)"}
+        } ${conversationState === 'speaking' ? 'animate-bounce' : conversationState === 'listening' ? 'scale-105' : ''}`}
+        title={isActive ? "Click to stop conversation" : "Click to start continuous AI voice conversation"}
       >
-        {/* Glowing aura when speaking or listening */}
-        {isCurrentlyActive && (
-          <div className="absolute -inset-3 bg-blue-500/25 rounded-full blur-lg animate-pulse" />
+        {/* Animated Sound Wave Aura when Speaking or Listening */}
+        {isActive && (
+          <div className={`absolute -inset-4 rounded-full blur-xl animate-pulse ${
+            conversationState === 'speaking' 
+              ? 'bg-blue-500/30' 
+              : conversationState === 'listening' 
+                ? 'bg-emerald-500/30' 
+                : 'bg-indigo-500/30'
+          }`} />
         )}
 
         <svg
@@ -208,9 +288,14 @@ export const DoriCompanion: React.FC<DoriCompanionProps> = ({
           xmlns="http://www.w3.org/2000/svg"
           className="drop-shadow-md relative z-10"
         >
-          {/* Antenna / Sensor with Pulse */}
+          {/* Antenna / Sensor with Status Pulse */}
           <line x1="60" y1="18" x2="60" y2="8" stroke="#2563EB" strokeWidth="4" strokeLinecap="round" />
-          <circle cx="60" cy="7" r="5" fill={localListening ? '#10B981' : isSpeaking ? '#00D294' : '#3B82F6'} />
+          <circle 
+            cx="60" 
+            cy="7" 
+            r="5" 
+            fill={conversationState === 'listening' ? '#10B981' : conversationState === 'speaking' ? '#00D294' : conversationState === 'thinking' ? '#818CF8' : '#3B82F6'} 
+          />
 
           {/* Main Robotic Cloud Body */}
           <rect x="20" y="18" width="80" height="78" rx="39" fill="#2563EB" />
@@ -239,7 +324,7 @@ export const DoriCompanion: React.FC<DoriCompanionProps> = ({
               <line x1="41" y1="42" x2="51" y2="42" stroke="#1E293B" strokeWidth="3" strokeLinecap="round" />
               <line x1="69" y1="42" x2="79" y2="42" stroke="#1E293B" strokeWidth="3" strokeLinecap="round" />
             </>
-          ) : localEmotion === 'excited' || isSpeaking ? (
+          ) : emotion === 'excited' || conversationState === 'speaking' ? (
             // Excited Happy Curve Eyes
             <>
               <path d="M 41 43 Q 46 36 51 43" stroke="#1E293B" strokeWidth="3" strokeLinecap="round" fill="none" />
@@ -260,7 +345,7 @@ export const DoriCompanion: React.FC<DoriCompanionProps> = ({
           <ellipse cx="82" cy="49" rx="4" ry="2" fill="#F472B6" opacity="0.65" />
 
           {/* Mouth Expression */}
-          {isSpeaking ? (
+          {conversationState === 'speaking' ? (
             // Talking animated open mouth
             <ellipse cx="60" cy="55" rx="5" ry="4" fill="#1E293B" />
           ) : (
