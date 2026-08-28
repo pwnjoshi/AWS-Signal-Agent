@@ -2,84 +2,107 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { 
   Radio, 
-  ArrowRight,
   ArrowUpRight, 
+  Flame, 
+  Mail, 
   ShieldCheck, 
+  Brain, 
   Zap, 
-  Volume2, 
-  Cpu, 
   Clock, 
-  Brain,
-  Layers,
-  Activity,
+  Cpu, 
+  Volume2, 
+  Bookmark, 
+  Layers, 
+  FileText, 
+  Activity, 
+  Sparkles,
+  BarChart3,
+  Search,
   CheckCircle2,
-  Lock,
-  ChevronRight,
-  Sparkles
+  Terminal,
+  Lock
 } from 'lucide-react';
-import { GEUNavbar as Navbar } from './GEUNavbar';
-import { ParticleBackground } from './ParticleBackground';
 import { DoriCompanion } from './DoriCompanion';
 
 interface LandingPageProps {
-  onGetStarted: () => void;
   onOpenAuthModal?: () => void;
+  onGetStarted?: () => void;
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAuthModal }) => {
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#09090b] text-slate-900 dark:text-zinc-100 selection:bg-blue-500/20 selection:text-blue-600 relative font-sans overflow-x-hidden transition-colors pb-24 md:pb-0">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#09090b] text-slate-900 dark:text-zinc-100 font-sans selection:bg-blue-600 selection:text-white transition-colors duration-200">
       
-      {/* Ambient Particle & Canvas Background */}
-      <div className="fixed inset-0 pointer-events-none -z-10">
-        <div className="absolute inset-0 site-main-grid opacity-30" />
-        <ParticleBackground />
-      </div>
+      {/* ── Top Navigation Bar ── */}
+      <nav className="sticky top-0 z-50 bg-white/80 dark:bg-[#09090b]/80 backdrop-blur-md border-b border-slate-200 dark:border-zinc-800">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-2 group">
+            <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-sm group-hover:scale-105 transition-transform">
+              <Radio className="w-4 h-4 text-white" />
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="font-bold text-sm text-slate-900 dark:text-zinc-100 tracking-tight">AWS Signal</span>
+              <span className="text-[10px] bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 px-1.5 py-0.2 rounded font-mono font-semibold">2026</span>
+            </div>
+          </Link>
 
-      {/* Standalone Navigation Bar */}
-      <Navbar onOpenAuthModal={onOpenAuthModal} onLaunchDashboard={onGetStarted} />
+          <div className="hidden sm:flex items-center gap-5 text-xs text-slate-600 dark:text-zinc-400 font-medium">
+            <a href="#features" className="hover:text-slate-900 dark:hover:text-zinc-100 transition-colors">Command Hub</a>
+            <a href="#intelligence" className="hover:text-slate-900 dark:hover:text-zinc-100 transition-colors">5-Pillar AI Scoring</a>
+            <a href="#how-it-works" className="hover:text-slate-900 dark:hover:text-zinc-100 transition-colors">Architecture</a>
+          </div>
 
-      {/* ── Section 1: Hero Section (Optimized for both Desktop & Mobile) ── */}
-      <section id="home" className="relative pt-28 sm:pt-36 md:pt-40 pb-8 sm:pb-12 md:pb-16 px-4 sm:px-6 max-w-5xl mx-auto flex flex-col items-center justify-center text-center">
-        
-        {/* Animated Lightning Shimmer Border Pill */}
-        <div className="inline-block p-[1.5px] rounded-full lightning-border-wrapper shadow-sm select-none mb-4 sm:mb-6">
-          <div className="px-4 py-1.5 rounded-full bg-white dark:bg-[#121216] backdrop-blur-md">
-            <span className="text-xs font-semibold text-slate-800 dark:text-zinc-200 tracking-normal">
-              Autonomous AWS Intelligence
-            </span>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Link
+              to="/dashboard"
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium shadow-sm transition-all flex items-center gap-1.5 active:scale-98 cursor-pointer"
+            >
+              <span>Launch Hub</span>
+              <ArrowUpRight className="w-3.5 h-3.5" />
+            </Link>
           </div>
         </div>
+      </nav>
 
-        {/* Hero Headline */}
-        <h1 className="text-2xl sm:text-4xl md:text-6xl font-bold tracking-tight text-slate-900 dark:text-zinc-100 leading-[1.18] max-w-3xl">
-          Where Cloud Builders Stay Informed
+      {/* ── Section 1: Hero Showcase ── */}
+      <section className="relative overflow-hidden pt-8 pb-12 sm:pt-14 sm:pb-16 px-4 sm:px-6 lg:px-8 max-w-6xl mx-auto flex flex-col items-center text-center">
+        
+        {/* Shimmer Border Pill */}
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white dark:bg-[#18181b] border border-blue-500/30 text-blue-600 dark:text-blue-400 text-xs font-medium shadow-sm mb-4">
+          <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400 animate-pulse" />
+          <span>Autonomous AWS Intelligence</span>
+        </div>
+
+        {/* Clean Responsive Heading */}
+        <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 dark:text-zinc-100 tracking-tight leading-[1.15] max-w-4xl">
+          AWS updates without noise. <br className="hidden sm:inline" />
+          Scored by <span className="text-blue-600 dark:text-blue-400">Bedrock Claude</span> &amp; Voice with <span className="text-indigo-600 dark:text-indigo-400">Dori</span>.
         </h1>
 
-        <p className="text-xs sm:text-base md:text-lg text-slate-600 dark:text-zinc-400 max-w-2xl mx-auto font-normal leading-relaxed mt-3 sm:mt-4">
-          AWS Signal monitors release feeds 24/7, scores developer relevance via Amazon Bedrock, and delivers personalized audio briefings before breaking your stack.
+        {/* Subtitle */}
+        <p className="mt-3.5 sm:mt-5 text-xs sm:text-sm md:text-base text-slate-600 dark:text-zinc-400 max-w-2xl mx-auto leading-relaxed font-normal">
+          An autonomous agent continuously monitors hundreds of AWS release feeds, eliminates duplicate marketing noise via SHA-256 hashing, ranks architectural importance on a 5-pillar scale, and speaks live daily briefings.
         </p>
 
-        {/* Exactly Two Action CTAs (Full touch width on mobile, inline on desktop) */}
-        <div className="w-full max-w-md sm:max-w-none flex flex-col sm:flex-row items-center justify-center gap-3 pt-5 sm:pt-6">
+        {/* Action Button Grid */}
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-2.5 sm:gap-3.5 w-full max-w-md">
           <Link
             to="/dashboard"
-            className="w-full sm:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-700 active:scale-98 text-white rounded-xl text-xs sm:text-sm font-semibold shadow-md flex items-center justify-center gap-2 transition-all cursor-pointer"
+            className="w-full sm:w-auto px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs sm:text-sm font-medium shadow-sm flex items-center justify-center gap-1.5 transition-all cursor-pointer"
           >
-            <span>Get Started</span>
-            <ArrowRight className="w-4 h-4" />
+            <span>Open Command Hub</span>
+            <ArrowUpRight className="w-3.5 h-3.5" />
           </Link>
-
           <Link
             to="/signals"
-            className="w-full sm:w-auto px-6 py-3 bg-white dark:bg-[#18181b] hover:bg-slate-50 dark:hover:bg-[#202026] active:scale-98 text-slate-800 dark:text-zinc-200 border border-slate-200 dark:border-zinc-800 rounded-xl text-xs sm:text-sm font-semibold shadow-sm flex items-center justify-center gap-2 transition-all"
+            className="w-full sm:w-auto px-5 py-2.5 bg-white dark:bg-[#18181b] hover:bg-slate-100 dark:hover:bg-[#27272a] text-slate-800 dark:text-zinc-200 border border-slate-200 dark:border-zinc-800 rounded-xl text-xs sm:text-sm font-medium shadow-sm flex items-center justify-center gap-1.5 transition-all cursor-pointer"
           >
-            <Radio className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-            <span>Explore Live Radar</span>
+            <Radio className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+            <span>Browse Radar Signals</span>
           </Link>
         </div>
 
-        {/* ── Dori Sitting Centered with Continuous AI Voice Loop ── */}
+        {/* ── Dori Voice Copilot Centered ── */}
         <div className="mt-8 sm:mt-12 flex flex-col items-center justify-center relative z-20 w-full">
           <DoriCompanion
             size="hero"
@@ -88,135 +111,194 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
         </div>
       </section>
 
-      {/* ── Section 2: Live Agent Heartbeat Strip ── */}
+      {/* ── Section 2: Live Agent Telemetry Strip ── */}
       <section className="border-y border-slate-200 dark:border-zinc-800 bg-white dark:bg-[#121216] py-3.5 px-4 sm:px-6 shadow-sm">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2.5">
             <span className="w-2 h-2 rounded-full bg-[#00d294] animate-pulse" />
-            <span className="font-semibold text-slate-900 dark:text-zinc-100">Live Agent Heartbeat:</span>
-            <span className="text-slate-500 dark:text-zinc-400">Autonomous 24/7 Ingestion Pipeline</span>
+            <span className="font-semibold text-slate-900 dark:text-zinc-100">Live Agent Pipeline:</span>
+            <span className="text-slate-500 dark:text-zinc-400">Autonomous 24/7 Ingestion &amp; Bedrock Scoring</span>
           </div>
 
           <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-[11px] text-slate-600 dark:text-zinc-400 font-mono">
             <span className="flex items-center gap-1.5 font-sans">
               <Zap className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-              <span>Deduplication: <strong className="font-mono text-slate-900 dark:text-zinc-100 font-semibold">SHA-256</strong></span>
+              <span>Deduplication: <strong className="font-mono text-slate-900 dark:text-zinc-100 font-semibold">SHA-256 Vault</strong></span>
             </span>
             <span className="flex items-center gap-1.5 font-sans">
               <Brain className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
-              <span>Model: <strong className="font-mono text-indigo-600 dark:text-indigo-400 font-semibold">Bedrock Claude 3.5</strong></span>
+              <span>Scoring: <strong className="font-mono text-indigo-600 dark:text-indigo-400 font-semibold">Claude 3.5 Haiku</strong></span>
             </span>
             <span className="flex items-center gap-1.5 font-sans">
               <Clock className="w-3.5 h-3.5 text-orange-600 dark:text-orange-400" />
-              <span>Interval: <strong className="font-mono text-orange-600 dark:text-orange-400 font-semibold">EventBridge Cron</strong></span>
+              <span>Scheduler: <strong className="font-mono text-orange-600 dark:text-orange-400 font-semibold">EventBridge Cron</strong></span>
             </span>
           </div>
         </div>
       </section>
 
-      {/* ── Section 3: Bento Grid Intelligence (Responsive for PC & Phone) ── */}
-      <section id="intelligence" className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 max-w-6xl mx-auto space-y-8">
+      {/* ── Section 3: Comprehensive Platform Features Grid ── */}
+      <section id="features" className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 max-w-6xl mx-auto space-y-10">
         
         <div className="text-center space-y-2">
           <h2 className="text-xl sm:text-3xl md:text-4xl font-bold text-slate-900 dark:text-zinc-100 tracking-tight">
-            The Architecture of Clarity
+            Complete Command Hub Capabilities
           </h2>
-          <p className="text-slate-500 dark:text-zinc-400 text-xs sm:text-sm max-w-xl mx-auto leading-relaxed">
-            Why browse 50 AWS release pages when an autonomous agent can score, synthesize, and filter for you?
+          <p className="text-slate-500 dark:text-zinc-400 text-xs sm:text-sm max-w-xl mx-auto leading-relaxed font-normal">
+            Everything you need to monitor, filter, save, and listen to AWS intelligence in one place.
           </p>
         </div>
 
-        {/* Bento Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           
-          {/* Bento 1: While You Were Away (Col 8) */}
-          <div className="md:col-span-8 p-5 sm:p-7 rounded-2xl bg-white dark:bg-[#121216] border border-slate-200 dark:border-zinc-800 shadow-sm flex flex-col justify-between min-h-[260px]">
-            <div>
-              <h3 className="text-base sm:text-xl font-semibold text-slate-900 dark:text-zinc-100 mb-2">
-                "While You Were Away" Executive Synthesis
+          {/* Card 1: Command Hub Dashboard */}
+          <Link to="/dashboard" className="group p-5 rounded-2xl bg-white dark:bg-[#121216] border border-slate-200 dark:border-zinc-800 shadow-sm hover:border-blue-500 transition-all flex flex-col justify-between space-y-3">
+            <div className="space-y-2">
+              <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center">
+                <BarChart3 className="w-4 h-4" />
+              </div>
+              <h3 className="text-base font-semibold text-slate-900 dark:text-zinc-100 group-hover:text-blue-600 transition-colors flex items-center justify-between">
+                <span>Command Hub</span>
+                <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
               </h3>
-              <p className="text-slate-500 dark:text-zinc-400 text-xs sm:text-sm leading-relaxed max-w-2xl font-normal">
-                Never suffer from release fatigue. Whenever you open the dashboard, Dori scans the exact timeframe since your last visit, strips out duplicate marketing noise using SHA-256 hashes, and delivers a concise 60-second summary.
+              <p className="text-xs text-slate-500 dark:text-zinc-400 leading-relaxed font-normal">
+                Real-time agent execution telemetry, "While You Were Away" executive delta summaries, high-priority alert meters, and quick actions.
               </p>
             </div>
+            <span className="text-[11px] font-medium text-blue-600 dark:text-blue-400 flex items-center gap-1">
+              <span>View Dashboard</span>
+              <span>&rarr;</span>
+            </span>
+          </Link>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-5 border-t border-slate-200 dark:border-zinc-800 font-mono">
-              <div className="p-2.5 bg-slate-50 dark:bg-[#18181b] border border-slate-200 dark:border-zinc-800 rounded-xl text-center">
-                <span className="text-[10px] text-slate-500 dark:text-zinc-400 block font-medium font-sans">Announcements</span>
-                <span className="text-sm sm:text-base font-bold text-slate-900 dark:text-zinc-100">03</span>
+          {/* Card 2: Radar Intelligence Stream */}
+          <Link to="/signals" className="group p-5 rounded-2xl bg-white dark:bg-[#121216] border border-slate-200 dark:border-zinc-800 shadow-sm hover:border-blue-500 transition-all flex flex-col justify-between space-y-3">
+            <div className="space-y-2">
+              <div className="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                <Radio className="w-4 h-4" />
               </div>
-              <div className="p-2.5 bg-slate-50 dark:bg-[#18181b] border border-slate-200 dark:border-zinc-800 rounded-xl text-center">
-                <span className="text-[10px] text-slate-500 dark:text-zinc-400 block font-medium font-sans">Discussions</span>
-                <span className="text-sm sm:text-base font-bold text-slate-900 dark:text-zinc-100">07</span>
-              </div>
-              <div className="p-2.5 bg-slate-50 dark:bg-[#18181b] border border-slate-200 dark:border-zinc-800 rounded-xl text-center">
-                <span className="text-[10px] text-slate-500 dark:text-zinc-400 block font-medium font-sans">Emerging</span>
-                <span className="text-sm sm:text-base font-bold text-[#00d294]">02</span>
-              </div>
-              <div className="p-2.5 bg-slate-50 dark:bg-[#18181b] border border-red-500/30 rounded-xl text-center">
-                <span className="text-[10px] text-red-500 block font-medium font-sans">High Alert</span>
-                <span className="text-sm sm:text-base font-bold text-red-500">01</span>
-              </div>
+              <h3 className="text-base font-semibold text-slate-900 dark:text-zinc-100 group-hover:text-indigo-600 transition-colors flex items-center justify-between">
+                <span>Radar Signals Matrix</span>
+                <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-indigo-600 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-zinc-400 leading-relaxed font-normal">
+                Live stream of scored cloud updates. Filter by 5-pillar scores, category, AWS service, and source with full-text search.
+              </p>
             </div>
-          </div>
+            <span className="text-[11px] font-medium text-indigo-600 dark:text-indigo-400 flex items-center gap-1">
+              <span>Explore Signals</span>
+              <span>&rarr;</span>
+            </span>
+          </Link>
 
-          {/* Bento 2: Multi-Metric Score (Col 4) */}
-          <div className="md:col-span-4 p-5 sm:p-7 rounded-2xl bg-white dark:bg-[#121216] border border-slate-200 dark:border-zinc-800 shadow-sm flex flex-col justify-between">
-            <div className="space-y-1">
-              <h4 className="text-sm sm:text-base font-semibold text-slate-900 dark:text-zinc-100">5-Pillar Score</h4>
-              <p className="text-slate-500 dark:text-zinc-400 text-xs font-normal">Each raw item is ranked dynamically across weighted parameters.</p>
+          {/* Card 3: Friction Matrix */}
+          <Link to="/trending" className="group p-5 rounded-2xl bg-white dark:bg-[#121216] border border-slate-200 dark:border-zinc-800 shadow-sm hover:border-amber-500 transition-all flex flex-col justify-between space-y-3">
+            <div className="space-y-2">
+              <div className="w-9 h-9 rounded-xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+                <Flame className="w-4 h-4" />
+              </div>
+              <h3 className="text-base font-semibold text-slate-900 dark:text-zinc-100 group-hover:text-amber-600 transition-colors flex items-center justify-between">
+                <span>Friction Matrix</span>
+                <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-amber-600 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-zinc-400 leading-relaxed font-normal">
+                Tracks community pain points, migration challenges, and emerging architectural debates scraped from AWS re:Post and dev forums.
+              </p>
             </div>
+            <span className="text-[11px] font-medium text-amber-600 dark:text-amber-400 flex items-center gap-1">
+              <span>View Trending Debates</span>
+              <span>&rarr;</span>
+            </span>
+          </Link>
 
-            <div className="space-y-2 pt-4 text-xs font-mono">
-              <div className="flex justify-between items-center border-b border-slate-200 dark:border-zinc-800 pb-1.5">
-                <span className="text-slate-500 dark:text-zinc-400 font-sans">Importance</span>
-                <span className="text-slate-900 dark:text-zinc-100 font-semibold">30%</span>
+          {/* Card 4: Daily Briefings & Hands-On Labs */}
+          <Link to="/briefings" className="group p-5 rounded-2xl bg-white dark:bg-[#121216] border border-slate-200 dark:border-zinc-800 shadow-sm hover:border-purple-500 transition-all flex flex-col justify-between space-y-3">
+            <div className="space-y-2">
+              <div className="w-9 h-9 rounded-xl bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 flex items-center justify-center">
+                <FileText className="w-4 h-4" />
               </div>
-              <div className="flex justify-between items-center border-b border-slate-200 dark:border-zinc-800 pb-1.5">
-                <span className="text-slate-500 dark:text-zinc-400 font-sans">Developer Value</span>
-                <span className="text-slate-900 dark:text-zinc-100 font-semibold">25%</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-slate-200 dark:border-zinc-800 pb-1.5">
-                <span className="text-slate-500 dark:text-zinc-400 font-sans">Community Pulse</span>
-                <span className="text-slate-900 dark:text-zinc-100 font-semibold">20%</span>
-              </div>
-              <div className="flex justify-between items-center border-b border-slate-200 dark:border-zinc-800 pb-1.5">
-                <span className="text-slate-500 dark:text-zinc-400 font-sans">Novelty Factor</span>
-                <span className="text-slate-900 dark:text-zinc-100 font-semibold">15%</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-slate-500 dark:text-zinc-400 font-sans">Actionability</span>
-                <span className="text-blue-600 dark:text-blue-400 font-semibold">10%</span>
-              </div>
+              <h3 className="text-base font-semibold text-slate-900 dark:text-zinc-100 group-hover:text-purple-600 transition-colors flex items-center justify-between">
+                <span>Daily Digest &amp; Labs</span>
+                <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-purple-600 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-zinc-400 leading-relaxed font-normal">
+                AI-synthesized executive briefings paired with practical step-by-step AWS CLI &amp; CDK implementation labs.
+              </p>
             </div>
-          </div>
+            <span className="text-[11px] font-medium text-purple-600 dark:text-purple-400 flex items-center gap-1">
+              <span>Read Latest Briefing</span>
+              <span>&rarr;</span>
+            </span>
+          </Link>
+
+          {/* Card 5: Cloud Mesh Explorer */}
+          <Link to="/services" className="group p-5 rounded-2xl bg-white dark:bg-[#121216] border border-slate-200 dark:border-zinc-800 shadow-sm hover:border-teal-500 transition-all flex flex-col justify-between space-y-3">
+            <div className="space-y-2">
+              <div className="w-9 h-9 rounded-xl bg-teal-50 dark:bg-teal-950/40 text-teal-600 dark:text-teal-400 flex items-center justify-center">
+                <Layers className="w-4 h-4" />
+              </div>
+              <h3 className="text-base font-semibold text-slate-900 dark:text-zinc-100 group-hover:text-teal-600 transition-colors flex items-center justify-between">
+                <span>Cloud Mesh Explorer</span>
+                <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-teal-600 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-zinc-400 leading-relaxed font-normal">
+                Service-level breakdown of AWS intelligence, tracking velocity, release frequency, and average importance scores per service.
+              </p>
+            </div>
+            <span className="text-[11px] font-medium text-teal-600 dark:text-teal-400 flex items-center gap-1">
+              <span>Explore Cloud Mesh</span>
+              <span>&rarr;</span>
+            </span>
+          </Link>
+
+          {/* Card 6: Personal Bookmarks Vault */}
+          <Link to="/saved" className="group p-5 rounded-2xl bg-white dark:bg-[#121216] border border-slate-200 dark:border-zinc-800 shadow-sm hover:border-[#00d294] transition-all flex flex-col justify-between space-y-3">
+            <div className="space-y-2">
+              <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-[#00d294] flex items-center justify-center">
+                <Bookmark className="w-4 h-4" />
+              </div>
+              <h3 className="text-base font-semibold text-slate-900 dark:text-zinc-100 group-hover:text-[#00d294] transition-colors flex items-center justify-between">
+                <span>Bookmarks Vault</span>
+                <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-[#00d294] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-zinc-400 leading-relaxed font-normal">
+                Isolated per-account storage verified via AWS Builder Center. Save critical signals, export architecture bookmarks, and manage custom topics.
+              </p>
+            </div>
+            <span className="text-[11px] font-medium text-[#00d294] flex items-center gap-1">
+              <span>Open Vault</span>
+              <span>&rarr;</span>
+            </span>
+          </Link>
 
         </div>
-
       </section>
 
-      {/* ── Section 4: 5-Step Pipeline (How It Works) ── */}
-      <section id="how-it-works" className="py-12 sm:py-16 md:py-20 border-t border-slate-200 dark:border-zinc-800 bg-white dark:bg-[#121216]">
+      {/* ── Section 4: 5-Pillar Scoring Breakdown ── */}
+      <section id="intelligence" className="py-12 sm:py-16 md:py-20 border-t border-slate-200 dark:border-zinc-800 bg-white dark:bg-[#121216]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
           
           <div className="text-center space-y-2">
-            <h2 className="text-xl sm:text-3xl font-bold text-slate-900 dark:text-zinc-100 tracking-tight">
-              From Raw Feeds to Verified Intelligence
+            <h2 className="text-xl sm:text-3xl md:text-4xl font-bold text-slate-900 dark:text-zinc-100 tracking-tight">
+              5-Pillar Multi-Metric Evaluation
             </h2>
+            <p className="text-slate-500 dark:text-zinc-400 text-xs sm:text-sm max-w-xl mx-auto leading-relaxed font-normal">
+              Amazon Bedrock Claude evaluates every single release across 5 weighted dimensions.
+            </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3.5 text-xs">
             {[
-              { step: '01', title: 'Collect', desc: 'RSS, Blogs & re:Post scraped every hour via EventBridge Scheduler.' },
-              { step: '02', title: 'Deduplicate', desc: 'SHA-256 hashing verifies zero repeat items across scans.' },
-              { step: '03', title: 'Rank & Score', desc: 'Amazon Bedrock multi-metric 0-100 evaluation of developer relevance.' },
-              { step: '04', title: 'Synthesize', desc: 'Auto-generates daily briefing, executive bullet points & practical lab.' },
-              { step: '05', title: 'Notify', desc: 'Instant SES email alerts dispatched to subscribed Builder IDs.' },
-            ].map((s) => (
-              <div key={s.step} className="bg-slate-50 dark:bg-[#18181b] border border-slate-200 dark:border-zinc-800 rounded-xl p-4 space-y-1.5 hover:border-blue-400 transition-all shadow-sm">
-                <span className="text-xs font-bold text-blue-600 dark:text-blue-400 font-mono">{s.step}.</span>
-                <h4 className="text-xs font-semibold text-slate-900 dark:text-zinc-100">{s.title}</h4>
-                <p className="text-[11px] text-slate-500 dark:text-zinc-400 leading-relaxed font-normal">{s.desc}</p>
+              { score: '30%', title: 'Architecture Importance', desc: 'Long-term structural impact on cloud infrastructure and resilience.' },
+              { score: '25%', title: 'Developer Value', desc: 'Day-to-day engineering velocity, SDK ergonomics, and workflow impact.' },
+              { score: '20%', title: 'Community Pulse', desc: 'Velocity of questions, discussions, and migration challenges on re:Post.' },
+              { score: '15%', title: 'Novelty Factor', desc: 'Uniqueness of capability versus existing cloud patterns.' },
+              { score: '10%', title: 'Actionability', desc: 'Direct steps to adopt or migrate without breaking changes.' },
+            ].map((p) => (
+              <div key={p.title} className="bg-slate-50 dark:bg-[#18181b] border border-slate-200 dark:border-zinc-800 rounded-xl p-4 space-y-2 hover:border-blue-400 transition-all shadow-sm">
+                <span className="text-base font-bold text-blue-600 dark:text-blue-400 font-mono">{p.score}</span>
+                <h4 className="text-xs font-semibold text-slate-900 dark:text-zinc-100 leading-tight">{p.title}</h4>
+                <p className="text-[11px] text-slate-500 dark:text-zinc-400 leading-relaxed font-normal">{p.desc}</p>
               </div>
             ))}
           </div>
@@ -224,46 +306,33 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
         </div>
       </section>
 
-      {/* ── Section 5: Core Engineering Pillars ── */}
-      <section id="architecture" className="py-12 sm:py-16 md:py-20 border-t border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-[#09090b]">
+      {/* ── Section 5: 5-Step Pipeline (How It Works) ── */}
+      <section id="how-it-works" className="py-12 sm:py-16 md:py-20 border-t border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-[#09090b]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
           
           <div className="text-center space-y-2">
             <h2 className="text-xl sm:text-3xl font-bold text-slate-900 dark:text-zinc-100 tracking-tight">
-              Engineered for Modern Cloud Teams
+              From Raw Feeds to Actionable Intelligence
             </h2>
+            <p className="text-slate-500 dark:text-zinc-400 text-xs sm:text-sm max-w-xl mx-auto leading-relaxed font-normal">
+              Autonomous end-to-end serverless pipeline with zero manual intervention.
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            <div className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-[#18181b] border border-slate-200 dark:border-zinc-800 shadow-sm space-y-2">
-              <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 flex items-center justify-center">
-                <Cpu className="w-4 h-4" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3.5 text-xs">
+            {[
+              { step: '01', title: 'Scrape Feeds', desc: 'Hourly EventBridge triggers scrape 6 AWS RSS feeds, blogs, and re:Post.' },
+              { step: '02', title: 'SHA-256 Dedupe', desc: 'Cryptographic hash vault strips repeat items and syndicated announcements.' },
+              { step: '03', title: 'Bedrock 5-Pillar Score', desc: 'Anthropic Claude evaluates architectural importance from 0 to 100.' },
+              { step: '04', title: 'Synthesize Digests', desc: 'Auto-generates daily briefing, executive bullet points & CDK labs.' },
+              { step: '05', title: 'Instant SES Alerts', desc: 'Dispatches high-priority (score >= 80) email notifications to builders.' },
+            ].map((s) => (
+              <div key={s.step} className="bg-white dark:bg-[#18181b] border border-slate-200 dark:border-zinc-800 rounded-xl p-4 space-y-1.5 hover:border-blue-400 transition-all shadow-sm">
+                <span className="text-xs font-bold text-blue-600 dark:text-blue-400 font-mono">{s.step}.</span>
+                <h4 className="text-xs font-semibold text-slate-900 dark:text-zinc-100">{s.title}</h4>
+                <p className="text-[11px] text-slate-500 dark:text-zinc-400 leading-relaxed font-normal">{s.desc}</p>
               </div>
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-zinc-100">Serverless Autonomous Agent</h3>
-              <p className="text-xs text-slate-500 dark:text-zinc-400 leading-relaxed font-normal">
-                Runs 24/7 on AWS Lambda, EventBridge Scheduler, and Amazon DynamoDB with zero idle container costs.
-              </p>
-            </div>
-
-            <div className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-[#18181b] border border-slate-200 dark:border-zinc-800 shadow-sm space-y-2">
-              <div className="w-9 h-9 rounded-xl bg-orange-50 dark:bg-orange-950/40 text-orange-600 dark:text-orange-400 flex items-center justify-center">
-                <ShieldCheck className="w-4 h-4" />
-              </div>
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-zinc-100">Cryptographic Deduplication</h3>
-              <p className="text-xs text-slate-500 dark:text-zinc-400 leading-relaxed font-normal">
-                SHA-256 content hashing guarantees you never read duplicate release updates or syndicated press releases.
-              </p>
-            </div>
-
-            <div className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-[#18181b] border border-slate-200 dark:border-zinc-800 shadow-sm space-y-2">
-              <div className="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-[#00d294] flex items-center justify-center">
-                <Volume2 className="w-4 h-4" />
-              </div>
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-zinc-100">Amazon Polly Voice Synthesizer</h3>
-              <p className="text-xs text-slate-500 dark:text-zinc-400 leading-relaxed font-normal">
-                Dori uses Amazon Polly Generative & Neural speech synthesis to read out executive digests hands-free.
-              </p>
-            </div>
+            ))}
           </div>
 
         </div>
@@ -276,15 +345,18 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pb-6 border-b border-slate-200 dark:border-zinc-800 text-center sm:text-left">
             <div>
               <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-zinc-100 tracking-tight">
-                Build. Ship. Stay Ahead.
+                Build. Ship. Stay Ahead with AWS Signal.
               </h2>
+              <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
+                Autonomous cloud intelligence network powered by Amazon Bedrock &amp; Polly.
+              </p>
             </div>
 
             <Link
               to="/dashboard"
               className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs sm:text-sm font-medium shadow-sm flex items-center justify-center gap-1.5 transition-all"
             >
-              <span>Command Hub</span>
+              <span>Launch Command Hub</span>
               <ArrowUpRight className="w-3.5 h-3.5" />
             </Link>
           </div>
