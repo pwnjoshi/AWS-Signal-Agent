@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { DoriCompanion, DoriEmotion } from './DoriCompanion';
 import { Logo } from './Logo';
+import { ParticleBackground } from './ParticleBackground';
 import { 
   ArrowRight, 
   Sparkles, 
@@ -34,7 +35,8 @@ import {
   ChevronRight,
   Menu,
   X,
-  Compass
+  Compass,
+  ArrowUpRight
 } from 'lucide-react';
 
 interface LandingPageProps {
@@ -43,23 +45,28 @@ interface LandingPageProps {
 }
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAuthModal }) => {
-  // Mobile Nav Drawer State
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Cycling Hero Subtitle
-  const heroSubtitles = [
-    "While you build.",
-    "While you sleep.",
-    "While you focus.",
-    "AWS Signal is listening."
+  // Cycling Hero Text
+  const CYCLE_LINES = [
+    'WITH CLOUD & AI',
+    'ON THE AWS CLOUD',
+    'AUTONOMOUSLY 24/7',
+    'BEFORE YOU EVEN ASK',
+    'WHILE YOU WERE AWAY',
   ];
-  const [subtitleIndex, setSubtitleIndex] = useState(0);
+  const [cycleIndex, setCycleIndex] = useState(0);
+  const [cycleVisible, setCycleVisible] = useState(true);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setSubtitleIndex((prev) => (prev + 1) % heroSubtitles.length);
-    }, 3000);
-    return () => clearInterval(timer);
+    const interval = setInterval(() => {
+      setCycleVisible(false);
+      setTimeout(() => {
+        setCycleIndex(i => (i + 1) % CYCLE_LINES.length);
+        setCycleVisible(true);
+      }, 350);
+    }, 2800);
+    return () => clearInterval(interval);
   }, []);
 
   // Web Speech API Voice Synthesis for Dori
@@ -105,7 +112,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
     window.speechSynthesis.speak(utterance);
   };
 
-  // Interactive Architecture Tab
+  // Interactive 5-Step Architecture Timeline
   const [selectedArchStep, setSelectedArchStep] = useState<number>(0);
   const archSteps = [
     {
@@ -113,7 +120,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
       title: 'Scrapes & Ingests',
       badge: 'MULTI-STREAM INGESTION',
       icon: Radio,
-      color: '#fe6e00',
       description: 'Continuous ingestion engine listening to AWS RSS feeds, official Developer Blogs, re:Post threads, and AWS Builder Center publications.',
       details: [
         'AWS What’s New Announcements Feed',
@@ -121,14 +127,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
         'AWS re:Post Community Developer Friction',
         'AWS Builder Center Project Updates'
       ],
-      flow: '4 Stream Sources ➔ EventBridge Trigger ➔ Ingestion Worker'
+      flow: '4 Stream Sources ➔ EventBridge Trigger ➔ Lambda Worker'
     },
     {
       step: '02',
       title: 'Deduplicates',
       badge: 'SHA-256 CRYPTOGRAPHIC HASH',
       icon: ShieldCheck,
-      color: '#38bdf8',
       description: 'Calculates SHA-256 checksums on normalized content payloads and queries DynamoDB agent memory to eliminate 100% of repetitive news.',
       details: [
         'SHA-256 Title & URL normalized fingerprinting',
@@ -143,7 +148,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
       title: 'Scores & Ranks',
       badge: 'AMAZON BEDROCK 5-METRIC SCORING',
       icon: Cpu,
-      color: '#a855f7',
       description: 'Amazon Bedrock multi-metric neural evaluation engine computes a weighted signal score from 0 to 100.',
       details: [
         'Importance (Weight: 0.25) — Significance of cloud release',
@@ -159,7 +163,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
       title: 'Synthesizes & Speaks',
       badge: 'WEB SPEECH AUDIO SYNTHESIS',
       icon: Volume2,
-      color: '#06b6d4',
       description: 'Dori generates an executive daily intelligence briefing and delivers voice speech audio narration directly in the browser.',
       details: [
         'Executive bulleted summaries of top changes',
@@ -174,7 +177,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
       title: 'Alerts & Self-Improves',
       badge: 'SES DISPATCH & LEARNING LOOP',
       icon: Bell,
-      color: '#10b981',
       description: 'Dispatches high-priority (Score ≥ 80) HTML alerts via Amazon SES and refines scoring weights based on developer bookmark telemetry.',
       details: [
         'Multi-recipient team SES email distribution lists',
@@ -222,7 +224,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
       score: 95,
       priority: 'HIGH',
       summary: 'Developers can now seamlessly route generative AI inference traffic across multiple AWS regions with dynamic fallback and reduced latency.',
-      badgeColor: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
+      badgeColor: 'bg-[#AD5CFF]/15 text-[#d8b4fe] border-[#AD5CFF]/30'
     },
     {
       id: 'sig-2',
@@ -232,7 +234,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
       score: 88,
       priority: 'HIGH',
       summary: 'Filter and enrich streaming events directly within EventBridge Pipes before reaching Lambda consumers, reducing unnecessary invocations by up to 60%.',
-      badgeColor: 'bg-amber-500/15 text-amber-300 border-amber-500/30'
+      badgeColor: 'bg-[#ffc080]/15 text-[#ffc080] border-[#ffc080]/30'
     },
     {
       id: 'sig-3',
@@ -252,7 +254,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
       score: 79,
       priority: 'MEDIUM',
       summary: 'Community benchmark reveals memory allocation strategies to achieve sub-150ms cold starts when compiling Go & Rust runtimes on ARM64.',
-      badgeColor: 'bg-purple-500/15 text-purple-300 border-purple-500/30'
+      badgeColor: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
     }
   ];
 
@@ -264,107 +266,110 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
   });
 
   return (
-    <div id="home" className="min-h-screen bg-[#07090e] text-slate-100 font-sans selection:bg-[#fe6e00] selection:text-white relative overflow-x-hidden">
+    <div id="home" className="relative w-full selection:bg-[#AD5CFF] selection:text-[#161616] min-h-screen font-sans overflow-x-hidden text-[#f4f4f5] bg-[#09090b] transition-colors duration-300">
       
-      {/* Background Radial Ambiance Gradients */}
-      <div className="fixed top-0 left-1/4 w-[700px] h-[700px] bg-[#fe6e00]/10 rounded-full blur-[160px] pointer-events-none -z-10" />
-      <div className="fixed bottom-1/4 right-1/4 w-[650px] h-[650px] bg-[#2563eb]/10 rounded-full blur-[160px] pointer-events-none -z-10" />
-      <div className="fixed top-1/2 right-10 w-[500px] h-[500px] bg-[#8b5cf6]/10 rounded-full blur-[150px] pointer-events-none -z-10" />
+      {/* Background Blueprint Grid, Ambient Glows & Particles */}
+      <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
+        <div className="absolute inset-0 site-main-grid opacity-30" />
+        <div className="site-gradient-glows" />
+        <ParticleBackground />
+      </div>
+
+      {/* Laser Light Scanlines */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden -z-10">
+        <div className="laser-grid-line-h top-1/4" style={{ animationDelay: '0s' }} />
+        <div className="laser-grid-line-h top-3/4" style={{ animationDelay: '4s' }} />
+        <div className="laser-grid-line-v left-1/5" style={{ animationDelay: '2s' }} />
+        <div className="laser-grid-line-v right-1/5" style={{ animationDelay: '6s' }} />
+      </div>
 
       {/* ========================================================================= */}
-      {/* 1. STICKY NAVIGATION BAR                                                  */}
+      {/* 1. STICKY CAPSULE NAVIGATION BAR (AWS STUDENT BUILDER GROUP GEU STYLE)     */}
       {/* ========================================================================= */}
-      <header className="sticky top-0 z-50 bg-[#07090e]/85 backdrop-blur-xl border-b border-slate-800/80 transition-all duration-300">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-          
-          {/* Brand Logo */}
-          <a href="#home" className="flex items-center gap-3 group">
-            <Logo size="md" />
-          </a>
-
-          {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-7 text-xs font-semibold text-slate-300">
-            <a href="#home" className="hover:text-[#fe6e00] transition-colors">Home</a>
-            <a href="#intelligence" className="hover:text-[#fe6e00] transition-colors">Intelligence</a>
-            <a href="#how-it-works" className="hover:text-[#fe6e00] transition-colors">How It Works</a>
-            <a href="#dori" className="hover:text-[#fe6e00] transition-colors">Dori</a>
-            <a href="#showcase" className="hover:text-[#fe6e00] transition-colors">Showcase</a>
-            <a href="#architecture" className="hover:text-[#fe6e00] transition-colors">Architecture</a>
-            <a href="#technology" className="hover:text-[#fe6e00] transition-colors">Technology</a>
-          </nav>
-
-          {/* Right Action Buttons */}
-          <div className="hidden sm:flex items-center gap-3">
-            <a
-              href="https://github.com/pwnjoshi/AWS-Signal-Agent-Specification"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-800 text-slate-300 hover:text-white hover:border-slate-700 transition-all"
-              title="GitHub Repository"
-            >
-              <Code2 className="w-4 h-4" />
+      <header className="fixed top-0 left-0 w-full z-50 transition-all duration-300 select-none border-b border-[#27272a]/70 bg-[#09090b]/80 backdrop-blur-xl py-3">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-12">
+            
+            {/* Logo */}
+            <a href="#home" className="flex items-center gap-3 group select-none">
+              <Logo size="md" />
             </a>
 
-            <button
-              onClick={onOpenAuthModal}
-              className="inline-flex items-center gap-2 bg-[#fe6e00]/10 hover:bg-[#fe6e00]/20 border border-[#fe6e00]/30 text-[#ffc080] px-3.5 py-2 rounded-xl text-xs font-bold transition-all"
-            >
-              <UserCheck className="w-3.5 h-3.5 text-[#fe6e00]" />
-              <span>Builder ID Auth</span>
-            </button>
+            {/* Desktop Capsule Menu */}
+            <div className="hidden lg:flex items-center gap-1 bg-[#18181b]/80 border border-[#27272a] backdrop-blur-xl px-3 py-1.5 rounded-full shadow-inner text-xs font-mono font-semibold text-zinc-300">
+              <a href="#home" className="px-3 py-1 rounded-full hover:text-white hover:bg-[#27272a] transition-all">Home</a>
+              <a href="#intelligence" className="px-3 py-1 rounded-full hover:text-white hover:bg-[#27272a] transition-all">Intelligence</a>
+              <a href="#how-it-works" className="px-3 py-1 rounded-full hover:text-white hover:bg-[#27272a] transition-all">How It Works</a>
+              <a href="#dori" className="px-3 py-1 rounded-full hover:text-white hover:bg-[#27272a] transition-all">Dori</a>
+              <a href="#showcase" className="px-3 py-1 rounded-full hover:text-white hover:bg-[#27272a] transition-all">Showcase</a>
+              <a href="#architecture" className="px-3 py-1 rounded-full hover:text-white hover:bg-[#27272a] transition-all">Architecture</a>
+              <a href="#technology" className="px-3 py-1 rounded-full hover:text-white hover:bg-[#27272a] transition-all">Technology</a>
+            </div>
 
-            <button
-              onClick={onGetStarted}
-              className="inline-flex items-center gap-2 btn-signal-primary text-white px-5 py-2.5 rounded-xl text-xs font-extrabold shadow-lg transition-all active:scale-95"
-            >
-              <span>Launch Dashboard</span>
-              <ArrowRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
+            {/* Right Action Buttons */}
+            <div className="hidden sm:flex items-center gap-2.5">
+              <a 
+                href="https://github.com/pwnjoshi/AWS-Signal-Agent-Specification"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 rounded-full border border-[#27272a] hover:border-[#AD5CFF] text-zinc-400 hover:text-white bg-[#18181b]/70 hover:bg-[#27272a] transition-all"
+                title="GitHub Repo"
+              >
+                <Code2 className="w-4 h-4" />
+              </a>
 
-          {/* Mobile Menu Hamburger Button */}
-          <div className="lg:hidden flex items-center gap-2">
-            <button
-              onClick={onGetStarted}
-              className="inline-flex items-center gap-1 btn-signal-primary text-white px-3 py-1.5 rounded-lg text-xs font-bold"
-            >
-              <span>Dashboard</span>
-            </button>
-            <button
+              <button
+                onClick={onOpenAuthModal}
+                className="px-4 py-2 rounded-full border border-[#fe6e00]/40 bg-[#fe6e00]/10 hover:bg-[#fe6e00]/20 text-[#ffc080] font-mono font-bold text-[11px] uppercase tracking-wider transition-all"
+              >
+                <span className="flex items-center gap-1.5">
+                  <UserCheck className="w-3.5 h-3.5 text-[#fe6e00]" />
+                  Builder ID
+                </span>
+              </button>
+
+              <button
+                onClick={onGetStarted}
+                className="px-5 py-2 bg-[#AD5CFF] hover:bg-[#9C47FF] text-white rounded-full font-mono font-bold text-[11px] tracking-wider uppercase shadow-md hover:shadow-purple-glow transition-all active:scale-95 flex items-center gap-1.5"
+              >
+                <span>Launch Hub</span>
+                <ArrowUpRight className="w-3.5 h-3.5 opacity-90" />
+              </button>
+            </div>
+
+            {/* Mobile Menu Button */}
+            <button 
+              className="lg:hidden text-zinc-400 hover:text-white p-2 rounded-xl border border-zinc-800"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-xl bg-slate-900 border border-slate-800 text-slate-300"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
 
-        {/* Mobile Dropdown Menu */}
+        {/* Mobile Dropdown Drawer */}
         {mobileMenuOpen && (
-          <div className="lg:hidden bg-[#0a0e17] border-b border-slate-800 px-6 py-5 space-y-4">
-            <nav className="flex flex-col space-y-3 text-sm font-semibold text-slate-300">
-              <a href="#home" onClick={() => setMobileMenuOpen(false)} className="hover:text-[#fe6e00]">Home</a>
-              <a href="#intelligence" onClick={() => setMobileMenuOpen(false)} className="hover:text-[#fe6e00]">Intelligence</a>
-              <a href="#how-it-works" onClick={() => setMobileMenuOpen(false)} className="hover:text-[#fe6e00]">How It Works</a>
-              <a href="#dori" onClick={() => setMobileMenuOpen(false)} className="hover:text-[#fe6e00]">Dori</a>
-              <a href="#showcase" onClick={() => setMobileMenuOpen(false)} className="hover:text-[#fe6e00]">Showcase</a>
-              <a href="#architecture" onClick={() => setMobileMenuOpen(false)} className="hover:text-[#fe6e00]">Architecture</a>
-              <a href="#technology" onClick={() => setMobileMenuOpen(false)} className="hover:text-[#fe6e00]">Technology</a>
-            </nav>
-            <div className="pt-4 border-t border-slate-800 flex flex-col gap-2">
+          <div className="lg:hidden mt-2 mx-4 bg-[#121216]/98 border border-[#27272a] rounded-3xl p-5 shadow-2xl space-y-4 font-mono text-xs">
+            <div className="flex flex-col space-y-2 text-zinc-300">
+              <a href="#home" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-[#AD5CFF]">Home</a>
+              <a href="#intelligence" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-[#AD5CFF]">Intelligence</a>
+              <a href="#how-it-works" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-[#AD5CFF]">How It Works</a>
+              <a href="#dori" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-[#AD5CFF]">Dori</a>
+              <a href="#showcase" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-[#AD5CFF]">Showcase</a>
+              <a href="#architecture" onClick={() => setMobileMenuOpen(false)} className="py-2 hover:text-[#AD5CFF]">Architecture</a>
+            </div>
+            <div className="pt-3 border-t border-zinc-800 flex flex-col gap-2">
               <button
                 onClick={() => { setMobileMenuOpen(false); onOpenAuthModal(); }}
-                className="w-full inline-flex items-center justify-center gap-2 bg-[#fe6e00]/10 border border-[#fe6e00]/30 text-[#ffc080] px-4 py-2.5 rounded-xl text-xs font-bold"
+                className="w-full py-2.5 rounded-xl border border-[#fe6e00]/40 bg-[#fe6e00]/10 text-[#ffc080] font-bold"
               >
-                <UserCheck className="w-4 h-4 text-[#fe6e00]" />
-                <span>Sign in with AWS Builder ID</span>
+                Sign in with AWS Builder ID
               </button>
               <button
                 onClick={() => { setMobileMenuOpen(false); onGetStarted(); }}
-                className="w-full inline-flex items-center justify-center gap-2 btn-signal-primary text-white px-4 py-2.5 rounded-xl text-xs font-extrabold"
+                className="w-full py-2.5 rounded-xl bg-[#AD5CFF] hover:bg-[#9C47FF] text-white font-bold shadow-purple-glow"
               >
-                <span>Launch Full Dashboard</span>
-                <ArrowRight className="w-4 h-4" />
+                Launch Live Dashboard
               </button>
             </div>
           </div>
@@ -372,176 +377,140 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
       </header>
 
       {/* ========================================================================= */}
-      {/* 2. HERO SECTION WITH INTERACTIVE DORI VISUALIZATION                       */}
+      {/* 2. HERO SECTION WITH FLOATING AWS BADGES & INTERACTIVE DORI               */}
       {/* ========================================================================= */}
-      <section className="relative pt-12 pb-20 lg:pt-20 lg:pb-28 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-16">
+      <section className="relative flex flex-col justify-center pt-28 sm:pt-36 pb-16 sm:pb-24 min-h-[90vh] max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center overflow-hidden">
+        
+        {/* Floating AWS Service Badges on Desktop */}
+        <div className="hidden lg:block absolute inset-0 pointer-events-none z-10 overflow-hidden">
+          {/* Top Left: AWS Primary */}
+          <div className="absolute top-28 left-6 w-12 h-12 rounded-2xl bg-[#121216]/90 border border-[#27272a] hover:border-[#AD5CFF]/60 shadow-lg backdrop-blur-md flex items-center justify-center p-2.5 animate-float">
+            <img 
+              src="https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg" 
+              alt="AWS" 
+              className="w-full h-full object-contain" 
+            />
+          </div>
+
+          {/* Top Right: AWS EC2 Compute */}
+          <div className="absolute top-28 right-6 w-12 h-12 rounded-2xl bg-[#121216]/90 border border-[#27272a] hover:border-orange-400/60 shadow-lg backdrop-blur-md flex items-center justify-center p-2.5 animate-float" style={{ animationDelay: '1.5s' }}>
+            <img 
+              src="https://icon.icepanel.io/AWS/svg/Compute/EC2.svg" 
+              alt="EC2" 
+              className="w-full h-full object-contain" 
+            />
+          </div>
+
+          {/* Bottom Left: AWS Lambda Serverless */}
+          <div className="absolute bottom-20 left-10 w-12 h-12 rounded-2xl bg-[#121216]/90 border border-[#27272a] hover:border-amber-400/60 shadow-lg backdrop-blur-md flex items-center justify-center p-2.5 animate-float" style={{ animationDelay: '3s' }}>
+            <img 
+              src="https://icon.icepanel.io/AWS/svg/Compute/Lambda.svg" 
+              alt="Lambda" 
+              className="w-full h-full object-contain" 
+            />
+          </div>
+
+          {/* Bottom Right: AWS S3 Storage */}
+          <div className="absolute bottom-20 right-10 w-12 h-12 rounded-2xl bg-[#121216]/90 border border-[#27272a] hover:border-emerald-400/60 shadow-lg backdrop-blur-md flex items-center justify-center p-2.5 animate-float" style={{ animationDelay: '4.5s' }}>
+            <img 
+              src="https://icon.icepanel.io/AWS/svg/Storage/Simple-Storage-Service.svg" 
+              alt="S3" 
+              className="w-full h-full object-contain" 
+            />
+          </div>
+        </div>
+
+        <div className="relative z-20 space-y-6 sm:space-y-8 stagger-children w-full flex flex-col items-center my-auto">
           
-          {/* Left Column: Headlines & Storytelling */}
-          <div className="flex-1 text-center lg:text-left space-y-6">
-            
-            {/* Status Pill Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-900/90 border border-slate-800 text-xs font-semibold text-slate-300 shadow-md">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-              <span className="text-[#fe6e00] font-extrabold uppercase tracking-wider">AWS Signal v2.0</span>
-              <span className="text-slate-500">|</span>
-              <span>Amazon Bedrock Powered</span>
-            </div>
-
-            {/* Main Headline */}
-            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.08]">
-              Your Autonomous <br />
-              <span className="text-signal-gradient">
-                AWS Intelligence.
-              </span>
-            </h1>
-
-            {/* Cycling Animated Subtitle */}
-            <div className="h-8 flex items-center justify-center lg:justify-start">
-              <p className="text-lg sm:text-xl font-bold text-[#ffc080] transition-all duration-500 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-[#fe6e00]" />
-                <span>{heroSubtitles[subtitleIndex]}</span>
-              </p>
-            </div>
-
-            {/* Supporting Copy */}
-            <p className="text-slate-300 text-base sm:text-lg max-w-2xl leading-relaxed font-normal">
-              AWS Signal autonomously monitors the vast AWS ecosystem, detects meaningful architectural updates, eliminates repetitive noise, and delivers personalized cloud intelligence before you even have to search.
-            </p>
-
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
-              <button
-                onClick={onGetStarted}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-3 btn-signal-primary text-white px-8 py-4 rounded-2xl font-extrabold text-base shadow-xl transition-all active:scale-95 group"
-              >
-                <span>Explore AWS Signal</span>
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </button>
-
-              <a
-                href="#dori"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-slate-900/90 hover:bg-slate-800/90 text-slate-200 border border-slate-800 px-7 py-4 rounded-2xl font-bold text-base shadow-md backdrop-blur-md transition-all"
-              >
-                <Sparkles className="w-5 h-5 text-[#fe6e00]" />
-                <span>Meet Dori</span>
-              </a>
-            </div>
-
-            {/* Micro Highlights */}
-            <div className="pt-6 flex flex-wrap items-center justify-center lg:justify-start gap-6 text-xs text-slate-400 font-medium">
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                <span>Zero Duplicate Articles (SHA-256)</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-[#38bdf8]" />
-                <span>5-Metric Weighted Scoring</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-[#fe6e00]" />
-                <span>Voice Audio Synthesis</span>
-              </div>
+          {/* 1. Sleek Builder Status Pill */}
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#18181b] border border-[#27272a] hover:border-[#AD5CFF]/50 text-zinc-300 transition-all select-none shadow-sm">
+            <span className="w-2 h-2 rounded-full bg-[#AD5CFF] animate-ping" />
+            <div className="flex items-center gap-1.5 font-mono text-[10px] sm:text-[11px]">
+              <span className="font-extrabold text-white">AWS Student Builder Group GEU</span>
+              <span className="text-zinc-500">·</span>
+              <span className="text-[#ffc080] font-bold">AWS Signal 2.0</span>
             </div>
           </div>
 
-          {/* Right Column: Hero Visual Intelligence Engine */}
-          <div className="w-full lg:w-[500px] shrink-0">
-            <div className="relative bg-[#0f172a]/80 border border-slate-800/90 rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur-xl overflow-hidden">
+          {/* 2. Main Headline */}
+          <div className="space-y-3 max-w-4xl mx-auto">
+            <h1 className="font-black font-display leading-[1.08] tracking-tight uppercase text-3xl sm:text-5xl md:text-6xl text-white">
+              Where cloud builders <br />
+              <span className="text-gradient">
+                Stay Informed
+              </span>{' '}
+              <span
+                className="text-shimmer inline-block"
+                style={{
+                  opacity: cycleVisible ? 1 : 0,
+                  transform: cycleVisible ? 'translateY(0)' : 'translateY(-8px)',
+                  transition: 'opacity 0.35s ease, transform 0.35s ease',
+                }}
+              >
+                {CYCLE_LINES[cycleIndex]}
+              </span>
+            </h1>
+
+            <p className="text-xs sm:text-sm md:text-base text-zinc-400 max-w-2xl mx-auto leading-relaxed font-mono pt-2 px-2">
+              An always-on autonomous intelligence assistant powered by Amazon Bedrock. Monitors What's New feeds, eliminates noise with SHA-256 hashing, and delivers daily executive briefings with voice synthesis.
+            </p>
+          </div>
+
+          {/* 3. Action Buttons */}
+          <div className="pt-2 flex flex-row items-center justify-center gap-3 sm:gap-4 w-full">
+            <button
+              onClick={onGetStarted}
+              className="inline-flex items-center justify-center px-6 sm:px-8 py-3 bg-[#AD5CFF] hover:bg-[#9C47FF] text-white rounded-xl text-xs sm:text-sm font-mono font-bold uppercase tracking-wider shadow-md hover:shadow-purple-glow active:scale-95 transition-all cursor-pointer"
+            >
+              <span>Launch Dashboard</span>
+              <ArrowUpRight className="w-4 h-4 ml-1.5" />
+            </button>
+
+            <a 
+              href="#dori" 
+              className="inline-flex items-center justify-center px-5 sm:px-7 py-3 bg-[#18181b] border border-[#27272a] hover:border-[#AD5CFF]/40 text-white rounded-xl text-xs sm:text-sm font-mono font-bold uppercase tracking-wider gap-2 active:scale-95 transition-all cursor-pointer"
+            >
+              <Sparkles className="w-4 h-4 text-[#AD5CFF]" />
+              <span>Meet Dori</span>
+            </a>
+          </div>
+
+          {/* 4. Interactive Hero Dori Avatar */}
+          <div className="pt-6 relative flex flex-col items-center">
+            <div className="absolute -inset-4 rounded-full bg-[#AD5CFF]/15 blur-3xl animate-pulse-glow pointer-events-none" />
+            <DoriCompanion
+              emotion={doriEmotion}
+              message={speechText}
+              size="lg"
+              showSpeechBubble={true}
+              interactive={true}
+            />
+
+            {/* Audio Waveform Player Bar */}
+            <div className="mt-4 bg-[#121216]/90 border border-[#27272a] rounded-2xl px-4 py-2.5 flex items-center gap-3 shadow-lg font-mono text-xs">
+              <button
+                onClick={() => handleSpeak(speechText)}
+                className="w-7 h-7 rounded-full bg-[#AD5CFF] hover:bg-[#9C47FF] text-white flex items-center justify-center shadow-md active:scale-90 transition-transform"
+                title={isPlayingAudio ? 'Pause Narration' : 'Listen to Dori'}
+              >
+                {isPlayingAudio ? <Pause className="w-3.5 h-3.5 fill-white" /> : <Play className="w-3.5 h-3.5 fill-white ml-0.5" />}
+              </button>
               
-              {/* Radar Grid Graphic */}
-              <div className="absolute inset-0 bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:16px_16px] opacity-20 pointer-events-none" />
-
-              {/* Status Header */}
-              <div className="flex items-center justify-between pb-4 border-b border-slate-800 relative z-10">
-                <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-                  <span className="text-xs font-bold text-slate-200 tracking-wide uppercase">Dori Neural Core Active</span>
-                </div>
-                <span className="text-[11px] font-mono text-[#fe6e00] bg-[#fe6e00]/10 px-2 py-0.5 rounded-md border border-[#fe6e00]/20">
-                  CONFIDENCE: 96%
-                </span>
+              <div className="text-left">
+                <span className="text-white font-bold block text-[11px]">Dori Voice Narration</span>
+                <span className="text-[10px] text-zinc-500">Web Speech API</span>
               </div>
 
-              {/* Central Interactive Dori with Flowing Particle Signals */}
-              <div className="py-6 flex flex-col items-center justify-center relative z-10">
-                
-                {/* Orbiting Signal Badges */}
-                <div className="w-full flex justify-between gap-2 mb-4 text-[10px] font-semibold">
-                  <span className="bg-slate-900/90 border border-slate-700 text-slate-300 px-2.5 py-1 rounded-lg flex items-center gap-1 shadow-sm">
-                    <Radio className="w-3 h-3 text-[#fe6e00]" />
-                    AWS What's New
-                  </span>
-                  <span className="bg-slate-900/90 border border-slate-700 text-slate-300 px-2.5 py-1 rounded-lg flex items-center gap-1 shadow-sm">
-                    <Layers className="w-3 h-3 text-[#38bdf8]" />
-                    Tech Blogs
-                  </span>
+              {isPlayingAudio ? (
+                <div className="flex items-center gap-1 h-5 ml-2">
+                  <span className="w-1 bg-[#AD5CFF] rounded-full waveform-bar-1" />
+                  <span className="w-1 bg-[#ffc080] rounded-full waveform-bar-2" />
+                  <span className="w-1 bg-[#AD5CFF] rounded-full waveform-bar-3" />
+                  <span className="w-1 bg-[#ffc080] rounded-full waveform-bar-4" />
                 </div>
-
-                {/* Central Dori Avatar */}
-                <div className="my-2 relative flex items-center justify-center">
-                  <div className="absolute w-40 h-40 rounded-full bg-[#fe6e00]/20 blur-2xl animate-pulse-glow" />
-                  <DoriCompanion
-                    emotion={doriEmotion}
-                    message={speechText}
-                    size="lg"
-                    showSpeechBubble={true}
-                    interactive={true}
-                  />
-                </div>
-
-                {/* Orbiting Bottom Signals */}
-                <div className="w-full flex justify-between gap-2 mt-4 text-[10px] font-semibold">
-                  <span className="bg-slate-900/90 border border-slate-700 text-slate-300 px-2.5 py-1 rounded-lg flex items-center gap-1 shadow-sm">
-                    <ShieldAlert className="w-3 h-3 text-red-400" />
-                    Security Advisories
-                  </span>
-                  <span className="bg-slate-900/90 border border-slate-700 text-slate-300 px-2.5 py-1 rounded-lg flex items-center gap-1 shadow-sm">
-                    <Flame className="w-3 h-3 text-[#a855f7]" />
-                    re:Post Friction
-                  </span>
-                </div>
-              </div>
-
-              {/* Flow Pipeline Indicator */}
-              <div className="pt-4 border-t border-slate-800/80 text-[11px] font-mono text-slate-400 flex items-center justify-between">
-                <span className="text-slate-500">RAW DATA</span>
-                <ChevronRight className="w-3 h-3 text-[#fe6e00]" />
-                <span className="text-[#38bdf8]">DORI AI</span>
-                <ChevronRight className="w-3 h-3 text-[#fe6e00]" />
-                <span className="text-emerald-400 font-bold">CLARITY</span>
-              </div>
-
-              {/* Speech Playback Trigger */}
-              <div className="mt-4 pt-3 bg-slate-950/70 border border-slate-800 rounded-2xl p-3 flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => handleSpeak(speechText)}
-                    className="w-8 h-8 rounded-full bg-[#fe6e00] hover:bg-[#e05b00] text-white flex items-center justify-center shadow-md transition-transform active:scale-90"
-                    title={isPlayingAudio ? 'Pause Narration' : 'Listen to Dori'}
-                  >
-                    {isPlayingAudio ? <Pause className="w-4 h-4 fill-white" /> : <Play className="w-4 h-4 fill-white ml-0.5" />}
-                  </button>
-                  <div>
-                    <p className="text-xs font-bold text-white">Daily Digest Audio</p>
-                    <p className="text-[10px] text-slate-400">Web Speech API Voice Synthesis</p>
-                  </div>
-                </div>
-
-                {/* Animated Waveform Bars */}
-                {isPlayingAudio ? (
-                  <div className="flex items-center gap-1 h-6 px-2">
-                    <span className="w-1 bg-[#fe6e00] rounded-full waveform-bar-1" />
-                    <span className="w-1 bg-[#38bdf8] rounded-full waveform-bar-2" />
-                    <span className="w-1 bg-[#fe6e00] rounded-full waveform-bar-3" />
-                    <span className="w-1 bg-[#38bdf8] rounded-full waveform-bar-4" />
-                    <span className="w-1 bg-[#fe6e00] rounded-full waveform-bar-5" />
-                  </div>
-                ) : (
-                  <span className="text-[10px] font-mono text-slate-500">READY</span>
-                )}
-              </div>
-
+              ) : (
+                <span className="text-[10px] text-zinc-500 ml-2">CLICK TO HEAR</span>
+              )}
             </div>
           </div>
 
@@ -551,44 +520,44 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
       {/* ========================================================================= */}
       {/* 3. LIVE STATUS TELEMETRY STRIP                                            */}
       {/* ========================================================================= */}
-      <section className="border-y border-slate-800 bg-[#0a0f1d]/90 backdrop-blur-md py-6">
+      <section className="py-12 border-y border-[#27272a]/70 bg-[#121216]/60 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center md:text-left">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center md:text-left font-mono">
             
-            <div className="space-y-1 border-r border-slate-800/80 pr-4">
-              <div className="flex items-center justify-center md:justify-start gap-2 text-xs font-semibold text-slate-400">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span>Autonomous Status</span>
+            <div className="space-y-1 border-r border-[#27272a] pr-4">
+              <div className="flex items-center justify-center md:justify-start gap-2 text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+                <span className="w-2 h-2 rounded-full bg-[#00d294] animate-pulse" />
+                <span>Status</span>
               </div>
-              <p className="text-xl sm:text-2xl font-extrabold text-white">Dori Active 24/7</p>
-              <p className="text-[11px] text-slate-500 font-mono">Monitoring AWS Ecosystem</p>
+              <p className="text-xl sm:text-2xl font-black text-white">Dori Active</p>
+              <p className="text-[10px] text-zinc-500">Monitoring AWS 24/7</p>
             </div>
 
-            <div className="space-y-1 border-r border-slate-800/80 pr-4">
-              <div className="flex items-center justify-center md:justify-start gap-2 text-xs font-semibold text-slate-400">
-                <Radio className="w-3.5 h-3.5 text-[#fe6e00]" />
-                <span>Signals Processed</span>
+            <div className="space-y-1 border-r border-[#27272a] pr-4">
+              <div className="flex items-center justify-center md:justify-start gap-2 text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+                <Radio className="w-3.5 h-3.5 text-[#AD5CFF]" />
+                <span>Ingested</span>
               </div>
-              <p className="text-xl sm:text-2xl font-extrabold text-[#ffc080]">247 Items</p>
-              <p className="text-[11px] text-slate-500 font-mono">Continuous RSS Ingestion</p>
+              <p className="text-xl sm:text-2xl font-black text-[#AD5CFF]">247 Signals</p>
+              <p className="text-[10px] text-zinc-500">EventBridge Ingestion</p>
             </div>
 
-            <div className="space-y-1 border-r border-slate-800/80 pr-4">
-              <div className="flex items-center justify-center md:justify-start gap-2 text-xs font-semibold text-slate-400">
-                <Sparkles className="w-3.5 h-3.5 text-[#38bdf8]" />
-                <span>High-Priority Alerts</span>
+            <div className="space-y-1 border-r border-[#27272a] pr-4">
+              <div className="flex items-center justify-center md:justify-start gap-2 text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+                <Sparkles className="w-3.5 h-3.5 text-[#ffc080]" />
+                <span>Priority</span>
               </div>
-              <p className="text-xl sm:text-2xl font-extrabold text-[#38bdf8]">4 Verified</p>
-              <p className="text-[11px] text-slate-500 font-mono">Score ≥ 80 / 100</p>
+              <p className="text-xl sm:text-2xl font-black text-[#ffc080]">4 Verified</p>
+              <p className="text-[10px] text-zinc-500">Score ≥ 80/100</p>
             </div>
 
             <div className="space-y-1">
-              <div className="flex items-center justify-center md:justify-start gap-2 text-xs font-semibold text-slate-400">
-                <Cpu className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Bedrock Confidence</span>
+              <div className="flex items-center justify-center md:justify-start gap-2 text-[11px] font-bold text-zinc-400 uppercase tracking-wider">
+                <Cpu className="w-3.5 h-3.5 text-[#00d294]" />
+                <span>Bedrock</span>
               </div>
-              <p className="text-xl sm:text-2xl font-extrabold text-emerald-400">96.4%</p>
-              <p className="text-[11px] text-slate-500 font-mono">5-Metric Neural Weighting</p>
+              <p className="text-xl sm:text-2xl font-black text-[#00d294]">96.4% Conf</p>
+              <p className="text-[10px] text-zinc-500">5-Metric Weighted</p>
             </div>
 
           </div>
@@ -599,92 +568,89 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
       {/* 4. THE PROBLEM SECTION: CHAOS VS CLARITY                                  */}
       {/* ========================================================================= */}
       <section id="intelligence" className="py-20 lg:py-28 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#fe6e00]/10 text-[#ffc080] border border-[#fe6e00]/20 text-xs font-bold uppercase tracking-wider">
-            <span>The Developer Dilemma</span>
-          </div>
-          <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
+        <div className="text-center max-w-3xl mx-auto space-y-3 mb-16">
+          <span className="text-[10px] text-[#AD5CFF] font-mono font-bold uppercase tracking-[0.2em] block">Developer Dilemma</span>
+          <h2 className="text-2xl sm:text-4xl md:text-5xl font-black font-display text-white tracking-tight uppercase">
             AWS Moves Fast. <br />
-            <span className="text-signal-gradient">Too Fast to Read Everything.</span>
+            <span className="text-gradient">Too Fast to Read Everything.</span>
           </h2>
-          <p className="text-slate-300 text-base leading-relaxed">
-            Every day, hundreds of release notes, blog posts, and community discussions are published. Searching for what matters costs hours of deep focus time.
+          <p className="text-zinc-400 text-xs sm:text-sm font-mono leading-relaxed max-w-xl mx-auto">
+            Hundreds of release notes, blog posts, and re:Post threads are published weekly. Searching for what matters costs precious coding hours.
           </p>
         </div>
 
-        {/* Side-by-Side Comparison: The Old Way vs The AWS Signal Way */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           
-          {/* Left: The Old Way */}
-          <div className="bg-[#0f172a]/60 border border-red-500/20 rounded-3xl p-8 space-y-6 relative overflow-hidden">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+          {/* The Old Way */}
+          <div className="premium-card p-8 rounded-3xl space-y-6 border-red-500/20">
+            <div className="flex items-center justify-between border-b border-[#27272a] pb-4">
               <div>
-                <span className="text-xs font-bold text-red-400 uppercase tracking-wider block">The Traditional Approach</span>
-                <h3 className="text-2xl font-extrabold text-white">The Old Way: Noise & Chaos</h3>
+                <span className="text-xs font-mono font-bold text-red-400 uppercase tracking-wider block">Traditional Noise</span>
+                <h3 className="text-xl font-bold text-white">The Old Way: Alert Fatigue</h3>
               </div>
-              <div className="w-10 h-10 rounded-2xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400 font-extrabold">
+              <div className="w-9 h-9 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400 font-black">
                 ✕
               </div>
             </div>
 
-            <ul className="space-y-4 text-sm text-slate-300">
+            <ul className="space-y-3.5 text-xs sm:text-sm text-zinc-300 font-sans">
               <li className="flex items-start gap-3">
-                <span className="text-red-400 font-bold mt-0.5">•</span>
-                <span><strong>45 Open Browser Tabs:</strong> Frantically checking What's New feeds, Reddit, and Twitter every morning.</span>
+                <span className="text-red-400 font-bold">•</span>
+                <span><strong>45 Open Tabs:</strong> Checking RSS feeds, Reddit, and Twitter every single morning.</span>
               </li>
               <li className="flex items-start gap-3">
-                <span className="text-red-400 font-bold mt-0.5">•</span>
-                <span><strong>Repetitive Syndicated Noise:</strong> Reading the same launch announcement 4 times across different blogs.</span>
+                <span className="text-red-400 font-bold">•</span>
+                <span><strong>Repetitive Syndicated Noise:</strong> Reading the same feature launch 4 times across different blogs.</span>
               </li>
               <li className="flex items-start gap-3">
-                <span className="text-red-400 font-bold mt-0.5">•</span>
-                <span><strong>Missed Breaking Changes:</strong> Overlooking critical IAM security bulletins buried under marketing announcements.</span>
+                <span className="text-red-400 font-bold">•</span>
+                <span><strong>Missed Breaking Changes:</strong> Overlooking critical IAM security bulletins buried under marketing news.</span>
               </li>
               <li className="flex items-start gap-3">
-                <span className="text-red-400 font-bold mt-0.5">•</span>
-                <span><strong>5-10 Hours Wasted Weekly:</strong> Shifting context away from building products to manual information hunting.</span>
+                <span className="text-red-400 font-bold">•</span>
+                <span><strong>5-10 Hours Lost Weekly:</strong> Manual information hunting instead of building code.</span>
               </li>
             </ul>
 
-            <div className="p-4 rounded-2xl bg-red-950/30 border border-red-500/20 text-xs text-red-300 font-mono">
+            <div className="p-3.5 rounded-xl bg-red-950/20 border border-red-500/20 text-xs text-red-300 font-mono">
               STATUS: INFORMATION OVERLOAD & COGNITIVE FATIGUE
             </div>
           </div>
 
-          {/* Right: The AWS Signal Way */}
-          <div className="bg-gradient-to-br from-[#0f172a] to-[#162036] border border-[#fe6e00]/40 rounded-3xl p-8 space-y-6 relative overflow-hidden shadow-xl">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+          {/* The AWS Signal Way */}
+          <div className="premium-card p-8 rounded-3xl space-y-6 border-[#AD5CFF]/40 shadow-purple-glow">
+            <div className="flex items-center justify-between border-b border-[#27272a] pb-4">
               <div>
-                <span className="text-xs font-bold text-[#fe6e00] uppercase tracking-wider block">The Autonomous Approach</span>
-                <h3 className="text-2xl font-extrabold text-white">The AWS Signal Way: Clarity</h3>
+                <span className="text-xs font-mono font-bold text-[#AD5CFF] uppercase tracking-wider block">Autonomous AI Agent</span>
+                <h3 className="text-xl font-bold text-white">The AWS Signal Way: Clarity</h3>
               </div>
-              <div className="w-10 h-10 rounded-2xl bg-[#fe6e00]/20 border border-[#fe6e00]/40 flex items-center justify-center text-[#fe6e00] font-extrabold">
+              <div className="w-9 h-9 rounded-xl bg-[#AD5CFF]/20 border border-[#AD5CFF]/40 flex items-center justify-center text-[#AD5CFF] font-black">
                 ✓
               </div>
             </div>
 
-            <ul className="space-y-4 text-sm text-slate-300">
+            <ul className="space-y-3.5 text-xs sm:text-sm text-zinc-300 font-sans">
               <li className="flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-[#fe6e00] shrink-0 mt-0.5" />
-                <span><strong>One Autonomous Companion (Dori):</strong> Working quietly 24/7 in the background while you focus on code.</span>
+                <CheckCircle2 className="w-4 h-4 text-[#AD5CFF] shrink-0 mt-0.5" />
+                <span><strong>One Autonomous Companion (Dori):</strong> Listening 24/7 in the background while you build.</span>
               </li>
               <li className="flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-[#fe6e00] shrink-0 mt-0.5" />
-                <span><strong>SHA-256 Deduplication:</strong> Identical announcements are merged into a single verified high-yield signal.</span>
+                <CheckCircle2 className="w-4 h-4 text-[#AD5CFF] shrink-0 mt-0.5" />
+                <span><strong>SHA-256 Deduplication:</strong> Identical articles are compressed into a single verified signal.</span>
               </li>
               <li className="flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-[#fe6e00] shrink-0 mt-0.5" />
-                <span><strong>5-Metric Bedrock Ranking:</strong> Instant separation of high-impact releases from trivial updates.</span>
+                <CheckCircle2 className="w-4 h-4 text-[#AD5CFF] shrink-0 mt-0.5" />
+                <span><strong>5-Metric Bedrock Ranking:</strong> Instant neural separation of high-impact releases.</span>
               </li>
               <li className="flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-[#fe6e00] shrink-0 mt-0.5" />
-                <span><strong>Voice Briefing in 60 Seconds:</strong> Listen to or read an executive digest right before your morning standup.</span>
+                <CheckCircle2 className="w-4 h-4 text-[#AD5CFF] shrink-0 mt-0.5" />
+                <span><strong>Voice Briefings:</strong> Hands-free narration ready before your morning standup.</span>
               </li>
             </ul>
 
-            <div className="p-4 rounded-2xl bg-[#fe6e00]/10 border border-[#fe6e00]/30 text-xs text-[#ffc080] font-mono flex items-center justify-between">
+            <div className="p-3.5 rounded-xl bg-[#AD5CFF]/10 border border-[#AD5CFF]/30 text-xs text-[#d8b4fe] font-mono flex items-center justify-between">
               <span>STATUS: 100% BUILDER FOCUS RESTORED</span>
-              <Sparkles className="w-4 h-4 text-[#fe6e00]" />
+              <Sparkles className="w-4 h-4 text-[#AD5CFF]" />
             </div>
           </div>
 
@@ -694,18 +660,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
       {/* ========================================================================= */}
       {/* 5. THE CORE PHILOSOPHY SECTION                                            */}
       {/* ========================================================================= */}
-      <section className="py-20 bg-gradient-to-b from-[#07090e] via-[#0b101c] to-[#07090e] border-y border-slate-800/80 relative">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8">
+      <section className="py-20 border-y border-[#27272a]/80 bg-[#121216]/40 relative">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6">
           
-          <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-slate-900 border border-slate-700 text-xs font-bold uppercase tracking-widest text-slate-400">
-            <span>Guiding Principle</span>
-          </div>
+          <span className="text-[10px] text-[#ffc080] font-mono font-bold uppercase tracking-[0.2em] block">Philosophy</span>
 
-          <blockquote className="text-3xl sm:text-5xl lg:text-6xl font-extrabold text-white tracking-tight leading-tight">
-            “The best tool is the one you <span className="text-signal-gradient">never have to open.</span>”
+          <blockquote className="text-2xl sm:text-4xl md:text-5xl font-black font-display text-white tracking-tight uppercase leading-tight">
+            “The best tool is the one you <span className="text-gradient">never have to open.</span>”
           </blockquote>
 
-          <p className="text-slate-300 text-base sm:text-xl max-w-3xl mx-auto leading-relaxed">
+          <p className="text-zinc-400 text-xs sm:text-sm md:text-base font-mono max-w-2xl mx-auto leading-relaxed">
             AWS Signal doesn't wait for you to search. It works continuously in the background. It watches. It learns. It filters. It prioritizes. And when something matters — it tells you.
           </p>
 
@@ -713,24 +677,22 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
       </section>
 
       {/* ========================================================================= */}
-      {/* 6. HOW AWS SIGNAL WORKS (INTERACTIVE 5-STEP ARCHITECTURE)                 */}
+      {/* 6. HOW AWS SIGNAL WORKS (5-STEP PIPELINE TIMELINE)                        */}
       {/* ========================================================================= */}
-      <section id="how-it-works" className="py-20 lg:py-28 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section id="how-it-works" className="py-20 lg:py-28 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         
-        <div className="text-center max-w-3xl mx-auto space-y-4 mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#38bdf8]/10 text-[#38bdf8] border border-[#38bdf8]/30 text-xs font-bold uppercase tracking-wider">
-            <span>Autonomous Intelligence Pipeline</span>
-          </div>
-          <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
+        <div className="text-center max-w-3xl mx-auto space-y-3">
+          <span className="text-[10px] text-[#AD5CFF] font-mono font-bold uppercase tracking-[0.2em] block">Architecture Pipeline</span>
+          <h2 className="text-2xl sm:text-4xl md:text-5xl font-black font-display text-white tracking-tight uppercase">
             How AWS Signal Operates
           </h2>
-          <p className="text-slate-300 text-base">
+          <p className="text-zinc-400 text-xs sm:text-sm font-mono leading-relaxed">
             Click through the 5-stage pipeline to inspect how raw AWS data is transformed into high-confidence intelligence.
           </p>
         </div>
 
-        {/* Step Navigation Tabs */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-10">
+        {/* Step Selector Pills */}
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
           {archSteps.map((s, idx) => {
             const Icon = s.icon;
             const isSelected = selectedArchStep === idx;
@@ -738,19 +700,19 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
               <button
                 key={s.step}
                 onClick={() => setSelectedArchStep(idx)}
-                className={`p-4 rounded-2xl border text-left transition-all flex flex-col justify-between ${
+                className={`p-4 rounded-2xl border text-left transition-all flex flex-col justify-between font-mono ${
                   isSelected
-                    ? 'bg-slate-900 border-[#fe6e00] shadow-lg shadow-[#fe6e00]/15'
-                    : 'bg-slate-950/60 border-slate-800 hover:bg-slate-900/60'
+                    ? 'bg-[#18181b] border-[#AD5CFF] shadow-purple-glow'
+                    : 'bg-[#121216]/70 border-[#27272a] hover:bg-[#18181b]'
                 }`}
               >
                 <div className="flex items-center justify-between mb-2">
-                  <span className={`text-xs font-mono font-bold ${isSelected ? 'text-[#fe6e00]' : 'text-slate-500'}`}>
+                  <span className={`text-xs font-bold ${isSelected ? 'text-[#AD5CFF]' : 'text-zinc-500'}`}>
                     {s.step}
                   </span>
-                  <Icon className={`w-4 h-4 ${isSelected ? 'text-[#fe6e00]' : 'text-slate-400'}`} />
+                  <Icon className={`w-4 h-4 ${isSelected ? 'text-[#AD5CFF]' : 'text-zinc-500'}`} />
                 </div>
-                <span className="text-xs sm:text-sm font-bold text-white leading-tight">
+                <span className="text-xs font-bold text-white leading-tight">
                   {s.title}
                 </span>
               </button>
@@ -760,49 +722,48 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
 
         {/* Active Step Deep Dive Card */}
         {archSteps[selectedArchStep] && (
-          <div className="bg-[#0f172a]/90 border border-slate-800 rounded-3xl p-8 sm:p-12 shadow-2xl backdrop-blur-xl">
+          <div className="premium-card p-8 sm:p-12 rounded-3xl">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
               
-              <div className="lg:col-span-7 space-y-6">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 border border-slate-700 text-xs font-mono font-bold text-[#fe6e00]">
+              <div className="lg:col-span-7 space-y-5">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#18181b] border border-[#27272a] text-xs font-mono font-bold text-[#AD5CFF]">
                   <span>STAGE {archSteps[selectedArchStep].step}</span>
                   <span>•</span>
                   <span>{archSteps[selectedArchStep].badge}</span>
                 </div>
 
-                <h3 className="text-2xl sm:text-4xl font-extrabold text-white">
+                <h3 className="text-2xl sm:text-3xl font-black font-display text-white uppercase">
                   {archSteps[selectedArchStep].title}
                 </h3>
 
-                <p className="text-slate-300 text-base leading-relaxed">
+                <p className="text-zinc-300 text-xs sm:text-sm leading-relaxed">
                   {archSteps[selectedArchStep].description}
                 </p>
 
-                <div className="space-y-2.5 pt-2">
+                <div className="space-y-2 pt-2 font-mono text-xs text-zinc-300">
                   {archSteps[selectedArchStep].details.map((detail, dIdx) => (
-                    <div key={dIdx} className="flex items-center gap-3 text-sm text-slate-300">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <div key={dIdx} className="flex items-center gap-3">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#00d294] shrink-0" />
                       <span>{detail}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* Technical Flow Visualization Box */}
-              <div className="lg:col-span-5 bg-slate-950 border border-slate-800 rounded-2xl p-6 font-mono text-xs space-y-4">
-                <div className="flex items-center justify-between pb-3 border-b border-slate-800 text-slate-400">
-                  <span>// ARCHITECTURE EXECUTION</span>
-                  <span className="text-emerald-400">STATUS: LIVE</span>
+              <div className="lg:col-span-5 bg-[#09090b] border border-[#27272a] rounded-2xl p-6 font-mono text-xs space-y-4">
+                <div className="flex items-center justify-between pb-3 border-b border-[#27272a] text-zinc-500">
+                  <span>// ARCHITECTURE LOG</span>
+                  <span className="text-[#00d294]">STATUS: ACTIVE</span>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 text-[#ffc080]">
+                <div className="p-3.5 rounded-xl bg-[#18181b] border border-[#27272a] text-[#ffc080] text-[11px]">
                   {archSteps[selectedArchStep].flow}
                 </div>
 
-                <div className="text-[11px] text-slate-400 space-y-1.5 pt-2">
+                <div className="text-[11px] text-zinc-400 space-y-1 pt-1">
                   <p>• Serverless AWS Lambda Execution</p>
-                  <p>• Zero Cold-Start Latency with Function URLs</p>
-                  <p>• DynamoDB Continuous Hash State Storage</p>
+                  <p>• Sub-5ms DynamoDB Checksum Indexing</p>
+                  <p>• Amazon Bedrock Multi-Dimensional Prompting</p>
                 </div>
               </div>
 
@@ -815,106 +776,95 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
       {/* ========================================================================= */}
       {/* 7. THE "WHILE YOU WERE AWAY..." SIGNATURE EXPERIENCE                      */}
       {/* ========================================================================= */}
-      <section id="showcase" className="py-20 bg-[#080d19] border-y border-slate-800/90">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section id="showcase" className="py-20 bg-[#121216]/50 border-y border-[#27272a]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
           
-          <div className="text-center max-w-3xl mx-auto space-y-4 mb-14">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#fe6e00]/10 text-[#ffc080] border border-[#fe6e00]/30 text-xs font-bold uppercase tracking-wider">
-              <span>Signature Experience</span>
-            </div>
-            <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
+          <div className="text-center max-w-3xl mx-auto space-y-3">
+            <span className="text-[10px] text-[#ffc080] font-mono font-bold uppercase tracking-[0.2em] block">Showcase Feature</span>
+            <h2 className="text-2xl sm:text-4xl md:text-5xl font-black font-display text-white tracking-tight uppercase">
               “While You Were Away...”
             </h2>
-            <p className="text-slate-300 text-base">
+            <p className="text-zinc-400 text-xs sm:text-sm font-mono leading-relaxed">
               The flagship feature that greets builders when they return. A synthesized executive brief ready in seconds.
             </p>
           </div>
 
-          {/* Large Heroic Dashboard Centerpiece Card */}
-          <div className="bg-[#0f172a]/95 border border-slate-700/80 rounded-3xl p-6 sm:p-10 shadow-2xl backdrop-blur-2xl">
+          <div className="premium-card p-6 sm:p-10 rounded-3xl space-y-8">
             
-            {/* Header Strip */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-slate-800">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-[#27272a]">
               <div>
-                <span className="text-xs font-bold text-[#fe6e00] uppercase tracking-wider block">Executive Briefing Digest</span>
-                <h3 className="text-xl sm:text-2xl font-extrabold text-white">Here is what changed in the AWS Cloud:</h3>
+                <span className="text-xs font-mono font-bold text-[#AD5CFF] uppercase tracking-wider block">Executive Briefing</span>
+                <h3 className="text-lg sm:text-xl font-bold text-white">Here is what changed in the AWS Cloud:</h3>
               </div>
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => handleSpeak(speechText, 'excited')}
-                  className="inline-flex items-center gap-2 bg-[#fe6e00] hover:bg-[#e05b00] text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md transition-all active:scale-95"
-                >
-                  <Volume2 className="w-4 h-4" />
-                  <span>{isPlayingAudio ? 'Pause Audio Briefing' : 'Listen to Dori'}</span>
-                </button>
-              </div>
+
+              <button
+                onClick={() => handleSpeak(speechText, 'excited')}
+                className="inline-flex items-center gap-2 bg-[#AD5CFF] hover:bg-[#9C47FF] text-white px-4 py-2 rounded-full font-mono text-xs font-bold uppercase shadow-purple-glow transition-all active:scale-95 self-start sm:self-auto"
+              >
+                <Volume2 className="w-4 h-4" />
+                <span>{isPlayingAudio ? 'Pause Narration' : 'Listen to Briefing'}</span>
+              </button>
             </div>
 
-            {/* 4 Categorized Highlight Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 my-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               
-              {/* High Priority */}
-              <div className="bg-slate-950/80 border border-emerald-500/30 rounded-2xl p-4 space-y-2">
-                <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 uppercase">
+              <div className="bg-[#09090b] border border-emerald-500/30 rounded-2xl p-4 space-y-2">
+                <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 uppercase font-mono">
                   🔥 High Priority
                 </span>
-                <h4 className="text-sm font-bold text-white">Amazon Bedrock Cross-Region Streaming</h4>
-                <p className="text-xs text-slate-400 line-clamp-2">Low latency AI endpoint routing across us-east-1 and eu-west-1.</p>
+                <h4 className="text-xs sm:text-sm font-bold text-white">Amazon Bedrock Cross-Region Streaming</h4>
+                <p className="text-xs text-zinc-400 line-clamp-2 font-mono">Low latency AI endpoint routing across us-east-1 and eu-west-1.</p>
                 <span className="text-[10px] text-emerald-400 font-mono block">Score: 95/100</span>
               </div>
 
-              {/* Developer Signal */}
-              <div className="bg-slate-950/80 border border-[#38bdf8]/30 rounded-2xl p-4 space-y-2">
-                <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-[#38bdf8]/20 text-[#38bdf8] border border-[#38bdf8]/30 uppercase">
+              <div className="bg-[#09090b] border border-[#AD5CFF]/30 rounded-2xl p-4 space-y-2">
+                <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-[#AD5CFF]/20 text-[#d8b4fe] border border-[#AD5CFF]/30 uppercase font-mono">
                   ⚡ Developer Signal
                 </span>
-                <h4 className="text-sm font-bold text-white">EventBridge Pipes JSONPath Filters</h4>
-                <p className="text-xs text-slate-400 line-clamp-2">Filter and enrich event streams before invoking downstream Lambda functions.</p>
-                <span className="text-[10px] text-[#38bdf8] font-mono block">Score: 88/100</span>
+                <h4 className="text-xs sm:text-sm font-bold text-white">EventBridge Pipes JSONPath Filters</h4>
+                <p className="text-xs text-zinc-400 line-clamp-2 font-mono">Filter and enrich event streams before invoking downstream Lambda functions.</p>
+                <span className="text-[10px] text-[#d8b4fe] font-mono block">Score: 88/100</span>
               </div>
 
-              {/* Security Alert */}
-              <div className="bg-slate-950/80 border border-red-500/30 rounded-2xl p-4 space-y-2">
-                <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-red-500/20 text-red-300 border border-red-500/30 uppercase">
+              <div className="bg-[#09090b] border border-red-500/30 rounded-2xl p-4 space-y-2">
+                <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-red-500/20 text-red-300 border border-red-500/30 uppercase font-mono">
                   🛡 Security Alert
                 </span>
-                <h4 className="text-sm font-bold text-white">IAM Access Analyzer S3 Policy Check</h4>
-                <p className="text-xs text-slate-400 line-clamp-2">Automated mathematical verification of public S3 bucket policies.</p>
+                <h4 className="text-xs sm:text-sm font-bold text-white">IAM Access Analyzer S3 Policy Check</h4>
+                <p className="text-xs text-zinc-400 line-clamp-2 font-mono">Automated mathematical verification of public S3 bucket policies.</p>
                 <span className="text-[10px] text-red-400 font-mono block">Score: 92/100</span>
               </div>
 
-              {/* Community Insight */}
-              <div className="bg-slate-950/80 border border-purple-500/30 rounded-2xl p-4 space-y-2">
-                <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 uppercase">
+              <div className="bg-[#09090b] border border-[#ffc080]/30 rounded-2xl p-4 space-y-2">
+                <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full bg-[#ffc080]/20 text-[#ffc080] border border-[#ffc080]/30 uppercase font-mono">
                   💡 Community Insight
                 </span>
-                <h4 className="text-sm font-bold text-white">Lambda ARM64 Graviton3 Memory Tuning</h4>
-                <p className="text-xs text-slate-400 line-clamp-2">re:Post benchmark achieving sub-150ms cold starts on compiled Go binaries.</p>
-                <span className="text-[10px] text-purple-400 font-mono block">Score: 79/100</span>
+                <h4 className="text-xs sm:text-sm font-bold text-white">Lambda ARM64 Graviton3 Memory Tuning</h4>
+                <p className="text-xs text-zinc-400 line-clamp-2 font-mono">re:Post benchmark achieving sub-150ms cold starts on compiled Go binaries.</p>
+                <span className="text-[10px] text-[#ffc080] font-mono block">Score: 79/100</span>
               </div>
 
             </div>
 
-            {/* Bottom Dori Voice Quote */}
-            <div className="p-5 rounded-2xl bg-gradient-to-r from-slate-950 via-[#0a1020] to-slate-950 border border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="p-5 rounded-2xl bg-[#09090b] border border-[#27272a] flex flex-col sm:flex-row items-center justify-between gap-4 font-mono text-xs">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-[#fe6e00]/20 border border-[#fe6e00]/40 flex items-center justify-center shrink-0">
-                  <Sparkles className="w-5 h-5 text-[#fe6e00]" />
+                <div className="w-9 h-9 rounded-xl bg-[#AD5CFF]/20 border border-[#AD5CFF]/40 flex items-center justify-center shrink-0">
+                  <Sparkles className="w-4 h-4 text-[#AD5CFF]" />
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-white">Dori's Intelligence Summary</p>
-                  <p className="text-xs text-slate-300">
-                    “While you were away, I analyzed 247 signals and found 6 updates worth your immediate attention.”
+                  <p className="text-white font-bold">Dori's Intelligence Summary</p>
+                  <p className="text-zinc-400 text-[11px]">
+                    “While you were away, I analyzed 247 signals and found 6 updates worth your attention.”
                   </p>
                 </div>
               </div>
 
               <button
                 onClick={onGetStarted}
-                className="inline-flex items-center gap-2 btn-signal-primary text-white px-5 py-2.5 rounded-xl text-xs font-bold shrink-0 transition-transform active:scale-95"
+                className="inline-flex items-center gap-2 bg-[#18181b] hover:bg-[#27272a] text-white px-5 py-2.5 rounded-xl border border-[#27272a] text-xs font-bold uppercase transition-all"
               >
-                <span>Open in Command Center</span>
-                <ArrowRight className="w-4 h-4" />
+                <span>Open Dashboard</span>
+                <ArrowRight className="w-3.5 h-3.5 text-[#AD5CFF]" />
               </button>
             </div>
 
@@ -924,17 +874,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
       </section>
 
       {/* ========================================================================= */}
-      {/* 8. MEET DORI SECTION (YOUR ALWAYS-ON CLOUD COMPANION)                     */}
+      {/* 8. MEET DORI SECTION                                                      */}
       {/* ========================================================================= */}
       <section id="dori" className="py-20 lg:py-28 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           
-          {/* Left Column: Interactive Dori Playground */}
-          <div className="lg:col-span-6 bg-[#0f172a]/90 border border-slate-800 rounded-3xl p-8 sm:p-10 shadow-2xl flex flex-col items-center justify-center text-center relative">
-            
-            <div className="w-full flex justify-between items-center pb-4 border-b border-slate-800 text-xs font-mono text-slate-400">
-              <span className="text-[#fe6e00] font-bold">COMPANION SIMULATOR</span>
+          <div className="lg:col-span-6 premium-card p-8 sm:p-10 rounded-3xl flex flex-col items-center justify-center text-center relative">
+            <div className="w-full flex justify-between items-center pb-4 border-b border-[#27272a] text-[11px] font-mono text-zinc-500">
+              <span className="text-[#AD5CFF] font-bold">DORI SIMULATOR</span>
               <span>CLICK TO INTERACT</span>
             </div>
 
@@ -948,9 +895,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
               />
             </div>
 
-            {/* Clickable prompt chips */}
-            <div className="w-full space-y-2 text-left">
-              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Ask Dori a Question:</span>
+            <div className="w-full space-y-2 text-left font-mono">
+              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">Ask Dori a Question:</span>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 {doriPrompts.map((p, idx) => (
                   <button
@@ -960,57 +906,52 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
                       setDoriEmotion(p.emotion);
                       handleSpeak(p.response, p.emotion);
                     }}
-                    className="p-3 rounded-xl bg-slate-950 hover:bg-slate-900 border border-slate-800 text-xs text-slate-300 hover:text-white transition-all text-left"
+                    className="p-3 rounded-xl bg-[#09090b] hover:bg-[#18181b] border border-[#27272a] text-xs text-zinc-300 hover:text-white transition-all text-left"
                   >
                     {p.label}
                   </button>
                 ))}
               </div>
             </div>
-
           </div>
 
-          {/* Right Column: Dori Personality & Philosophy */}
           <div className="lg:col-span-6 space-y-6">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#fe6e00]/10 text-[#ffc080] border border-[#fe6e00]/30 text-xs font-bold uppercase tracking-wider">
-              <span>Your Cloud Companion</span>
-            </div>
-
-            <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
+            <span className="text-[10px] text-[#AD5CFF] font-mono font-bold uppercase tracking-[0.2em] block">Your Cloud Companion</span>
+            <h2 className="text-2xl sm:text-4xl md:text-5xl font-black font-display text-white tracking-tight uppercase leading-tight">
               Meet Dori. <br />
-              <span className="text-signal-gradient">Always Listening. Never Intrusive.</span>
+              <span className="text-gradient">Always Listening. Never Intrusive.</span>
             </h2>
 
-            <p className="text-slate-300 text-base leading-relaxed">
-              Dori is not just a mascot — she is an autonomous agent persona engineered to represent AWS Signal’s underlying reasoning engine. Friendly, curious, and relentless about cloud efficiency.
+            <p className="text-zinc-400 text-xs sm:text-sm font-mono leading-relaxed">
+              Dori is an autonomous agent persona engineered to represent AWS Signal’s underlying reasoning engine. Friendly, curious, and relentless about cloud efficiency.
             </p>
 
-            <div className="grid grid-cols-2 gap-4 pt-2">
-              <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-1">
-                <span className="text-xs font-extrabold text-[#fe6e00] block">FRIENDLY & CURIOUS</span>
-                <p className="text-xs text-slate-400">Approachable intelligence that simplifies complex AWS announcements.</p>
+            <div className="grid grid-cols-2 gap-3.5 pt-2 font-mono text-xs">
+              <div className="p-4 rounded-2xl bg-[#121216] border border-[#27272a] space-y-1">
+                <span className="text-[#AD5CFF] font-bold block">FRIENDLY & CURIOUS</span>
+                <p className="text-zinc-400 text-[11px]">Approachable intelligence simplifying complex launches.</p>
               </div>
 
-              <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-1">
-                <span className="text-xs font-extrabold text-[#38bdf8] block">ALWAYS WORKING</span>
-                <p className="text-xs text-slate-400">Continuous EventBridge automation running while you sleep.</p>
+              <div className="p-4 rounded-2xl bg-[#121216] border border-[#27272a] space-y-1">
+                <span className="text-[#ffc080] font-bold block">ALWAYS WORKING</span>
+                <p className="text-zinc-400 text-[11px]">EventBridge automation running while you sleep.</p>
               </div>
 
-              <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-1">
-                <span className="text-xs font-extrabold text-emerald-400 block">DEVELOPER FOCUSED</span>
-                <p className="text-xs text-slate-400">Extracts code patterns and architectural takeaways builders can use immediately.</p>
+              <div className="p-4 rounded-2xl bg-[#121216] border border-[#27272a] space-y-1">
+                <span className="text-[#00d294] font-bold block">BUILDER FOCUSED</span>
+                <p className="text-zinc-400 text-[11px]">Extracts architecture patterns developers use.</p>
               </div>
 
-              <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-1">
-                <span className="text-xs font-extrabold text-purple-400 block">NEVER INTRUSIVE</span>
-                <p className="text-xs text-slate-400">Only alerts for verified high-impact updates (Score ≥ 80).</p>
+              <div className="p-4 rounded-2xl bg-[#121216] border border-[#27272a] space-y-1">
+                <span className="text-purple-300 font-bold block">NEVER INTRUSIVE</span>
+                <p className="text-zinc-400 text-[11px]">Only alerts for verified high-impact updates.</p>
               </div>
             </div>
 
             <div className="pt-2">
               <button
                 onClick={onGetStarted}
-                className="inline-flex items-center gap-2 btn-signal-primary text-white px-7 py-3.5 rounded-2xl font-extrabold text-sm shadow-xl transition-all active:scale-95"
+                className="px-7 py-3 bg-[#AD5CFF] hover:bg-[#9C47FF] text-white rounded-full font-mono font-bold text-xs uppercase shadow-purple-glow transition-all active:scale-95 flex items-center gap-2"
               >
                 <span>Launch Assistant in Command Center</span>
                 <ArrowRight className="w-4 h-4" />
@@ -1019,29 +960,25 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
           </div>
 
         </div>
-
       </section>
 
       {/* ========================================================================= */}
       {/* 9. INTELLIGENCE DASHBOARD PREVIEW                                         */}
       {/* ========================================================================= */}
-      <section className="py-20 bg-[#080d19] border-y border-slate-800/90">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+      <section className="py-20 bg-[#121216]/50 border-y border-[#27272a]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
           
-          <div className="text-center max-w-3xl mx-auto space-y-4">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#38bdf8]/10 text-[#38bdf8] border border-[#38bdf8]/30 text-xs font-bold uppercase tracking-wider">
-              <span>Command Center Preview</span>
-            </div>
-            <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
-              Production-Grade Intelligence Dashboard
+          <div className="text-center max-w-3xl mx-auto space-y-3">
+            <span className="text-[10px] text-[#AD5CFF] font-mono font-bold uppercase tracking-[0.2em] block">Dashboard Preview</span>
+            <h2 className="text-2xl sm:text-4xl md:text-5xl font-black font-display text-white tracking-tight uppercase">
+              Production Command Center
             </h2>
-            <p className="text-slate-300 text-base">
-              Filter, search, inspect AI rationales, and save signals into your personal vault.
+            <p className="text-zinc-400 text-xs sm:text-sm font-mono leading-relaxed">
+              Filter, search, inspect AI rationales, and bookmark signals into your personal vault.
             </p>
           </div>
 
-          {/* Interactive Filter Pills */}
-          <div className="flex flex-wrap items-center justify-center gap-2">
+          <div className="flex flex-wrap items-center justify-center gap-2 font-mono text-xs">
             {[
               { id: 'all', label: 'All Verified Signals' },
               { id: 'priority', label: '🔥 High Priority Only' },
@@ -1051,10 +988,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
               <button
                 key={tab.id}
                 onClick={() => setDashboardFilter(tab.id as any)}
-                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+                className={`px-4 py-2 rounded-full font-bold transition-all border ${
                   dashboardFilter === tab.id
-                    ? 'btn-signal-primary text-white border-transparent'
-                    : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
+                    ? 'bg-[#AD5CFF] text-white border-[#AD5CFF] shadow-purple-glow'
+                    : 'bg-[#18181b] border-[#27272a] text-zinc-400 hover:text-white'
                 }`}
               >
                 {tab.label}
@@ -1062,19 +999,18 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
             ))}
           </div>
 
-          {/* Signal Cards Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {filteredPreviewSignals.map(sig => (
               <div
                 key={sig.id}
-                className="bg-[#0f172a]/90 border border-slate-800 rounded-3xl p-6 hover:border-[#fe6e00]/50 transition-all space-y-4 shadow-xl flex flex-col justify-between"
+                className="premium-card p-6 rounded-3xl space-y-4 flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between gap-2 mb-3">
-                    <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border ${sig.badgeColor}`}>
+                    <span className={`text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full border ${sig.badgeColor}`}>
                       {sig.category}
                     </span>
-                    <span className="text-xs font-mono font-bold text-[#ffc080] bg-slate-950 px-2 py-0.5 rounded-md border border-slate-800">
+                    <span className="text-xs font-mono font-bold text-[#ffc080] bg-[#09090b] px-2 py-0.5 rounded-md border border-[#27272a]">
                       SCORE {sig.score}
                     </span>
                   </div>
@@ -1083,16 +1019,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
                     {sig.title}
                   </h3>
 
-                  <p className="text-xs sm:text-sm text-slate-400 mt-2 leading-relaxed">
+                  <p className="text-xs text-zinc-400 mt-2 leading-relaxed font-mono">
                     {sig.summary}
                   </p>
                 </div>
 
-                <div className="pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs">
-                  <span className="text-slate-400 font-medium">Service: <strong className="text-white">{sig.service}</strong></span>
+                <div className="pt-4 border-t border-[#27272a] flex items-center justify-between text-xs font-mono">
+                  <span className="text-zinc-500">Service: <strong className="text-white">{sig.service}</strong></span>
                   <button
                     onClick={onGetStarted}
-                    className="inline-flex items-center gap-1 text-[#fe6e00] font-bold hover:underline"
+                    className="inline-flex items-center gap-1 text-[#AD5CFF] font-bold hover:underline"
                   >
                     <span>Read Bedrock Rationale</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -1108,65 +1044,59 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
       {/* ========================================================================= */}
       {/* 10. SYSTEM ARCHITECTURE SECTION                                           */}
       {/* ========================================================================= */}
-      <section id="architecture" className="py-20 lg:py-28 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+      <section id="architecture" className="py-20 lg:py-28 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         
-        <div className="text-center max-w-3xl mx-auto space-y-4">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 text-xs font-bold uppercase tracking-wider">
-            <span>Serverless Infrastructure</span>
-          </div>
-          <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
-            End-to-End Cloud Architecture
+        <div className="text-center max-w-3xl mx-auto space-y-3">
+          <span className="text-[10px] text-[#00d294] font-mono font-bold uppercase tracking-[0.2em] block">Cloud Infrastructure</span>
+          <h2 className="text-2xl sm:text-4xl md:text-5xl font-black font-display text-white tracking-tight uppercase">
+            End-to-End Serverless Architecture
           </h2>
-          <p className="text-slate-300 text-base">
+          <p className="text-zinc-400 text-xs sm:text-sm font-mono leading-relaxed">
             Built 100% serverless on AWS Free Tier using Amazon Bedrock, AWS Lambda, DynamoDB, EventBridge, and Amazon SES.
           </p>
         </div>
 
-        {/* High Polish Visual Architecture Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 font-mono text-xs">
           
-          {/* Layer 1: Ingestion */}
-          <div className="bg-[#0f172a]/90 border border-slate-800 rounded-3xl p-6 space-y-4">
-            <div className="flex items-center gap-2 text-[#fe6e00] font-bold pb-2 border-b border-slate-800">
+          <div className="premium-card p-6 rounded-3xl space-y-4">
+            <div className="flex items-center gap-2 text-[#AD5CFF] font-bold pb-2 border-b border-[#27272a]">
               <Radio className="w-4 h-4" />
               <span>01. INGESTION & HASHING</span>
             </div>
-            <p className="text-slate-400 font-sans text-xs leading-relaxed">
-              AWS EventBridge triggers an AWS Lambda worker every 3 hours to parse RSS feeds, format HTML content, and compute SHA-256 fingerprints.
+            <p className="text-zinc-400 text-xs leading-relaxed font-sans">
+              AWS EventBridge triggers an AWS Lambda worker every 3 hours to parse RSS feeds and compute SHA-256 fingerprints.
             </p>
-            <div className="p-3 bg-slate-950 rounded-xl text-slate-300 space-y-1 text-[11px]">
+            <div className="p-3 bg-[#09090b] rounded-xl text-zinc-300 space-y-1 text-[11px]">
               <p>• AWS EventBridge Scheduler</p>
               <p>• Lambda Node.js Ingestion Worker</p>
               <p>• SHA-256 Fingerprint Generator</p>
             </div>
           </div>
 
-          {/* Layer 2: Bedrock Reasoning */}
-          <div className="bg-[#0f172a]/90 border border-[#fe6e00]/30 rounded-3xl p-6 space-y-4 shadow-xl">
-            <div className="flex items-center gap-2 text-[#38bdf8] font-bold pb-2 border-b border-slate-800">
+          <div className="premium-card p-6 rounded-3xl space-y-4 border-[#AD5CFF]/40 shadow-purple-glow">
+            <div className="flex items-center gap-2 text-[#ffc080] font-bold pb-2 border-b border-[#27272a]">
               <Cpu className="w-4 h-4" />
               <span>02. BEDROCK REASONING</span>
             </div>
-            <p className="text-slate-400 font-sans text-xs leading-relaxed">
-              Amazon Bedrock evaluates verified new signals against 5 scoring dimensions, extracts takeaways, and generates conversational audio briefings.
+            <p className="text-zinc-400 text-xs leading-relaxed font-sans">
+              Amazon Bedrock evaluates verified new signals against 5 scoring dimensions, extracts takeaways, and generates briefings.
             </p>
-            <div className="p-3 bg-slate-950 rounded-xl text-slate-300 space-y-1 text-[11px]">
-              <p>• Amazon Bedrock Claude / Nova Models</p>
+            <div className="p-3 bg-[#09090b] rounded-xl text-zinc-300 space-y-1 text-[11px]">
+              <p>• Amazon Bedrock Claude / Nova</p>
               <p>• 5-Metric Weighted Evaluation</p>
               <p>• DynamoDB Signal Memory Store</p>
             </div>
           </div>
 
-          {/* Layer 3: Delivery & Dispatch */}
-          <div className="bg-[#0f172a]/90 border border-slate-800 rounded-3xl p-6 space-y-4">
-            <div className="flex items-center gap-2 text-emerald-400 font-bold pb-2 border-b border-slate-800">
+          <div className="premium-card p-6 rounded-3xl space-y-4">
+            <div className="flex items-center gap-2 text-[#00d294] font-bold pb-2 border-b border-[#27272a]">
               <Mail className="w-4 h-4" />
               <span>03. DISPATCH & UI</span>
             </div>
-            <p className="text-slate-400 font-sans text-xs leading-relaxed">
-              High-priority alerts trigger Amazon SES email dispatch. Signals are surfaced via the standalone REST API and Web Command Center.
+            <p className="text-zinc-400 text-xs leading-relaxed font-sans">
+              High-priority alerts trigger Amazon SES email dispatch. Signals are surfaced via the standalone REST API and Command Center.
             </p>
-            <div className="p-3 bg-slate-950 rounded-xl text-slate-300 space-y-1 text-[11px]">
+            <div className="p-3 bg-[#09090b] rounded-xl text-zinc-300 space-y-1 text-[11px]">
               <p>• Amazon SES HTML Alert Dispatch</p>
               <p>• Decoupled Public REST API (/api/v1)</p>
               <p>• Vite React Single Page Application</p>
@@ -1180,85 +1110,77 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
       {/* ========================================================================= */}
       {/* 11. TECHNOLOGY STACK PILLARS                                              */}
       {/* ========================================================================= */}
-      <section id="technology" className="py-20 bg-[#080d19] border-y border-slate-800/90">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+      <section id="technology" className="py-20 bg-[#121216]/50 border-y border-[#27272a]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
           
-          <div className="text-center max-w-3xl mx-auto space-y-4">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#fe6e00]/10 text-[#ffc080] border border-[#fe6e00]/30 text-xs font-bold uppercase tracking-wider">
-              <span>Core Stack</span>
-            </div>
-            <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
-              Built for Autonomous Cloud Intelligence
+          <div className="text-center max-w-3xl mx-auto space-y-3">
+            <span className="text-[10px] text-[#ffc080] font-mono font-bold uppercase tracking-[0.2em] block">Core Technology</span>
+            <h2 className="text-2xl sm:text-4xl md:text-5xl font-black font-display text-white tracking-tight uppercase">
+              Built for Autonomous Intelligence
             </h2>
-            <p className="text-slate-300 text-base">
+            <p className="text-zinc-400 text-xs sm:text-sm font-mono leading-relaxed">
               Every layer of AWS Signal has been selected for resilience, security, and developer clarity.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 font-mono text-xs">
             
-            {/* Amazon Bedrock */}
-            <div className="p-6 rounded-3xl bg-[#0f172a]/80 border border-slate-800 space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-[#fe6e00]/10 text-[#fe6e00] flex items-center justify-center font-bold">
+            <div className="premium-card p-6 rounded-3xl space-y-2.5">
+              <div className="w-9 h-9 rounded-xl bg-[#AD5CFF]/15 text-[#AD5CFF] flex items-center justify-center font-bold">
                 <Cpu className="w-5 h-5" />
               </div>
-              <h3 className="text-lg font-bold text-white">Amazon Bedrock</h3>
-              <p className="text-xs text-slate-400 leading-relaxed">
+              <h3 className="text-sm font-bold text-white">Amazon Bedrock</h3>
+              <p className="text-zinc-400 text-[11px] leading-relaxed font-sans">
                 The core reasoning engine powering multi-metric signal ranking, developer takeaways, and daily briefing synthesis.
               </p>
             </div>
 
-            {/* Amazon DynamoDB */}
-            <div className="p-6 rounded-3xl bg-[#0f172a]/80 border border-slate-800 space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-[#38bdf8]/10 text-[#38bdf8] flex items-center justify-center font-bold">
+            <div className="premium-card p-6 rounded-3xl space-y-2.5">
+              <div className="w-9 h-9 rounded-xl bg-[#ffc080]/15 text-[#ffc080] flex items-center justify-center font-bold">
                 <Database className="w-5 h-5" />
               </div>
-              <h3 className="text-lg font-bold text-white">Amazon DynamoDB</h3>
-              <p className="text-xs text-slate-400 leading-relaxed">
+              <h3 className="text-sm font-bold text-white">Amazon DynamoDB</h3>
+              <p className="text-zinc-400 text-[11px] leading-relaxed font-sans">
                 Single-digit millisecond latency storage for agent memory, SHA-256 deduplication state, and saved signal vaults.
               </p>
             </div>
 
-            {/* Amazon SES */}
-            <div className="p-6 rounded-3xl bg-[#0f172a]/80 border border-slate-800 space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold">
+            <div className="premium-card p-6 rounded-3xl space-y-2.5">
+              <div className="w-9 h-9 rounded-xl bg-emerald-500/15 text-[#00d294] flex items-center justify-center font-bold">
                 <Mail className="w-5 h-5" />
               </div>
-              <h3 className="text-lg font-bold text-white">Amazon SES</h3>
-              <p className="text-xs text-slate-400 leading-relaxed">
+              <h3 className="text-sm font-bold text-white">Amazon SES</h3>
+              <p className="text-zinc-400 text-[11px] leading-relaxed font-sans">
                 High-deliverability email dispatch alerting teams when critical security or architectural updates occur.
               </p>
             </div>
 
-            {/* Web Speech API */}
-            <div className="p-6 rounded-3xl bg-[#0f172a]/80 border border-slate-800 space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center font-bold">
+            <div className="premium-card p-6 rounded-3xl space-y-2.5">
+              <div className="w-9 h-9 rounded-xl bg-purple-500/15 text-purple-300 flex items-center justify-center font-bold">
                 <Volume2 className="w-5 h-5" />
               </div>
-              <h3 className="text-lg font-bold text-white">Web Speech API</h3>
-              <p className="text-xs text-slate-400 leading-relaxed">
+              <h3 className="text-sm font-bold text-white">Web Speech API</h3>
+              <p className="text-zinc-400 text-[11px] leading-relaxed font-sans">
                 In-browser audio synthesis enabling Dori to read out daily intelligence digests hands-free.
               </p>
             </div>
 
-            {/* SHA-256 Hashing */}
-            <div className="p-6 rounded-3xl bg-[#0f172a]/80 border border-slate-800 space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold">
+            <div className="premium-card p-6 rounded-3xl space-y-2.5">
+              <div className="w-9 h-9 rounded-xl bg-amber-500/15 text-amber-300 flex items-center justify-center font-bold">
                 <ShieldCheck className="w-5 h-5" />
               </div>
-              <h3 className="text-lg font-bold text-white">SHA-256 Hashing</h3>
-              <p className="text-xs text-slate-400 leading-relaxed">
+              <h3 className="text-sm font-bold text-white">SHA-256 Hashing</h3>
+              <p className="text-zinc-400 text-[11px] leading-relaxed font-sans">
                 Cryptographic content fingerprinting that prevents repetitive syndicated press releases from appearing twice.
               </p>
             </div>
 
-            {/* Serverless Lambda */}
-            <div className="p-6 rounded-3xl bg-[#0f172a]/80 border border-slate-800 space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-sky-500/10 text-sky-400 flex items-center justify-center font-bold">
+            <div className="premium-card p-6 rounded-3xl space-y-2.5">
+              <div className="w-9 h-9 rounded-xl bg-sky-500/15 text-sky-300 flex items-center justify-center font-bold">
                 <Server className="w-5 h-5" />
               </div>
-              <h3 className="text-lg font-bold text-white">Serverless Lambda</h3>
-              <p className="text-xs text-slate-400 leading-relaxed">
+              <h3 className="text-sm font-bold text-white">Serverless Lambda</h3>
+              <p className="text-zinc-400 text-[11px] leading-relaxed font-sans">
                 Zero standby costs, automated scalability, and sub-100ms API response times with Lambda Function URLs.
               </p>
             </div>
@@ -1269,104 +1191,38 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
       </section>
 
       {/* ========================================================================= */}
-      {/* 12. SUMMER BUILDS SHOWCASE SECTION                                        */}
+      {/* 12. FINAL CALL TO ACTION                                                  */}
       {/* ========================================================================= */}
-      <section className="py-20 lg:py-28 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        <div className="bg-gradient-to-br from-[#0f172a] via-[#151f38] to-[#0f172a] border border-[#fe6e00]/40 rounded-3xl p-8 sm:p-14 shadow-2xl relative overflow-hidden">
+      <section className="py-20 lg:py-28 border-t border-[#27272a] text-center bg-gradient-to-b from-[#09090b] to-[#121216]">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
           
-          <div className="max-w-3xl space-y-6">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#fe6e00]/20 text-[#ffc080] border border-[#fe6e00]/30 text-xs font-bold uppercase tracking-wider">
-              <Award className="w-4 h-4 text-[#fe6e00]" />
-              <span>AWS Community Showcase</span>
-            </div>
-
-            <h2 className="text-3xl sm:text-5xl font-extrabold text-white tracking-tight">
-              Built for the Summer Builds Showcase.
-            </h2>
-
-            <p className="text-slate-300 text-base sm:text-lg leading-relaxed">
-              AWS Signal is the culmination of the entire Summer Build Series. From an initial creative companion idea to a production-grade autonomous cloud intelligence platform.
-            </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 text-xs">
-              <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-1">
-                <span className="text-[#fe6e00] font-bold block">01. THE BEGINNING</span>
-                <strong className="text-white block text-sm">Dori Companion</strong>
-                <p className="text-slate-400">A friendly robotic companion prototype.</p>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-1">
-                <span className="text-[#38bdf8] font-bold block">02. THE EVOLUTION</span>
-                <strong className="text-white block text-sm">AWS Signal</strong>
-                <p className="text-slate-400">Autonomous intelligence agent running 24/7.</p>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-1">
-                <span className="text-emerald-400 font-bold block">03. THE VISION</span>
-                <strong className="text-white block text-sm">Zero-Search Future</strong>
-                <p className="text-slate-400">Builders stay informed effortlessly.</p>
-              </div>
-            </div>
-
-            <div className="pt-4 flex flex-wrap items-center gap-4">
-              <button
-                onClick={onGetStarted}
-                className="inline-flex items-center gap-2 btn-signal-primary text-white px-6 py-3 rounded-xl font-bold text-xs shadow-md transition-transform active:scale-95"
-              >
-                <span>Launch Showcase Project</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-
-              <a
-                href="https://github.com/pwnjoshi/AWS-Signal-Agent-Specification"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-700 px-5 py-3 rounded-xl font-bold text-xs transition-colors"
-              >
-                <Code2 className="w-4 h-4" />
-                <span>View GitHub Repository</span>
-              </a>
-            </div>
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#AD5CFF] to-[#ffc080] mx-auto flex items-center justify-center text-white shadow-purple-glow">
+            <Sparkles className="w-7 h-7 text-white" />
           </div>
 
-        </div>
-
-      </section>
-
-      {/* ========================================================================= */}
-      {/* 13. FINAL CALL TO ACTION                                                  */}
-      {/* ========================================================================= */}
-      <section className="py-20 lg:py-28 border-t border-slate-800 relative bg-gradient-to-b from-[#07090e] to-[#0a0f1d] text-center">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-          
-          <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-[#fe6e00] to-[#2563eb] mx-auto flex items-center justify-center text-white shadow-xl shadow-[#fe6e00]/25">
-            <Sparkles className="w-8 h-8 text-white animate-spin" style={{ animationDuration: '6s' }} />
-          </div>
-
-          <h2 className="text-4xl sm:text-6xl font-extrabold text-white tracking-tight">
+          <h2 className="text-3xl sm:text-5xl font-black font-display text-white tracking-tight uppercase leading-tight">
             Stop Searching for Signals. <br />
-            <span className="text-signal-gradient">Let Intelligence Find You.</span>
+            <span className="text-gradient">Let Intelligence Find You.</span>
           </h2>
 
-          <p className="text-slate-300 text-base sm:text-xl max-w-2xl mx-auto leading-relaxed">
+          <p className="text-zinc-400 text-xs sm:text-sm font-mono max-w-xl mx-auto leading-relaxed">
             AWS Signal works quietly in the background so you can spend more time building and less time searching.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-3 font-mono">
             <button
               onClick={onGetStarted}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 btn-signal-primary text-white px-8 py-4 rounded-2xl font-extrabold text-base shadow-xl transition-all active:scale-95"
+              className="px-8 py-3.5 bg-[#AD5CFF] hover:bg-[#9C47FF] text-white rounded-full font-bold text-xs uppercase tracking-wider shadow-purple-glow transition-all active:scale-95 flex items-center justify-center gap-2"
             >
               <span>Launch AWS Signal</span>
-              <ArrowRight className="w-5 h-5" />
+              <ArrowUpRight className="w-4 h-4" />
             </button>
 
             <button
               onClick={onOpenAuthModal}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 px-7 py-4 rounded-2xl font-bold text-base shadow-md transition-all"
+              className="px-7 py-3.5 bg-[#18181b] hover:bg-[#27272a] text-white rounded-full border border-[#27272a] font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2"
             >
-              <UserCheck className="w-5 h-5 text-[#fe6e00]" />
+              <UserCheck className="w-4 h-4 text-[#ffc080]" />
               <span>Connect Builder ID</span>
             </button>
           </div>
@@ -1375,31 +1231,31 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
       </section>
 
       {/* ========================================================================= */}
-      {/* 14. FOOTER                                                                */}
+      {/* 13. FOOTER                                                                */}
       {/* ========================================================================= */}
-      <footer id="about" className="border-t border-slate-800 bg-[#07090e] py-12 text-slate-400 text-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+      <footer className="border-t border-[#27272a] bg-[#09090b] py-10 text-zinc-500 text-xs font-mono">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
           
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <Logo size="md" />
 
-            <div className="flex flex-wrap items-center gap-6 font-semibold">
+            <div className="flex flex-wrap items-center gap-5 text-[11px] font-bold uppercase">
               <a href="#home" className="hover:text-white transition-colors">Home</a>
               <a href="#intelligence" className="hover:text-white transition-colors">Intelligence</a>
               <a href="#how-it-works" className="hover:text-white transition-colors">How It Works</a>
               <a href="#dori" className="hover:text-white transition-colors">Dori</a>
               <a href="#showcase" className="hover:text-white transition-colors">Showcase</a>
               <a href="#architecture" className="hover:text-white transition-colors">Architecture</a>
-              <a href="https://github.com/pwnjoshi/AWS-Signal-Agent-Specification" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">GitHub</a>
+              <a href="https://github.com/pwnjoshi/AWS-Signal-Agent-Specification" target="_blank" rel="noopener noreferrer" className="hover:text-[#AD5CFF] transition-colors">GitHub</a>
             </div>
           </div>
 
-          <div className="pt-6 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500">
+          <div className="pt-6 border-t border-[#27272a]/60 flex flex-col sm:flex-row items-center justify-between gap-3 text-[10.5px]">
             <p>
               AWS Signal — Autonomous Intelligence for the AWS Ecosystem • Powered by Amazon Bedrock, AWS Lambda, DynamoDB & SES.
             </p>
-            <p>
-              Graphic Era University Student Builder Group • Led by Pawan Joshi
+            <p className="text-zinc-400">
+              AWS Student Builder Group GEU • Graphic Era Deemed to be University
             </p>
           </div>
 
