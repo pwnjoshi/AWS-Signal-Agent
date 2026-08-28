@@ -2,86 +2,42 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   Radio, 
-  ArrowRight, 
   ArrowUpRight, 
   ShieldCheck, 
   Zap, 
   Volume2, 
   VolumeX, 
   Cpu, 
-  Terminal, 
   Clock, 
   Brain,
-  Send,
-  Sparkles,
-  ExternalLink,
-  MessageSquareQuote
+  Sparkles
 } from 'lucide-react';
 import { GEUNavbar as Navbar } from './GEUNavbar';
 import { ParticleBackground } from './ParticleBackground';
 import { DoriCompanion } from './DoriCompanion';
-import { useTheme } from '../context/ThemeContext';
-import { playDoriSpeech, stopDoriSpeech, askDoriQuestionApi } from '../services/apiClient';
-import { AWSSignal } from '../types/clientTypes';
+import { playDoriSpeech, stopDoriSpeech } from '../services/apiClient';
 
 interface LandingPageProps {
   onGetStarted: () => void;
   onOpenAuthModal?: () => void;
 }
 
-const QUICK_TOPICS = [
-  'What changed in AWS Lambda SnapStart today?',
-  'Did Anthropic Claude 3.5 Sonnet get updated on Bedrock?',
-  'Any high-priority security alerts on S3 or IAM?',
-  'What are the latest DynamoDB zero-ETL integration features?',
-];
-
 export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAuthModal }) => {
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [chatQuestion, setChatQuestion] = useState('');
-  const [chatAnswer, setChatAnswer] = useState<string | null>(null);
-  const [chatSignals, setChatSignals] = useState<AWSSignal[]>([]);
-  const [isAnswering, setIsAnswering] = useState(false);
-  const { theme } = useTheme();
 
-  const handleAudioNarration = async () => {
+  const toggleDoriNarration = async () => {
     if (isSpeaking) {
       stopDoriSpeech();
       setIsSpeaking(false);
       return;
     }
 
-    const textToSpeak = `Good day builders! This is Dori, your autonomous cloud intelligence companion. In the last 24 hours across the AWS cloud matrix: 247 announcements ingested, 18 high-relevance updates identified, and 4 critical signals flagged for your architecture. Lambda SnapStart latency reduced by 90%, Amazon Bedrock cross-region inference profiles activated, and zero duplicate signals in your deduplication vault. Stay informed and happy building!`;
+    const textToSpeak = `Good day builders! This is Dori, your cloud specialist. In the last 24 hours across the AWS cloud matrix: 247 announcements ingested, 18 high-relevance updates identified, and 4 critical signals flagged for your architecture. Lambda SnapStart latency is down by 90%, Amazon Bedrock cross-region inference is active, and zero duplicate signals exist in your vault. Click me anytime to pause. Stay informed and happy building!`;
 
     setIsSpeaking(true);
     await playDoriSpeech(textToSpeak, () => {
       setIsSpeaking(false);
     });
-  };
-
-  const handleAskDori = async (questionToAsk: string) => {
-    if (!questionToAsk.trim() || isAnswering) return;
-    
-    setIsAnswering(true);
-    setChatQuestion(questionToAsk);
-    setChatAnswer(null);
-    setChatSignals([]);
-
-    try {
-      const res = await askDoriQuestionApi(questionToAsk);
-      setChatAnswer(res.answer);
-      setChatSignals(res.relevantSignals || []);
-
-      // Speak response using Amazon Polly Generative voice
-      setIsSpeaking(true);
-      await playDoriSpeech(res.answer, () => {
-        setIsSpeaking(false);
-      });
-    } catch (err) {
-      setChatAnswer("I've checked our live AWS feeds. We're actively tracking hundreds of releases across Amazon Bedrock, AWS Lambda, ECS, and DynamoDB.");
-    } finally {
-      setIsAnswering(false);
-    }
   };
 
   return (
@@ -96,179 +52,78 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
       {/* Standalone Navigation */}
       <Navbar onOpenAuthModal={onOpenAuthModal} onLaunchDashboard={onGetStarted} />
 
-      {/* ── Section 1: Interactive Hero with Dori ── */}
-      <section id="home" className="relative pt-28 sm:pt-36 pb-16 min-h-[85vh] flex items-center justify-center">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 w-full space-y-8 relative z-10">
+      {/* ── Section 1: Clean, Focused Hero ── */}
+      <section id="home" className="relative pt-32 sm:pt-40 pb-8 sm:pb-12 min-h-[70vh] flex flex-col items-center justify-center text-center">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 space-y-6 relative z-10">
           
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            
-            {/* Left Headline Column (Col 7) */}
-            <div className="lg:col-span-7 space-y-5 text-left">
-              <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 text-xs font-medium">
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>Powered by Amazon Bedrock & Amazon Polly</span>
-              </div>
-
-              <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight text-slate-900 dark:text-zinc-100 leading-[1.15]">
-                Where Cloud Builders Stay Informed
-              </h1>
-
-              <p className="text-sm sm:text-base text-slate-500 dark:text-zinc-400 max-w-xl font-normal leading-relaxed">
-                An autonomous cloud intelligence platform. AWS Signal monitors hundreds of release feeds, analyzes developer friction on re:Post, and delivers personalized audio briefings before breaking your stack.
-              </p>
-
-              {/* Action CTAs */}
-              <div className="flex flex-wrap items-center gap-3 pt-2">
-                <Link
-                  to="/dashboard"
-                  className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs sm:text-sm font-medium shadow-sm active:scale-98 transition-all flex items-center gap-2"
-                >
-                  <Radio className="w-4 h-4" />
-                  <span>Launch Command Hub</span>
-                </Link>
-
-                <button
-                  onClick={handleAudioNarration}
-                  className={`px-4 py-2.5 rounded-lg text-xs sm:text-sm font-medium border transition-all flex items-center gap-2 cursor-pointer ${
-                    isSpeaking
-                      ? 'bg-amber-500 text-white border-amber-400'
-                      : 'bg-white dark:bg-[#18181b] border-slate-200 dark:border-zinc-800 hover:bg-slate-50 dark:hover:bg-[#202026] text-slate-800 dark:text-zinc-200'
-                  }`}
-                >
-                  {isSpeaking ? (
-                    <>
-                      <VolumeX className="w-4 h-4" />
-                      <span>Stop Voice Briefing</span>
-                    </>
-                  ) : (
-                    <>
-                      <Volume2 className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                      <span>Listen to Dori (Polly)</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
-
-            {/* Right Interactive Dori Character Box (Col 5) */}
-            <div className="lg:col-span-5 bg-white dark:bg-[#121216] border border-slate-200 dark:border-zinc-800 rounded-xl p-5 sm:p-6 shadow-md transition-colors space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-200 dark:border-zinc-800 pb-3">
-                <div className="flex items-center gap-2.5">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#00d294] animate-pulse" />
-                  <span className="text-xs font-semibold text-slate-900 dark:text-zinc-100">Talk to Dori (Live Voice & Search)</span>
-                </div>
-                <span className="text-[10px] text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 px-2 py-0.5 rounded border border-blue-200 dark:border-blue-800 font-mono">
-                  Grounded QA
-                </span>
-              </div>
-
-              {/* Dori Character Display */}
-              <div className="flex items-center justify-center py-2">
-                <DoriCompanion 
-                  size="md" 
-                  emotion={isSpeaking ? 'excited' : isAnswering ? 'curious' : 'happy'}
-                  message={chatAnswer ? undefined : "Ask me anything about today's AWS releases, architecture changes, or developer friction!"}
-                  showSpeechBubble={!chatAnswer}
-                />
-              </div>
-
-              {/* Real-time Response Box */}
-              {chatAnswer && (
-                <div className="bg-slate-50 dark:bg-[#18181b] border border-slate-200 dark:border-zinc-800 rounded-lg p-3.5 space-y-2 text-xs animate-in fade-in duration-200">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-center gap-1.5 text-blue-600 dark:text-blue-400 font-semibold">
-                      <MessageSquareQuote className="w-4 h-4 shrink-0" />
-                      <span>Dori's Intelligence Response:</span>
-                    </div>
-                    {isSpeaking && (
-                      <span className="text-[10px] text-amber-600 dark:text-amber-400 flex items-center gap-1 font-mono">
-                        <Volume2 className="w-3 h-3 animate-pulse" />
-                        Speaking...
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-slate-700 dark:text-zinc-300 font-sans leading-relaxed">
-                    {chatAnswer}
-                  </p>
-
-                  {/* Matching Signals Grounding Citations */}
-                  {chatSignals.length > 0 && (
-                    <div className="pt-2 border-t border-slate-200 dark:border-zinc-800 space-y-1">
-                      <span className="text-[10px] text-slate-500 dark:text-zinc-400 font-medium">Verified Sources:</span>
-                      <div className="flex flex-wrap gap-1.5">
-                        {chatSignals.map((sig) => (
-                          <a
-                            key={sig.signal_id}
-                            href={sig.source_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-[10px] font-medium bg-white dark:bg-[#202026] text-blue-600 dark:text-blue-400 px-2 py-0.5 rounded border border-slate-200 dark:border-zinc-700 hover:underline"
-                          >
-                            <span>{sig.aws_services[0] || 'AWS News'}: {sig.title.slice(0, 30)}...</span>
-                            <ExternalLink className="w-2.5 h-2.5" />
-                          </a>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Quick Topic Chips */}
-              <div className="space-y-1.5">
-                <span className="text-[11px] text-slate-500 dark:text-zinc-400 font-medium block">
-                  Quick Prompt Questions:
-                </span>
-                <div className="flex flex-wrap gap-1.5">
-                  {QUICK_TOPICS.map((topic, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => handleAskDori(topic)}
-                      disabled={isAnswering}
-                      className="text-[11px] font-normal text-left bg-slate-50 dark:bg-[#18181b] hover:bg-slate-100 dark:hover:bg-[#202026] text-slate-700 dark:text-zinc-300 px-2.5 py-1 rounded-md border border-slate-200 dark:border-zinc-800 transition-all cursor-pointer disabled:opacity-50"
-                    >
-                      {topic}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Freeform Search / Ask Input */}
-              <form 
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  handleAskDori(chatQuestion);
-                }} 
-                className="flex items-center gap-2 pt-1"
-              >
-                <input
-                  type="text"
-                  value={chatQuestion}
-                  onChange={(e) => setChatQuestion(e.target.value)}
-                  placeholder="Ask Dori about any AWS release or service..."
-                  className="flex-1 bg-slate-50 dark:bg-[#18181b] border border-slate-200 dark:border-zinc-800 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-900 dark:text-zinc-100 placeholder:text-slate-400"
-                />
-                <button
-                  type="submit"
-                  disabled={isAnswering || !chatQuestion.trim()}
-                  className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg transition-all disabled:opacity-50 cursor-pointer shrink-0"
-                  title="Ask Dori"
-                >
-                  <Send className="w-4 h-4" />
-                </button>
-              </form>
-            </div>
-
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 text-xs font-medium">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Autonomous AWS Intelligence • Powered by Bedrock & Polly</span>
           </div>
 
+          <h1 className="text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight text-slate-900 dark:text-zinc-100 leading-[1.15]">
+            Where Cloud Builders Stay Informed
+          </h1>
+
+          <p className="text-sm sm:text-lg text-slate-500 dark:text-zinc-400 max-w-2xl mx-auto font-normal leading-relaxed">
+            An autonomous cloud intelligence platform. AWS Signal monitors hundreds of release feeds, analyzes developer friction on re:Post, and delivers personalized audio briefings before breaking your stack.
+          </p>
+
+          {/* Action CTAs */}
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+            <Link
+              to="/dashboard"
+              className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs sm:text-sm font-medium shadow-sm active:scale-98 transition-all flex items-center gap-2"
+            >
+              <Radio className="w-4 h-4" />
+              <span>Launch Command Hub</span>
+            </Link>
+
+            <button
+              onClick={toggleDoriNarration}
+              className={`px-4 py-2.5 rounded-lg text-xs sm:text-sm font-medium border transition-all flex items-center gap-2 cursor-pointer ${
+                isSpeaking
+                  ? 'bg-amber-500 text-white border-amber-400 shadow-md'
+                  : 'bg-white dark:bg-[#18181b] border-slate-200 dark:border-zinc-800 hover:bg-slate-50 dark:hover:bg-[#202026] text-slate-800 dark:text-zinc-200'
+              }`}
+            >
+              {isSpeaking ? (
+                <>
+                  <VolumeX className="w-4 h-4" />
+                  <span>Stop Dori Voice</span>
+                </>
+              ) : (
+                <>
+                  <Volume2 className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                  <span>Talk with Dori (Audio)</span>
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* ── Dori Sitting Centered Just Above the Live Agent Heartbeat ── */}
+        <div className="mt-12 sm:mt-16 flex flex-col items-center justify-center relative z-20">
+          <DoriCompanion
+            size="hero"
+            emotion={isSpeaking ? 'excited' : 'happy'}
+            isSpeaking={isSpeaking}
+            onToggleSpeech={toggleDoriNarration}
+            message={
+              isSpeaking
+                ? "Speaking today's live AWS intelligence briefing... (Click me to pause)"
+                : "Click me to talk with me! I'll read today's 60-second AWS intelligence summary."
+            }
+            showSpeechBubble={true}
+          />
         </div>
       </section>
 
-      {/* ── Section 2: Live Status Strip ── */}
+      {/* ── Section 2: Live Status Strip (Directly Below Dori) ── */}
       <section className="border-y border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-[#121216] py-3.5 text-xs text-slate-700 dark:text-zinc-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
-            <span className="w-2 h-2 rounded-full bg-[#00d294]" />
+            <span className="w-2 h-2 rounded-full bg-[#00d294] animate-pulse" />
             <span className="font-semibold text-slate-900 dark:text-zinc-100">Live Agent Heartbeat:</span>
             <span className="text-slate-500 dark:text-zinc-400">Active Ingestion Pipeline</span>
           </div>
