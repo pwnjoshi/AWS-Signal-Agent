@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-bedrock-runtime": "^3.600.0",
+    "@aws-sdk/client-cognito-identity": "^3.1120.0",
     "@aws-sdk/client-dynamodb": "^3.600.0",
     "@aws-sdk/client-polly": "^3.1120.0",
     "@aws-sdk/client-ses": "^3.600.0",
