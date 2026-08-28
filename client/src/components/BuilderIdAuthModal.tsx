@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { UserProfile } from '../types/clientTypes';
-import { X, ShieldCheck, User, Mail, Sparkles, LogIn, ArrowRight } from 'lucide-react';
+import { X, ShieldCheck, User, Mail, Sparkles, ArrowRight } from 'lucide-react';
 import { authenticateBuilderId } from '../services/apiClient';
 
 interface BuilderIdAuthModalProps {
@@ -36,51 +36,52 @@ export const BuilderIdAuthModal: React.FC<BuilderIdAuthModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 font-mono text-on-background">
-      <div className="bg-surface rounded-3xl max-w-md w-full shadow-2xl border border-outline p-6 sm:p-8 animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 font-sans text-on-background">
+      <div className="bg-surface rounded-xl max-w-md w-full shadow-2xl border border-outline p-6 animate-in fade-in zoom-in-95 duration-150">
         
         {/* Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-outline mb-6">
+        <div className="flex items-center justify-between pb-4 border-b border-outline mb-5">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#fe6e00]/15 border border-[#fe6e00]/30 flex items-center justify-center text-[#fe9800] dark:text-[#ffc080] font-bold shadow-md shadow-[#fe6e00]/20">
+            <div className="w-9 h-9 rounded-lg bg-surface-low border border-outline flex items-center justify-center text-[#fe9800] font-bold text-sm shrink-0">
               ⚡
             </div>
             <div>
-              <h2 className="text-base sm:text-lg font-black font-display uppercase tracking-tight text-on-background">
+              <h2 className="text-base font-black font-mono uppercase tracking-tight text-on-background leading-tight">
                 AWS Builder ID Quick Auth
               </h2>
-              <p className="text-xs text-on-surface-variant font-sans">Instant One-Click Profile Authentication</p>
+              <p className="text-xs text-on-surface-variant font-sans mt-0.5">Instant One-Click Profile Authentication</p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="p-2 text-on-surface-variant hover:text-on-background hover:bg-surface-container rounded-full transition-all border border-outline cursor-pointer"
+            className="p-1.5 text-on-surface-variant hover:text-on-background hover:bg-surface-container rounded-lg transition-all border border-outline cursor-pointer"
+            aria-label="Close"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 text-xs">
+        <form onSubmit={handleSubmit} className="space-y-4 text-xs font-sans">
           <div>
-            <label className="block text-xs font-bold text-on-background uppercase tracking-wider mb-2">
+            <label className="block text-xs font-bold text-on-background uppercase font-mono tracking-wider mb-1.5">
               AWS Builder ID Username / Handle
             </label>
             <div className="relative">
-              <User className="w-4 h-4 text-on-surface-variant absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <User className="w-4 h-4 text-on-surface-variant absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 required
                 value={builderId}
                 onChange={(e) => setBuilderId(e.target.value)}
                 placeholder="e.g. builder_pawan_2026 or pawan_aws"
-                className="w-full bg-surface-low border border-outline rounded-xl pl-10 pr-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-primary text-on-background placeholder:text-on-surface-variant font-medium"
+                className="w-full bg-surface-low border border-outline rounded-lg pl-9 pr-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-primary text-on-background placeholder:text-on-surface-variant font-mono"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-on-background uppercase tracking-wider mb-2">
+            <label className="block text-xs font-bold text-on-background uppercase font-mono tracking-wider mb-1.5">
               Display Name
             </label>
             <input
@@ -88,48 +89,48 @@ export const BuilderIdAuthModal: React.FC<BuilderIdAuthModalProps> = ({
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
               placeholder="e.g. Pawan Joshi"
-              className="w-full bg-surface-low border border-outline rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-primary text-on-background placeholder:text-on-surface-variant font-medium"
+              className="w-full bg-surface-low border border-outline rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-primary text-on-background placeholder:text-on-surface-variant"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-on-background uppercase tracking-wider mb-2">
+            <label className="block text-xs font-bold text-on-background uppercase font-mono tracking-wider mb-1.5">
               Notification Email
             </label>
             <div className="relative">
-              <Mail className="w-4 h-4 text-on-surface-variant absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Mail className="w-4 h-4 text-on-surface-variant absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="e.g. pawan@builder.aws"
-                className="w-full bg-surface-low border border-outline rounded-xl pl-10 pr-4 py-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-primary text-on-background placeholder:text-on-surface-variant font-medium"
+                placeholder="e.g. pawan@example.com"
+                className="w-full bg-surface-low border border-outline rounded-lg pl-9 pr-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-primary text-on-background placeholder:text-on-surface-variant font-mono"
               />
             </div>
           </div>
 
-          <div className="bg-surface-low border border-[#fe6e00]/30 rounded-2xl p-3.5 flex items-start gap-2.5 text-xs text-[#fe9800] dark:text-[#ffc080] font-sans">
-            <ShieldCheck className="w-4 h-4 text-[#fe6e00] shrink-0 mt-0.5" />
-            <p>
+          <div className="bg-surface-low border border-outline rounded-lg p-3 flex items-start gap-2 text-xs text-on-surface-variant font-sans">
+            <ShieldCheck className="w-4 h-4 text-[#00d294] shrink-0 mt-0.5" />
+            <p className="leading-relaxed">
               Entering your Builder ID immediately authenticates your session, syncs your custom topic preferences, and enables email alerts.
             </p>
           </div>
 
-          <div className="pt-4 flex items-center justify-end gap-3 font-mono">
+          <div className="pt-2 flex items-center justify-end gap-2.5 font-mono">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl text-xs font-bold text-on-surface-variant hover:bg-surface-container hover:text-on-background transition-all uppercase cursor-pointer"
+              className="px-4 py-2 rounded-lg text-xs font-bold text-on-surface-variant hover:bg-surface-container hover:text-on-background transition-all border border-outline uppercase cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting || !builderId.trim()}
-              className="inline-flex items-center gap-2 btn-geu-primary text-white px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider shadow-purple-glow transition-all disabled:opacity-50 cursor-pointer"
+              className="inline-flex items-center gap-1.5 bg-primary hover:bg-primary-container text-white px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider shadow-sm transition-all active:scale-98 disabled:opacity-50 cursor-pointer"
             >
               <span>{isSubmitting ? 'Authenticating...' : 'Sign In with Builder ID'}</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
         </form>
