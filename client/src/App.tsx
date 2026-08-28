@@ -13,6 +13,7 @@ import { AlertSettingsModal } from './components/AlertSettingsModal';
 import { BuilderIdAuthModal } from './components/BuilderIdAuthModal';
 import { LandingPage } from './components/LandingPage';
 import { NotFoundPage } from './pages/NotFoundPage';
+import { ThemeProvider } from './context/ThemeContext';
 import { 
   AWSSignal, 
   CommunityTopic, 
@@ -90,7 +91,7 @@ function MainLayout({
   setGlobalSearch: (val: string) => void;
 }) {
   return (
-    <div className="min-h-screen flex bg-[#09090b] text-zinc-100 font-sans">
+    <div className="min-h-screen flex bg-background text-on-background font-sans transition-colors">
       {/* Desktop Sidebar */}
       <Sidebar
         savedCount={savedCount}
@@ -414,16 +415,16 @@ function AppRoutes() {
               <div className="space-y-6">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 font-mono">
                   <div>
-                    <h1 className="text-xl sm:text-2xl font-black text-white font-display uppercase tracking-tight">
+                    <h1 className="text-xl sm:text-2xl font-black text-on-background font-display uppercase tracking-tight">
                       ✉ Intelligent SES Alert History
                     </h1>
-                    <p className="text-zinc-400 text-xs sm:text-sm mt-1">
+                    <p className="text-on-surface-variant text-xs sm:text-sm mt-1">
                       Signals that triggered high-priority automated email alerts to {userProfile?.builder_id || 'your Builder ID profile'}.
                     </p>
                   </div>
                   <button
                     onClick={() => setShowAlertSettings(true)}
-                    className="btn-geu-primary text-white px-4 py-2 rounded-xl text-xs font-bold shadow-purple-glow"
+                    className="btn-geu-primary text-white px-4 py-2 rounded-xl text-xs font-bold shadow-purple-glow cursor-pointer"
                   >
                     Alert Settings
                   </button>
@@ -497,9 +498,11 @@ function AppRoutes() {
 
 export function App() {
   return (
-    <BrowserRouter>
-      <AppRoutes />
-    </BrowserRouter>
+    <ThemeProvider>
+      <BrowserRouter>
+        <AppRoutes />
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
 

@@ -17,16 +17,22 @@ export default {
           DEFAULT: '#ffc080',
           container: '#fe9800',
         },
+        background: 'var(--bg-color)',
+        'on-background': 'var(--text-color)',
+        'on-surface-variant': 'var(--text-muted)',
         surface: {
-          DEFAULT: '#09090b',
-          dim: '#18181b',
-          bright: '#27272a',
-          low: '#121216',
-          high: '#3f3f46',
+          DEFAULT: 'var(--surface-color)',
+          dim: 'var(--surface-dim-color)',
+          bright: 'var(--surface-bright-color)',
+          lowest: 'var(--surface-lowest)',
+          low: 'var(--surface-low)',
+          container: 'var(--surface-container)',
+          high: 'var(--surface-high)',
+          highest: 'var(--surface-highest)',
         },
         outline: {
-          DEFAULT: '#27272a',
-          variant: '#3f3f46',
+          DEFAULT: 'var(--outline-color)',
+          variant: 'var(--outline-variant-color)',
         },
         aws: {
           orange: '#FF9900',
@@ -37,11 +43,12 @@ export default {
       fontFamily: {
         sans: ['Plus Jakarta Sans', 'system-ui', '-apple-system', 'sans-serif'],
         display: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
-        mono: ['JetBrains Mono', 'monospace'],
+        mono: ['Plus Jakarta Sans', 'monospace'],
       },
       boxShadow: {
         'purple-glow': '0 0 25px rgba(173, 92, 255, 0.35)',
         'orange-glow': '0 0 25px rgba(255, 153, 0, 0.35)',
+        'card-light': '0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06)',
       },
       borderRadius: {
         '2xl': '1rem',

@@ -53,13 +53,13 @@ export const SignalsPage: React.FC<SignalsPageProps> = ({
   }
 
   return (
-    <div className="space-y-6 pb-12 font-mono text-zinc-100">
+    <div className="space-y-6 pb-12 font-mono text-on-background">
       <div>
-        <h1 className="text-xl sm:text-2xl font-black text-white font-display uppercase tracking-tight flex items-center gap-3">
-          <Radio className="w-6 h-6 text-[#AD5CFF]" />
+        <h1 className="text-xl sm:text-2xl font-black text-on-background font-display uppercase tracking-tight flex items-center gap-3">
+          <Radio className="w-6 h-6 text-primary" />
           {savedOnly ? 'Saved Signals Vault' : 'AWS Radar Intelligence Stream'}
         </h1>
-        <p className="text-zinc-400 text-xs sm:text-sm mt-1 font-sans">
+        <p className="text-on-surface-variant text-xs sm:text-sm mt-1 font-sans">
           {savedOnly ? 'Your personally bookmarked AWS articles and architecture patterns.' : 'All discovered, normalized, SHA-256 deduplicated, and Bedrock-ranked signals.'}
         </p>
       </div>
@@ -79,10 +79,10 @@ export const SignalsPage: React.FC<SignalsPageProps> = ({
       />
 
       {filtered.length === 0 ? (
-        <div className="bg-[#121216] rounded-3xl border border-[#27272a] p-12 text-center text-zinc-400 space-y-3">
-          <Bookmark className="w-10 h-10 text-zinc-600 mx-auto" />
-          <p className="font-bold text-sm sm:text-base text-white">No signals match your filter criteria.</p>
-          <p className="text-xs text-zinc-500">Try clearing your filters or running the radar agent.</p>
+        <div className="bg-surface rounded-3xl border border-outline p-12 text-center text-on-surface-variant space-y-3 shadow-sm">
+          <Bookmark className="w-10 h-10 text-on-surface-variant mx-auto opacity-50" />
+          <p className="font-bold text-sm sm:text-base text-on-background">No signals match your filter criteria.</p>
+          <p className="text-xs text-on-surface-variant">Try clearing your filters or running the radar agent.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
