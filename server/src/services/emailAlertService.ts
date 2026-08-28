@@ -21,7 +21,7 @@ export interface AlertResult {
 export async function sendSignalAlertIfNeeded(signal: AWSSignal, prefs: UserPreferences): Promise<AlertResult> {
   const recipients = (prefs.email_list && prefs.email_list.length > 0) 
     ? prefs.email_list 
-    : [prefs.email || 'pawan@example.com'];
+    : [prefs.email || 'srijana@example.com'];
 
   if (!prefs.email_enabled || prefs.digest_frequency === 'off') {
     return {

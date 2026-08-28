@@ -77,11 +77,11 @@ export class StorageService {
     const loadedPrefs = readJsonFile<Partial<UserPreferences>>(FILES.preferences, {});
 
     this.preferences = {
-      user_id: 'usr_pawan_default',
-      builder_id: loadedPrefs.builder_id || 'builder_pawan_2026',
-      name: loadedPrefs.name || 'Pawan',
-      email: loadedPrefs.email || 'pawan@example.com',
-      email_list: loadedPrefs.email_list || (loadedPrefs.email ? [loadedPrefs.email] : ['pawan@example.com', 'devops@company.com']),
+      user_id: 'usr_srijana_default',
+      builder_id: loadedPrefs.builder_id || 'builder_srijana_2026',
+      name: loadedPrefs.name || 'Srijana',
+      email: loadedPrefs.email || 'srijana@builder.aws',
+      email_list: loadedPrefs.email_list || (loadedPrefs.email ? [loadedPrefs.email] : ['srijana@builder.aws', 'devops@company.com']),
       email_enabled: loadedPrefs.email_enabled ?? true,
       digest_frequency: loadedPrefs.digest_frequency || 'daily',
       schedule_frequency: loadedPrefs.schedule_frequency || '6h',
@@ -117,7 +117,7 @@ export class StorageService {
 
   // Builder ID Authentication & Quick Login
   public authenticateBuilderId(builderIdInput: string, name?: string, email?: string): UserProfile {
-    const cleanId = builderIdInput.trim().toLowerCase().replace(/[^a-z0-9_.-]/g, '_') || 'builder_pawan_2026';
+    const cleanId = builderIdInput.trim().toLowerCase().replace(/[^a-z0-9_.-]/g, '_') || 'builder_srijana_2026';
     const displayName = name || cleanId.replace('builder_', '').replace(/_/g, ' ').toUpperCase();
     const userEmail = email || `${cleanId.replace('builder_', '')}@builder.aws`;
 

@@ -83,7 +83,7 @@ export const Header: React.FC<HeaderProps> = ({
           title="Switch AWS Builder ID Profile"
         >
           <UserCheck className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-          <span className="hidden sm:inline font-mono text-[11px]">{userProfile?.builder_id || 'builder_pawan_2026'}</span>
+          <span className="hidden sm:inline font-mono text-[11px]">{userProfile?.builder_id || 'builder_srijana_2026'}</span>
         </button>
 
         {/* Run Radar Agent Trigger */}

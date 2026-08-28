@@ -38,7 +38,7 @@ I built **AWS Signal** as an autonomous, serverless cloud intelligence network t
 - **Dori Autonomous Voice Copilot**: An interactive AI voice companion I developed using Amazon Bedrock Claude 3.5 and Amazon Polly Neural Voice (`Ivy`). It features continuous turn-taking, phonetic speech alias normalization (such as resolving "EC two" to "Amazon EC2"), sub-100ms streaming audio dispatch, and direct voice execution of platform tools (triggering scans, searching signals, navigating bookmarks, or toggling themes).
 - **5-Pillar Multi-Metric Scoring**: I configured Amazon Bedrock to evaluate every release across five weighted parameters: Architecture Importance (30%), Developer Relevance (25%), Community Velocity (20%), Novelty Factor (15%), and Actionability (10%).
 - **"While You Were Away" Executive Delta Synthesis**: Automatically computes and synthesizes the exact updates published since a user's previous session into a 60-second digest.
-- **AWS Builder Center Directory Verification**: Real-time verification against the AWS Builder Center directory schema (`builder_pawan_2026`), isolating personal bookmark vaults per authenticated handle.
+- **AWS Builder Center Directory Verification**: Real-time verification against the AWS Builder Center directory schema (`builder_srijana_2026`), isolating personal bookmark vaults per authenticated handle.
 - **Automated High-Priority Alerts via Amazon SES**: Signals scoring 80 or higher automatically trigger structured HTML email dispatches to registered engineering teams.
 
 ---
@@ -177,4 +177,4 @@ Across the Summer Build Series, building AWS Signal provided key architectural i
 
 A big shoutout to **Lewis Sawe** for their project *The Museum That Grows*, which inspired my approach to designing always-on autonomous agents that continuously curate value without human intervention. Thank you as well to **Ben Fowler** and the AWS Builder Center team for organizing an exceptional Summer Build Series.
 
-*Submitted by Pawan Joshi for the AWS Builder Center Summer Builds Showcase Weekend Challenge.*
+*Submitted by Srijana for the AWS Builder Center Summer Builds Showcase Weekend Challenge.*

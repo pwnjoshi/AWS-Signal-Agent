@@ -15,14 +15,14 @@ export interface BuilderCenterVerificationResult {
 
 // Known verified builders and pattern directory registry
 const VERIFIED_BUILDER_REGISTRY: Record<string, { display_name: string; email: string; tier: string }> = {
-  'builder_pawan_2026': {
-    display_name: 'Pawan Joshi',
-    email: 'pawan@builder.aws',
+  'builder_srijana_2026': {
+    display_name: 'Srijana',
+    email: 'srijana@builder.aws',
     tier: 'AWS Community Builder & AI Specialist',
   },
-  'pawan_aws': {
-    display_name: 'Pawan Joshi',
-    email: 'pawan@builder.aws',
+  'srijana_aws': {
+    display_name: 'Srijana',
+    email: 'srijana@builder.aws',
     tier: 'AWS Certified Solutions Architect',
   },
   'builder_alex_2026': {
@@ -130,6 +130,6 @@ export async function verifyWithAWSBuilderCenter(
     email: '',
     tier: '',
     builder_center_status: 'NOT_FOUND',
-    error: `Username '${cleanId}' was not found in the AWS Builder Center registry. Please provide a verified AWS Builder ID (e.g. builder_pawan_2026, pawan_aws).`,
+    error: `Username '${cleanId}' was not found in the AWS Builder Center registry. Please provide a verified AWS Builder ID (e.g. builder_srijana_2026, srijana_aws).`,
   };
 }

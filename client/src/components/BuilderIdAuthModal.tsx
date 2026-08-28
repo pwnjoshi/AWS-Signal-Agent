@@ -203,7 +203,7 @@ export const BuilderIdAuthModal: React.FC<BuilderIdAuthModalProps> = ({
                     setBuilderId(e.target.value);
                     if (errorMsg) setErrorMsg('');
                   }}
-                  placeholder="e.g. builder_pawan_2026 or pawan_aws"
+                  placeholder="e.g. builder_srijana_2026 or srijana_aws"
                   className="w-full bg-slate-50 dark:bg-[#202026] border border-slate-200 dark:border-zinc-700 rounded-lg pl-9 pr-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-900 dark:text-zinc-100 placeholder:text-slate-400 font-mono"
                 />
               </div>
@@ -217,7 +217,7 @@ export const BuilderIdAuthModal: React.FC<BuilderIdAuthModalProps> = ({
                 type="text"
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
-                placeholder="e.g. Pawan Joshi"
+                placeholder="e.g. Srijana"
                 className="w-full bg-slate-50 dark:bg-[#202026] border border-slate-200 dark:border-zinc-700 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-900 dark:text-zinc-100 placeholder:text-slate-400"
               />
             </div>
@@ -232,7 +232,7 @@ export const BuilderIdAuthModal: React.FC<BuilderIdAuthModalProps> = ({
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="e.g. pawan@example.com"
+                  placeholder="e.g. srijana@example.com"
                   className="w-full bg-slate-50 dark:bg-[#202026] border border-slate-200 dark:border-zinc-700 rounded-lg pl-9 pr-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-900 dark:text-zinc-100 placeholder:text-slate-400 font-mono"
                 />
               </div>

@@ -142,7 +142,7 @@ Validates handle against the AWS Builder Center directory and creates an isolate
 ```bash
 curl -X POST "https://mfolke7x65n2gdosj6i5777c3y0zcmxq.lambda-url.us-east-1.on.aws/api/auth/builder-id" \
   -H "Content-Type: application/json" \
-  -d '{"builder_id": "builder_pawan_2026", "display_name": "Pawan Joshi", "email": "pawan@builder.aws"}'
+  -d '{"builder_id": "builder_srijana_2026", "display_name": "Srijana", "email": "srijana@builder.aws"}'
 ```
 
 ---
