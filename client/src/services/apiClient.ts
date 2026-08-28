@@ -1,34 +1,40 @@
-import { AWSSignal, UserPreferences, DailyBriefing, TopicSummary, WhileYouWereAwaySummary, UserProfile } from '../types/clientTypes';
+import { 
+  AgentExecutionLog, 
+  AWSSignal, 
+  CommunityTopic, 
+  DailyBriefing, 
+  ServiceExplorerItem, 
+  UserPreferences, 
+  UserProfile, 
+  WhileYouWereAwaySummary 
+} from '../types/clientTypes';
 
-// Dynamic API Base URL resolution
 const isLocalHost = typeof window !== 'undefined' && (
   window.location.hostname === 'localhost' || 
-  window.location.hostname === '127.0.0.1'
+  window.location.hostname === '127.0.0.1' ||
+  window.location.hostname.startsWith('192.168.')
 );
 
-const BASE_URL = isLocalHost 
+const BASE_URL = isLocalHost
   ? '' 
   : 'https://mfolke7x65n2gdosj6i5777c3y0zcmxq.lambda-url.us-east-1.on.aws';
 
 const API_KEY = 'aws-signal-secret-key-2026';
 
-function defaultHeaders(): HeadersInit {
+function defaultHeaders(extra?: Record<string, string>): Record<string, string> {
   return {
     'Content-Type': 'application/json',
     'X-API-Key': API_KEY,
+    ...extra,
   };
 }
 
+// Local Storage Keys with Builder ID isolation
 const STORAGE_KEYS = {
-  PREFERENCES: 'aws_signal_preferences',
-  SIGNALS: 'aws_signal_cached_signals',
-  BRIEFING: 'aws_signal_cached_briefing',
-  TOPICS: 'aws_signal_cached_topics',
-  SUMMARY: 'aws_signal_cached_summary',
   PROFILE: 'aws_signal_builder_profile',
+  PREFS: 'aws_signal_user_prefs',
 };
 
-// Bookmarks isolated per authenticated Builder ID
 export function getLocalSavedIds(builderId: string = 'guest'): string[] {
   try {
     const key = `aws_signal_saved_ids_${builderId}`;
@@ -73,7 +79,7 @@ export async function authenticateBuilderId(builder_id: string, display_name?: s
 }
 
 export async function signOutBuilderId(): Promise<UserProfile> {
-  const guest: UserProfile = {
+  const guestProfile: UserProfile = {
     builder_id: 'guest',
     display_name: 'Guest Builder',
     email: '',
@@ -81,15 +87,20 @@ export async function signOutBuilderId(): Promise<UserProfile> {
     is_authenticated: false,
     logged_in_at: new Date().toISOString(),
   };
-  localStorage.setItem(STORAGE_KEYS.PROFILE, JSON.stringify(guest));
-  return guest;
+  localStorage.setItem(STORAGE_KEYS.PROFILE, JSON.stringify(guestProfile));
+  return guestProfile;
 }
 
-export function getLocalProfile(): UserProfile {
+export async function fetchActiveProfile(): Promise<UserProfile> {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.PROFILE);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const local = JSON.parse(raw);
+      if (local && local.builder_id) return local;
+    }
   } catch {}
+
+  // Default guest session for new visitors
   return {
     builder_id: 'guest',
     display_name: 'Guest Builder',
@@ -100,87 +111,143 @@ export function getLocalProfile(): UserProfile {
   };
 }
 
-export async function fetchSignals(): Promise<AWSSignal[]> {
+// Agent Status & Execution
+export async function fetchAgentStatus(): Promise<{
+  status: string;
+  is_running: boolean;
+  next_scheduled_run: string;
+  latest_run: AgentExecutionLog | null;
+  execution_history: AgentExecutionLog[];
+}> {
+  const res = await fetch(`${BASE_URL}/api/agent/status`, {
+    headers: defaultHeaders(),
+  });
+  if (!res.ok) throw new Error('Failed to fetch agent status');
+  return res.json();
+}
+
+export async function triggerAgentRun(): Promise<{ success: boolean; log: AgentExecutionLog }> {
+  const res = await fetch(`${BASE_URL}/api/agent/run`, { 
+    method: 'POST',
+    headers: defaultHeaders(),
+  });
+  if (!res.ok) throw new Error('Failed to trigger agent run');
+  return res.json();
+}
+
+export async function fetchSignals(params?: {
+  search?: string;
+  service?: string;
+  category?: string;
+  minImportance?: number;
+  source?: string;
+  sort?: string;
+  savedOnly?: boolean;
+  builderId?: string;
+}): Promise<{ count: number; signals: AWSSignal[] }> {
+  const query = new URLSearchParams();
+  if (params?.search) query.set('search', params.search);
+  if (params?.service) query.set('service', params.service);
+  if (params?.category) query.set('category', params.category);
+  if (params?.minImportance) query.set('minImportance', params.minImportance.toString());
+  if (params?.source) query.set('source', params.source);
+  if (params?.sort) query.set('sort', params.sort);
+  if (params?.savedOnly) query.set('savedOnly', 'true');
+
+  const builderId = params?.builderId || 'guest';
+  const savedIds = new Set(getLocalSavedIds(builderId));
+
   try {
-    const res = await fetch(`${BASE_URL}/api/signals`, { headers: defaultHeaders() });
-    if (!res.ok) throw new Error('Network response was not ok');
-    const data = await res.json();
-    localStorage.setItem(STORAGE_KEYS.SIGNALS, JSON.stringify(data));
-    return data;
+    const res = await fetch(`${BASE_URL}/api/signals?${query.toString()}`, {
+      headers: defaultHeaders(),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const signals = (data.signals || []).map((s: AWSSignal) => ({
+        ...s,
+        is_saved: savedIds.has(s.signal_id),
+      }));
+      return { count: signals.length, signals };
+    }
   } catch (err) {
-    console.warn('Using cached signals fallback:', err);
-    const cached = localStorage.getItem(STORAGE_KEYS.SIGNALS);
-    if (cached) return JSON.parse(cached);
-    return [];
+    console.warn('API error fetching signals:', err);
   }
+
+  return { count: 0, signals: [] };
+}
+
+export async function toggleSaveSignal(id: string, builderId: string = 'guest'): Promise<AWSSignal> {
+  const savedIds = getLocalSavedIds(builderId);
+  const exists = savedIds.includes(id);
+  const updatedIds = exists ? savedIds.filter(i => i !== id) : [...savedIds, id];
+  setLocalSavedIds(updatedIds, builderId);
+
+  try {
+    const res = await fetch(`${BASE_URL}/api/signals/${id}/toggle-save`, { 
+      method: 'POST',
+      headers: defaultHeaders(),
+    });
+    if (res.ok) {
+      const sig = await res.json();
+      return { ...sig, is_saved: !exists };
+    }
+  } catch (err) {
+    console.warn('Backend sync for save signal failed, local saved:', err);
+  }
+
+  return {
+    signal_id: id,
+    is_saved: !exists,
+  } as AWSSignal;
 }
 
 export async function fetchLatestBriefing(): Promise<DailyBriefing | null> {
-  try {
-    const res = await fetch(`${BASE_URL}/api/briefings/latest`, { headers: defaultHeaders() });
-    if (!res.ok) throw new Error('Network response was not ok');
-    const data = await res.json();
-    localStorage.setItem(STORAGE_KEYS.BRIEFING, JSON.stringify(data));
-    return data;
-  } catch (err) {
-    console.warn('Using cached briefing fallback:', err);
-    const cached = localStorage.getItem(STORAGE_KEYS.BRIEFING);
-    if (cached) return JSON.parse(cached);
-    return null;
-  }
+  const res = await fetch(`${BASE_URL}/api/briefings/latest`, {
+    headers: defaultHeaders(),
+  });
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error('Failed to fetch latest briefing');
+  return res.json();
 }
 
-export async function fetchTopics(): Promise<TopicSummary[]> {
-  try {
-    const res = await fetch(`${BASE_URL}/api/topics`, { headers: defaultHeaders() });
-    if (!res.ok) throw new Error('Network response was not ok');
-    const data = await res.json();
-    localStorage.setItem(STORAGE_KEYS.TOPICS, JSON.stringify(data));
-    return data;
-  } catch (err) {
-    console.warn('Using cached topics fallback:', err);
-    const cached = localStorage.getItem(STORAGE_KEYS.TOPICS);
-    if (cached) return JSON.parse(cached);
-    return [];
-  }
+export async function fetchBriefings(): Promise<DailyBriefing[]> {
+  const res = await fetch(`${BASE_URL}/api/briefings`, {
+    headers: defaultHeaders(),
+  });
+  if (!res.ok) throw new Error('Failed to fetch briefings');
+  return res.json();
 }
 
-export async function fetchWhileYouWereAway(): Promise<WhileYouWereAwaySummary | null> {
-  try {
-    const res = await fetch(`${BASE_URL}/api/summary/while-you-were-away`, { headers: defaultHeaders() });
-    if (!res.ok) throw new Error('Network response was not ok');
-    const data = await res.json();
-    localStorage.setItem(STORAGE_KEYS.SUMMARY, JSON.stringify(data));
-    return data;
-  } catch (err) {
-    console.warn('Using cached summary fallback:', err);
-    const cached = localStorage.getItem(STORAGE_KEYS.SUMMARY);
-    if (cached) return JSON.parse(cached);
-    return null;
-  }
+export async function fetchTrends(): Promise<CommunityTopic[]> {
+  const res = await fetch(`${BASE_URL}/api/trends`, {
+    headers: defaultHeaders(),
+  });
+  if (!res.ok) throw new Error('Failed to fetch trends');
+  return res.json();
+}
+
+export async function fetchServicesExplorer(): Promise<ServiceExplorerItem[]> {
+  const res = await fetch(`${BASE_URL}/api/services`, {
+    headers: defaultHeaders(),
+  });
+  if (!res.ok) throw new Error('Failed to fetch services explorer data');
+  return res.json();
+}
+
+export async function fetchWhileYouWereAway(): Promise<WhileYouWereAwaySummary> {
+  const res = await fetch(`${BASE_URL}/api/summary/while-you-were-away`, {
+    headers: defaultHeaders(),
+  });
+  if (!res.ok) throw new Error('Failed to fetch summary');
+  return res.json();
 }
 
 export async function fetchPreferences(): Promise<UserPreferences> {
-  try {
-    const res = await fetch(`${BASE_URL}/api/preferences`, { headers: defaultHeaders() });
-    if (!res.ok) throw new Error('Network response was not ok');
-    const data = await res.json();
-    localStorage.setItem(STORAGE_KEYS.PREFERENCES, JSON.stringify(data));
-    return data;
-  } catch (err) {
-    console.warn('Using cached preferences fallback:', err);
-    const cached = localStorage.getItem(STORAGE_KEYS.PREFERENCES);
-    if (cached) return JSON.parse(cached);
-    return {
-      email: 'srijana@builder.aws',
-      email_list: ['srijana@builder.aws'],
-      email_enabled: true,
-      digest_frequency: 'daily',
-      alert_threshold: 'high',
-      favorite_topics: ['Amazon Bedrock', 'AWS Lambda', 'Amazon ECS'],
-      dark_mode: true,
-    };
-  }
+  const res = await fetch(`${BASE_URL}/api/preferences`, {
+    headers: defaultHeaders(),
+  });
+  if (!res.ok) throw new Error('Failed to fetch preferences');
+  return res.json();
 }
 
 export async function updatePreferences(prefs: Partial<UserPreferences>): Promise<UserPreferences> {
@@ -190,32 +257,6 @@ export async function updatePreferences(prefs: Partial<UserPreferences>): Promis
     body: JSON.stringify(prefs),
   });
   if (!res.ok) throw new Error('Failed to update preferences');
-  const data = await res.json();
-  localStorage.setItem(STORAGE_KEYS.PREFERENCES, JSON.stringify(data));
-  return data;
-}
-
-export async function toggleSaveSignal(id: string): Promise<{ is_saved: boolean }> {
-  const res = await fetch(`${BASE_URL}/api/signals/${id}/save`, {
-    method: 'POST',
-    headers: defaultHeaders(),
-  });
-  if (!res.ok) throw new Error('Failed to toggle save status');
-  return res.json();
-}
-
-export async function runAgentNow(): Promise<{ status: string; count: number; duration_ms: number }> {
-  const res = await fetch(`${BASE_URL}/api/agent/run`, {
-    method: 'POST',
-    headers: defaultHeaders(),
-  });
-  if (!res.ok) throw new Error('Failed to run autonomous agent');
-  return res.json();
-}
-
-export async function fetchAgentStatus(): Promise<any> {
-  const res = await fetch(`${BASE_URL}/api/agent/status`, { headers: defaultHeaders() });
-  if (!res.ok) throw new Error('Failed to fetch agent status');
   return res.json();
 }
 
@@ -229,62 +270,24 @@ export async function sendTestEmailAlert(email?: string): Promise<any> {
   return res.json();
 }
 
-// ----------------------------------------------------------------------------
-// Dori Voice & Conversational AI Services
-// ----------------------------------------------------------------------------
-
+// ── Strict Single-Instance Audio Manager (Instant Dispatch & Zero Lag) ──
 let currentAudio: HTMLAudioElement | null = null;
 let activeUtterance: SpeechSynthesisUtterance | null = null;
 
 export function stopDoriSpeech() {
   if (currentAudio) {
+    currentAudio.onended = null;
+    currentAudio.onerror = null;
     currentAudio.pause();
     currentAudio.currentTime = 0;
+    currentAudio.src = '';
     currentAudio = null;
   }
+
   if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
     window.speechSynthesis.cancel();
+    activeUtterance = null;
   }
-}
-
-/**
- * Plays speech with audio or cute browser speech synthesis.
- */
-export async function playDoriSpeech(
-  text: string,
-  audioBase64OrOnEnd?: string | null | (() => void),
-  onEndCallback?: () => void,
-  onWordBoundary?: (wordIndex: number) => void
-): Promise<() => void> {
-  const audioBase64Direct = typeof audioBase64OrOnEnd === 'string' ? audioBase64OrOnEnd : null;
-  const onEnd = typeof audioBase64OrOnEnd === 'function' ? audioBase64OrOnEnd : onEndCallback;
-
-  stopDoriSpeech();
-
-  if (audioBase64Direct) {
-    try {
-      const audio = new Audio(audioBase64Direct);
-      currentAudio = audio;
-      audio.onended = () => {
-        currentAudio = null;
-        if (onEnd) onEnd();
-      };
-      audio.onerror = () => {
-        currentAudio = null;
-        fallbackBrowserSpeech(text, onEnd, onWordBoundary);
-      };
-      audio.play().catch(() => {
-        fallbackBrowserSpeech(text, onEnd, onWordBoundary);
-      });
-      return () => stopDoriSpeech();
-    } catch {
-      fallbackBrowserSpeech(text, onEnd, onWordBoundary);
-      return () => stopDoriSpeech();
-    }
-  }
-
-  fallbackBrowserSpeech(text, onEnd, onWordBoundary);
-  return () => stopDoriSpeech();
 }
 
 /**
@@ -344,6 +347,48 @@ export async function playHumanBriefingSpeech(
   return () => stopDoriSpeech();
 }
 
+/**
+ * Plays speech for Dori Companion with sweet, cute baby girl robotic voice.
+ */
+export async function playDoriSpeech(
+  text: string,
+  audioBase64OrOnEnd?: string | null | (() => void),
+  onEndCallback?: () => void,
+  onWordBoundary?: (wordIndex: number) => void
+): Promise<() => void> {
+  const audioBase64Direct = typeof audioBase64OrOnEnd === 'string' ? audioBase64OrOnEnd : null;
+  const onEnd = typeof audioBase64OrOnEnd === 'function' ? audioBase64OrOnEnd : onEndCallback;
+
+  stopDoriSpeech();
+
+  // 1. If base64 audio is provided directly from API, play it immediately!
+  if (audioBase64Direct) {
+    try {
+      const audio = new Audio(audioBase64Direct);
+      currentAudio = audio;
+      audio.onended = () => {
+        currentAudio = null;
+        if (onEnd) onEnd();
+      };
+      audio.onerror = () => {
+        currentAudio = null;
+        fallbackBrowserSpeech(text, onEnd, onWordBoundary);
+      };
+      audio.play().catch(() => {
+        fallbackBrowserSpeech(text, onEnd, onWordBoundary);
+      });
+      return () => stopDoriSpeech();
+    } catch {
+      fallbackBrowserSpeech(text, onEnd, onWordBoundary);
+      return () => stopDoriSpeech();
+    }
+  }
+
+  // 2. Instant Neural Browser Speech with cute girl robotic pitch
+  fallbackBrowserSpeech(text, onEnd, onWordBoundary);
+  return () => stopDoriSpeech();
+}
+
 function fallbackBrowserSpeech(
   text: string, 
   onEnd?: () => void,
@@ -358,6 +403,7 @@ function fallbackBrowserSpeech(
   const utterance = new SpeechSynthesisUtterance(text);
   activeUtterance = utterance;
 
+  // Pick cute female / young robotic voice
   const voices = window.speechSynthesis.getVoices();
   const cuteVoice = voices.find(v => 
     v.lang.startsWith('en') && (
@@ -376,9 +422,10 @@ function fallbackBrowserSpeech(
   }
 
   utterance.rate = 1.12;
-  utterance.pitch = 1.52; // Sweet, cute robotic girl pitch
+  utterance.pitch = 1.52; // Sweet, cute robotic girl / baby pitch
   utterance.volume = 1.0;
 
+  // Word-by-word boundary sync
   if (onWordBoundary) {
     let wordCount = 0;
     utterance.onboundary = (event) => {
@@ -402,12 +449,12 @@ function fallbackBrowserSpeech(
 }
 
 /**
- * Natural Conversational & Grounded AWS Knowledge Generator (< 5ms response)
+ * Fast Grounded Knowledge Generator for Instant Responses (< 5ms)
  */
 function getGroundedAWSResponse(question: string): string {
   const q = question.toLowerCase().trim();
 
-  // 1. Natural Conversation / Hear me / Greetings
+  // Natural Conversation / Greetings / Hear me
   if (
     q.includes('can you hear me') || 
     q.includes('hear me') || 
@@ -416,7 +463,7 @@ function getGroundedAWSResponse(question: string): string {
     q.includes('testing') || 
     q.includes('mic check')
   ) {
-    return "Yes, I hear you loud and clear! I'm Dori, your autonomous AWS intelligence agent. What would you like to explore across the cloud today?";
+    return "Yes, I hear you loud and clear! I'm Dori, your AI cloud companion. What would you like to explore across the cloud today?";
   }
 
   if (
@@ -456,7 +503,7 @@ function getGroundedAWSResponse(question: string): string {
     return "You're so welcome! It's an absolute pleasure helping you stay ahead of the cloud curve. Let me know whenever you need more insights!";
   }
 
-  // 2. Specific AWS Services
+  // AWS Services
   if (q.includes('ec2') || q.includes('ec 2') || q.includes('easy to') || q.includes('ec-2') || q.includes('virtual machine') || q.includes('compute')) {
     return "Amazon EC2 offers scalable compute capacity in the cloud. Recent updates focus on next-gen Graviton4 instances delivering up to 30% better price-performance!";
   }
@@ -497,7 +544,7 @@ function getGroundedAWSResponse(question: string): string {
 }
 
 /**
- * Ask Dori a question with Bedrock generative AI and conversational comprehension.
+ * Ask Dori a question with instant response timeout, Bedrock grounding, and conversational comprehension.
  */
 export async function askDoriQuestionApi(
   question: string,
@@ -508,7 +555,7 @@ export async function askDoriQuestionApi(
   audioBase64?: string;
 }> {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 6000); // 6.0s for smooth Bedrock response
+  const timeoutId = setTimeout(() => controller.abort(), 6000);
 
   try {
     const res = await fetch(`${BASE_URL}/api/dori/ask`, {
@@ -533,7 +580,6 @@ export async function askDoriQuestionApi(
     clearTimeout(timeoutId);
   }
 
-  // Fast Instant Natural Grounded Response (< 5ms)
   const instantGrounded = getGroundedAWSResponse(question);
   return {
     answer: instantGrounded,

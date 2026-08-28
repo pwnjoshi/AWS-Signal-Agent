@@ -149,3 +149,27 @@ export interface RawContentItem {
   contentSnippet: string;
   rawHtml?: string;
 }
+
+export interface ProcessedItemCandidate {
+  title: string;
+  source: SourceType;
+  source_url: string;
+  published_at: string;
+  discovered_at: string;
+  detected_services: string[];
+  category: SignalCategory;
+  content_snippet: string;
+  raw_content?: string;
+  content_hash: string;
+}
+
+export interface BedrockAnalysisResult {
+  importance_score: number;
+  relevance_score: number;
+  novelty_score: number;
+  momentum_score: number;
+  impact_score: number;
+  confidence_score?: number;
+  summary: string;
+  why_it_matters: WhyItMatters;
+}
