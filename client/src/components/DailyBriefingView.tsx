@@ -67,12 +67,9 @@ export const DailyBriefingView: React.FC<DailyBriefingViewProps> = ({ briefing, 
       <div className="bg-white dark:bg-[#121216] rounded-xl border border-slate-200 dark:border-zinc-800 p-6 shadow-sm transition-colors">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="px-2.5 py-0.5 rounded-md bg-slate-50 dark:bg-[#18181b] text-blue-600 dark:text-blue-400 border border-slate-200 dark:border-zinc-800 text-[11px] font-medium">
-                Autonomous Briefing
-              </span>
-              <span className="text-xs text-slate-500 dark:text-zinc-400 font-mono font-medium">{briefing.date}</span>
-            </div>
+            <span className="text-xs text-slate-500 dark:text-zinc-400 font-mono font-medium block mb-1">
+              Briefing for {briefing.date}
+            </span>
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-zinc-100">
               {briefing.title || 'AWS Signal Daily Intelligence Digest'}
             </h1>

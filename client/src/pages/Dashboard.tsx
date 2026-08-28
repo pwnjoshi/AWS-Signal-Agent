@@ -39,9 +39,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
       {/* Top Banner & Stats Overview */}
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-white dark:bg-[#121216] border border-slate-200 dark:border-zinc-800 rounded-xl p-5 sm:p-6 shadow-sm transition-colors">
         <div>
-          <div className="inline-block px-2.5 py-0.5 rounded-md bg-slate-50 dark:bg-[#18181b] border border-slate-200 dark:border-zinc-800 text-blue-600 dark:text-blue-400 text-xs font-medium mb-2">
-            Autonomous Intelligence Matrix
-          </div>
           <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-zinc-100 tracking-tight">
             AWS Signal Command Center
           </h1>

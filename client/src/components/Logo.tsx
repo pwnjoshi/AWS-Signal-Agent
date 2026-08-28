@@ -9,14 +9,14 @@ interface LogoProps {
 export const Logo: React.FC<LogoProps> = ({ size = 'md', showText = true, className = '' }) => {
   const containerSize = {
     sm: 'h-7 w-7 p-1',
-    md: 'h-9 w-9 p-1.5',
-    lg: 'h-11 w-11 p-2',
+    md: 'h-8 w-8 p-1.5',
+    lg: 'h-10 w-10 p-2',
   }[size];
 
   const titleSize = {
     sm: 'text-xs',
-    md: 'text-sm sm:text-base',
-    lg: 'text-base sm:text-lg',
+    md: 'text-sm font-semibold',
+    lg: 'text-base font-bold',
   }[size];
 
   return (
@@ -32,13 +32,11 @@ export const Logo: React.FC<LogoProps> = ({ size = 'md', showText = true, classN
 
       {/* Brand Name Typography */}
       {showText && (
-        <div className="flex flex-col text-left leading-none font-mono">
-          <div className="flex items-center gap-1">
-            <span className={`font-black tracking-tight text-slate-900 dark:text-zinc-100 uppercase ${titleSize}`}>
-              AWS Signal
-            </span>
-          </div>
-          <span className="text-[10px] text-slate-500 dark:text-zinc-400 font-medium tracking-wide mt-1">
+        <div className="flex flex-col text-left leading-tight font-sans">
+          <span className={`tracking-tight text-slate-900 dark:text-zinc-100 ${titleSize}`}>
+            AWS Signal
+          </span>
+          <span className="text-[11px] text-slate-500 dark:text-zinc-400 font-normal tracking-normal">
             Autonomous Cloud Intelligence
           </span>
         </div>

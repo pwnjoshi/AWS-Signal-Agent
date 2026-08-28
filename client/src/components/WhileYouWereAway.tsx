@@ -19,10 +19,6 @@ export const WhileYouWereAway: React.FC<WhileYouWereAwayProps> = ({ summary, onE
       <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
         {/* Left Info Column */}
         <div className="flex-1 space-y-3">
-          <div className="inline-block px-2.5 py-0.5 rounded-md bg-slate-50 dark:bg-[#18181b] border border-slate-200 dark:border-zinc-800 text-blue-600 dark:text-blue-400 text-xs font-medium">
-            Autonomous Intelligence Recap
-          </div>
-
           <div>
             <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-zinc-100">
               While You Were Away
