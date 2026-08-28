@@ -37,7 +37,7 @@ import {
 
 export function App() {
   const [activeTab, setActiveTab] = useState<NavTab>('home');
-  const [showLanding, setShowLanding] = useState<boolean>(false);
+  const [showLanding, setShowLanding] = useState<boolean>(true);
 
   // Profile & Auth State
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -154,7 +154,7 @@ export function App() {
   const savedSignalsCount = signals.filter(s => s.is_saved).length;
 
   return (
-    <div className="min-h-screen flex bg-slate-50 font-sans">
+    <div className="min-h-screen flex bg-[#07090e] text-slate-100 font-sans">
       {/* Desktop Sidebar */}
       <Sidebar
         activeTab={activeTab}

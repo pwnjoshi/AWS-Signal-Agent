@@ -3,10 +3,14 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
   body {
-    background-color: #09090b;
-    color: #f4f4f5;
+    background-color: #07090e;
+    color: #f1f5f9;
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    overflow-x: hidden;
   }
 }
 
@@ -18,59 +22,114 @@
   font-family: 'JetBrains Mono', monospace;
 }
 
-/* AWS Club GEU signature color utility classes */
-.btn-geu-gradient {
-  background: linear-gradient(135deg, #ad5cff 0%, #8d36eb 50%, #fe6e00 100%);
-  box-shadow: 0 0 25px rgba(173, 92, 255, 0.35);
-  transition: all 0.3s ease;
+/* AWS Signal Gradient System */
+.btn-signal-primary {
+  background: linear-gradient(135deg, #fe6e00 0%, #ff8b1a 45%, #2563eb 100%);
+  box-shadow: 0 0 25px rgba(254, 110, 0, 0.35);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.btn-geu-gradient:hover {
-  box-shadow: 0 0 35px rgba(254, 110, 0, 0.45);
-  transform: translateY(-1px);
+.btn-signal-primary:hover {
+  box-shadow: 0 0 35px rgba(254, 110, 0, 0.55), 0 0 15px rgba(37, 99, 235, 0.4);
+  transform: translateY(-2px);
 }
 
-.bg-geu-card {
-  background: rgba(18, 18, 22, 0.85);
-  border: 1px solid rgba(173, 92, 255, 0.2);
-  backdrop-filter: blur(16px);
+.btn-signal-cyan {
+  background: linear-gradient(135deg, #0284c7 0%, #06b6d4 50%, #3b82f6 100%);
+  box-shadow: 0 0 25px rgba(6, 182, 212, 0.35);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.text-geu-gradient {
-  background: linear-gradient(135deg, #ad5cff 0%, #e9d5ff 40%, #ffc080 100%);
+.btn-signal-cyan:hover {
+  box-shadow: 0 0 35px rgba(6, 182, 212, 0.55);
+  transform: translateY(-2px);
+}
+
+.bg-signal-glass {
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(56, 189, 248, 0.15);
+  backdrop-filter: blur(20px);
+}
+
+.bg-signal-glass-hover:hover {
+  background: rgba(22, 32, 54, 0.85);
+  border-color: rgba(254, 110, 0, 0.35);
+}
+
+.text-signal-gradient {
+  background: linear-gradient(135deg, #ffffff 0%, #fed7aa 35%, #fe6e00 70%, #60a5fa 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
+.text-signal-orange {
+  background: linear-gradient(135deg, #ffc080 0%, #fe6e00 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-signal-cyan {
+  background: linear-gradient(135deg, #7dd3fc 0%, #06b6d4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Custom Scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: #09090b;
+  background: #07090e;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #27272a;
+  background: #1e293b;
   border-radius: 4px;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #3f3f46;
+  background: #334155;
 }
 
+/* Animations */
 @keyframes float {
   0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-8px); }
+  50% { transform: translateY(-10px); }
 }
 
 .animate-float {
-  animation: float 4s ease-in-out infinite;
+  animation: float 5s ease-in-out infinite;
 }
 
-@keyframes pulse-purple {
-  0%, 100% { box-shadow: 0 0 20px rgba(173, 92, 255, 0.3); }
-  50% { box-shadow: 0 0 35px rgba(254, 110, 0, 0.5); }
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(254, 110, 0, 0.2), inset 0 0 15px rgba(37, 99, 235, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(254, 110, 0, 0.45), inset 0 0 25px rgba(37, 99, 235, 0.4);
+  }
 }
 
-.animate-pulse-purple {
-  animation: pulse-purple 3s ease-in-out infinite;
+.animate-pulse-glow {
+  animation: pulse-glow 4s ease-in-out infinite;
 }
+
+@keyframes radar-sweep {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.animate-radar {
+  animation: radar-sweep 8s linear infinite;
+}
+
+@keyframes waveform {
+  0%, 100% { height: 6px; }
+  50% { height: 28px; }
+}
+
+.waveform-bar-1 { animation: waveform 1.2s ease-in-out infinite; }
+.waveform-bar-2 { animation: waveform 0.9s ease-in-out infinite 0.2s; }
+.waveform-bar-3 { animation: waveform 1.4s ease-in-out infinite 0.4s; }
+.waveform-bar-4 { animation: waveform 0.8s ease-in-out infinite 0.1s; }
+.waveform-bar-5 { animation: waveform 1.1s ease-in-out infinite 0.3s; }
+.waveform-bar-6 { animation: waveform 1.3s ease-in-out infinite 0.5s; }
