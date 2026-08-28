@@ -14,49 +14,49 @@ pre, code, .font-mono, pre *, code * {
 
 /* ── Light Mode by Default ── */
 :root {
-  --bg-color: #ffffff;
-  --text-color: #09090b;
-  --text-muted: #71717a;
-  --surface-color: #ffffff;
-  --surface-dim-color: #f4f4f5;
-  --surface-bright-color: #e4e4e7;
-  --surface-lowest: #ffffff;
-  --surface-low: #fcfcfd;
-  --surface-container: #f4f4f5;
-  --surface-high: #e4e4e7;
-  --surface-highest: #d4d4d8;
-  --outline-color: #e4e4e7;
-  --outline-variant-color: #d4d4d8;
-  --grid-color: rgba(173, 92, 255, 0.16);
+  --bg-color-rgb: 255 255 255;
+  --text-color-rgb: 10 10 10;
+  --text-muted-rgb: 100 100 110;
+  --surface-color-rgb: 255 255 255;
+  --surface-dim-rgb: 244 244 245;
+  --surface-bright-rgb: 228 228 231;
+  --surface-lowest-rgb: 255 255 255;
+  --surface-low-rgb: 250 250 252;
+  --surface-container-rgb: 244 244 245;
+  --surface-high-rgb: 228 228 231;
+  --surface-highest-rgb: 212 212 216;
+  --outline-color-rgb: 228 228 231;
+  --outline-variant-rgb: 212 212 216;
+  --grid-color-rgb: 173 92 255;
   
-  --color-primary: #AD5CFF;
-  --color-primary-container: #9C47FF;
-  --color-secondary: #ffc080;
-  --color-secondary-container: #fe9800;
+  --color-primary-rgb: 173 92 255;
+  --color-primary-container-rgb: 156 71 255;
+  --color-secondary-rgb: 255 192 128;
+  --color-secondary-container-rgb: 254 152 0;
 }
 
 /* ── Dark Mode ── */
 .dark {
-  --bg-color: #09090b;
-  --text-color: #f4f4f5;
-  --text-muted: #a1a1aa;
-  --surface-color: #09090b;
-  --surface-dim-color: #121216;
-  --surface-bright-color: #27272a;
-  --surface-lowest: #09090b;
-  --surface-low: #121216;
-  --surface-container: #18181b;
-  --surface-high: #27272a;
-  --surface-highest: #3f3f46;
-  --outline-color: #27272a;
-  --outline-variant-color: #3f3f46;
-  --grid-color: rgba(173, 92, 255, 0.28);
+  --bg-color-rgb: 9 9 11;
+  --text-color-rgb: 244 244 245;
+  --text-muted-rgb: 161 161 170;
+  --surface-color-rgb: 9 9 11;
+  --surface-dim-rgb: 18 18 22;
+  --surface-bright-rgb: 39 39 42;
+  --surface-lowest-rgb: 9 9 11;
+  --surface-low-rgb: 18 18 22;
+  --surface-container-rgb: 24 24 27;
+  --surface-high-rgb: 39 39 42;
+  --surface-highest-rgb: 63 63 70;
+  --outline-color-rgb: 39 39 42;
+  --outline-variant-rgb: 63 63 70;
+  --grid-color-rgb: 173 92 255;
 }
 
 html, body {
-  background-color: var(--bg-color);
-  color: var(--text-color);
-  transition: background-color 0.25s ease, color 0.25s ease;
+  background-color: rgb(var(--bg-color-rgb));
+  color: rgb(var(--text-color-rgb));
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
 ::selection {
@@ -68,8 +68,8 @@ html, body {
 .site-main-grid {
   background-size: 60px 60px;
   background-image: 
-    linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
+    linear-gradient(to right, rgba(var(--grid-color-rgb), 0.14) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(var(--grid-color-rgb), 0.14) 1px, transparent 1px);
   mask-image: radial-gradient(ellipse 80% 80% at 50% 30%, #000 30%, transparent 80%);
 }
 
@@ -127,53 +127,25 @@ html, body {
   100% { transform: translate(-30px, 30px) scale(0.95); }
 }
 
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
-}
-
-.animate-float {
-  animation: float 4s ease-in-out infinite;
-}
-
 /* ── Unified Button & Card Classes ── */
 .btn-geu-primary {
-  background-color: var(--color-primary);
+  background-color: rgb(var(--color-primary-rgb));
   color: #ffffff;
-  transition: all 0.25s ease;
+  transition: all 0.2s ease;
 }
 
 .btn-geu-primary:hover {
-  background-color: var(--color-primary-container);
-  box-shadow: 0 0 25px rgba(173, 92, 255, 0.4);
+  background-color: rgb(var(--color-primary-container-rgb));
+  box-shadow: 0 0 20px rgba(173, 92, 255, 0.35);
 }
 
 .premium-card {
-  background-color: var(--surface-color);
-  border: 1px solid var(--outline-color);
-  border-radius: 1.5rem;
-  transition: all 0.25s ease;
+  background-color: rgb(var(--surface-color-rgb));
+  border: 1px solid rgb(var(--outline-color-rgb));
+  border-radius: 0.75rem;
+  transition: all 0.2s ease;
 }
 
 .premium-card:hover {
   border-color: rgba(173, 92, 255, 0.4);
-  box-shadow: 0 0 25px rgba(173, 92, 255, 0.15);
-}
-
-/* Custom Audio Visualizer waveform bars */
-.audio-bar {
-  display: inline-block;
-  width: 3px;
-  background-color: #AD5CFF;
-  border-radius: 9999px;
-  animation: waveform 1s ease-in-out infinite alternate;
-}
-.audio-bar:nth-child(2) { animation-delay: 0.2s; height: 16px; }
-.audio-bar:nth-child(3) { animation-delay: 0.4s; height: 22px; }
-.audio-bar:nth-child(4) { animation-delay: 0.1s; height: 12px; }
-.audio-bar:nth-child(5) { animation-delay: 0.5s; height: 18px; }
-
-@keyframes waveform {
-  0% { transform: scaleY(0.3); }
-  100% { transform: scaleY(1.2); }
 }

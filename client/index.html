@@ -5,28 +5,41 @@
     <link rel="icon" type="image/png" href="/logo.png" />
     <link rel="apple-touch-icon" href="/logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AWS Pulse AI — AWS Student Builder Group Intelligence Agent</title>
+    <title>AWS Signal — Autonomous Cloud Intelligence</title>
 
     <!-- Social Share / Open Graph -->
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="AWS Pulse AI — Signal Autonomous AWS Agent" />
+    <meta property="og:title" content="AWS Signal — Autonomous Cloud Intelligence" />
     <meta property="og:description" content="Always-on serverless AWS intelligence agent powered by Amazon Bedrock. Built by AWS Student Builder Group GEU." />
     <meta property="og:image" content="/social-share.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:url" content="http://aws-signal-web-013131247228.s3-website-us-east-1.amazonaws.com" />
-    <meta property="og:site_name" content="AWS Pulse AI" />
+    <meta property="og:site_name" content="AWS Signal" />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="AWS Pulse AI — Signal Autonomous AWS Agent" />
+    <meta name="twitter:title" content="AWS Signal — Autonomous Cloud Intelligence" />
     <meta name="twitter:description" content="Always-on serverless AWS intelligence agent powered by Amazon Bedrock. Built by AWS Student Builder Group GEU." />
     <meta name="twitter:image" content="/social-share.png" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..900;1,200..900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Inline Script to prevent Theme Flash -->
+    <script>
+      (function() {
+        var savedTheme = localStorage.getItem('aws_signal_theme');
+        if (savedTheme === 'dark') {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      })();
+    </script>
   </head>
-  <body class="bg-[#09090b] text-[#f4f4f5] antialiased font-sans">
+  <body class="bg-background text-on-background antialiased font-sans min-h-screen">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

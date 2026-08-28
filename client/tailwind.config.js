@@ -9,36 +9,30 @@ export default {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#AD5CFF',
-          container: '#9C47FF',
-          dark: '#8C33FF',
+          DEFAULT: 'rgb(var(--color-primary-rgb) / <alpha-value>)',
+          container: 'rgb(var(--color-primary-container-rgb) / <alpha-value>)',
         },
         secondary: {
-          DEFAULT: '#ffc080',
-          container: '#fe9800',
+          DEFAULT: 'rgb(var(--color-secondary-rgb) / <alpha-value>)',
+          container: 'rgb(var(--color-secondary-container-rgb) / <alpha-value>)',
         },
-        background: 'var(--bg-color)',
-        'on-background': 'var(--text-color)',
-        'on-surface-variant': 'var(--text-muted)',
+        background: 'rgb(var(--bg-color-rgb) / <alpha-value>)',
+        'on-background': 'rgb(var(--text-color-rgb) / <alpha-value>)',
+        'on-surface-variant': 'rgb(var(--text-muted-rgb) / <alpha-value>)',
         surface: {
-          DEFAULT: 'var(--surface-color)',
-          dim: 'var(--surface-dim-color)',
-          bright: 'var(--surface-bright-color)',
-          lowest: 'var(--surface-lowest)',
-          low: 'var(--surface-low)',
-          container: 'var(--surface-container)',
-          high: 'var(--surface-high)',
-          highest: 'var(--surface-highest)',
+          DEFAULT: 'rgb(var(--surface-color-rgb) / <alpha-value>)',
+          dim: 'rgb(var(--surface-dim-rgb) / <alpha-value>)',
+          bright: 'rgb(var(--surface-bright-rgb) / <alpha-value>)',
+          lowest: 'rgb(var(--surface-lowest-rgb) / <alpha-value>)',
+          low: 'rgb(var(--surface-low-rgb) / <alpha-value>)',
+          container: 'rgb(var(--surface-container-rgb) / <alpha-value>)',
+          high: 'rgb(var(--surface-high-rgb) / <alpha-value>)',
+          highest: 'rgb(var(--surface-highest-rgb) / <alpha-value>)',
         },
         outline: {
-          DEFAULT: 'var(--outline-color)',
-          variant: 'var(--outline-variant-color)',
+          DEFAULT: 'rgb(var(--outline-color-rgb) / <alpha-value>)',
+          variant: 'rgb(var(--outline-variant-rgb) / <alpha-value>)',
         },
-        aws: {
-          orange: '#FF9900',
-          squid: '#232F3E',
-          blue: '#2563EB',
-        }
       },
       fontFamily: {
         sans: ['Plus Jakarta Sans', 'system-ui', '-apple-system', 'sans-serif'],
@@ -46,14 +40,11 @@ export default {
         mono: ['Plus Jakarta Sans', 'monospace'],
       },
       boxShadow: {
-        'purple-glow': '0 0 25px rgba(173, 92, 255, 0.35)',
-        'orange-glow': '0 0 25px rgba(255, 153, 0, 0.35)',
-        'card-light': '0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06)',
+        'purple-glow': '0 0 20px rgba(173, 92, 255, 0.3)',
       },
       borderRadius: {
+        'xl': '0.75rem',
         '2xl': '1rem',
-        '3xl': '1.5rem',
-        '4xl': '2rem',
       }
     },
   },
