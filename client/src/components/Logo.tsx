@@ -1,5 +1,4 @@
 import React from 'react';
-import { useTheme } from '../context/ThemeContext';
 
 interface LogoProps {
   size?: 'sm' | 'md' | 'lg';
@@ -8,12 +7,10 @@ interface LogoProps {
 }
 
 export const Logo: React.FC<LogoProps> = ({ size = 'md', showText = true, className = '' }) => {
-  const { theme } = useTheme();
-
-  const imgSize = {
-    sm: 'h-6 w-6',
-    md: 'h-8 w-8',
-    lg: 'h-10 w-10',
+  const containerSize = {
+    sm: 'h-7 w-7 p-1',
+    md: 'h-9 w-9 p-1.5',
+    lg: 'h-11 w-11 p-2',
   }[size];
 
   const titleSize = {
@@ -22,23 +19,18 @@ export const Logo: React.FC<LogoProps> = ({ size = 'md', showText = true, classN
     lg: 'text-base sm:text-lg',
   }[size];
 
-  const logoSrc = theme === 'dark' ? '/whitelogo.png' : '/logo.png';
-
   return (
     <div className={`flex items-center gap-2.5 select-none ${className}`}>
-      {/* Crisp Logo Icon Container with Clean Border */}
-      <div className="h-9 w-9 rounded-lg bg-surface border border-outline flex items-center justify-center p-1.5 shrink-0 transition-colors shadow-sm">
+      {/* Crisp White Container so the original logo is 100% visible and vivid in both Light and Dark mode */}
+      <div className={`${containerSize} rounded-lg bg-white border border-outline flex items-center justify-center shrink-0 shadow-sm`}>
         <img
-          src={logoSrc}
+          src="/logo.png"
           alt="AWS Signal Logo"
           className="h-full w-full object-contain"
-          onError={(e: any) => {
-            e.target.src = '/logo.png';
-          }}
         />
       </div>
 
-      {/* Clean Brand Typography */}
+      {/* Brand Name Typography */}
       {showText && (
         <div className="flex flex-col text-left leading-none font-mono">
           <div className="flex items-center gap-1">
