@@ -10,15 +10,15 @@
 ## Vision & What It Does
 
 ### The Problem
-Amazon Web Services releases hundreds of new features, architectural advisories, security bulletins, and SDK upgrades each month across disparate channels including AWS What's New RSS, official AWS News blogs, Architecture blogs, and developer forums like AWS re:Post. 
+Amazon Web Services releases hundreds of new features, architectural advisories, security bulletins, and SDK upgrades each month across disparate channels including AWS What's New RSS, official AWS News blogs, Architecture blogs, and developer forums like AWS re:Post.
 
-For software developers, cloud architects, and DevOps engineers, monitoring this firehose presents clear friction:
+As a cloud builder and software engineer, staying on top of this volume presents clear friction:
 1. **Syndication Noise and Redundancy**: Announcements are frequently rebroadcast across multiple feeds with slight variations in titles, generating unnecessary reading volume.
-2. **Context Switching**: Engineers spend valuable sprint hours manually parsing release feeds rather than building and shipping.
+2. **Context Switching**: Developers spend valuable sprint hours manually parsing release feeds rather than building and shipping.
 3. **Lack of Practical Impact Weighting**: Release headlines rarely convey whether an update introduces an architectural primitive (such as Lambda SnapStart or DynamoDB Global Tables) or a regional parameter change.
 
 ### The Solution: AWS Signal
-AWS Signal is an autonomous, serverless cloud intelligence network that operates 24/7 on AWS Free Tier infrastructure. The platform automatically aggregates raw cloud feeds, strips out duplicate marketing noise using SHA-256 cryptographic hashing, evaluates technical impact on a 5-pillar scoring model, and provides a multi-modal hands-free voice copilot named Dori.
+I built **AWS Signal** as an autonomous, serverless cloud intelligence network that operates 24/7 on AWS Free Tier infrastructure. The platform automatically aggregates raw cloud feeds, strips out duplicate marketing noise using SHA-256 cryptographic hashing, evaluates technical impact on a 5-pillar scoring model, and provides a multi-modal hands-free voice copilot named Dori.
 
 ```
    +-------------------------------------------------------------------------+
@@ -35,20 +35,20 @@ AWS Signal is an autonomous, serverless cloud intelligence network that operates
 ```
 
 ### Key Capabilities
-- **Dori Autonomous Voice Copilot**: An interactive AI voice companion powered by Amazon Bedrock Claude 3.5 and Amazon Polly Neural Voice (`Ivy`). Features continuous turn-taking, phonetic speech alias normalization (such as resolving "EC two" to "Amazon EC2"), sub-100ms streaming audio dispatch, and direct voice execution of platform tools (triggering scans, searching signals, navigating bookmarks, or toggling themes).
-- **5-Pillar Multi-Metric Scoring**: Amazon Bedrock evaluates every release across five weighted parameters: Architecture Importance (30%), Developer Relevance (25%), Community Velocity (20%), Novelty Factor (15%), and Actionability (10%).
+- **Dori Autonomous Voice Copilot**: An interactive AI voice companion I developed using Amazon Bedrock Claude 3.5 and Amazon Polly Neural Voice (`Ivy`). It features continuous turn-taking, phonetic speech alias normalization (such as resolving "EC two" to "Amazon EC2"), sub-100ms streaming audio dispatch, and direct voice execution of platform tools (triggering scans, searching signals, navigating bookmarks, or toggling themes).
+- **5-Pillar Multi-Metric Scoring**: I configured Amazon Bedrock to evaluate every release across five weighted parameters: Architecture Importance (30%), Developer Relevance (25%), Community Velocity (20%), Novelty Factor (15%), and Actionability (10%).
 - **"While You Were Away" Executive Delta Synthesis**: Automatically computes and synthesizes the exact updates published since a user's previous session into a 60-second digest.
-- **AWS Builder Center Directory Verification**: Integrates real-time verification against the AWS Builder Center directory schema (`builder_pawan_2026`), isolating personal bookmark vaults per authenticated handle.
+- **AWS Builder Center Directory Verification**: Real-time verification against the AWS Builder Center directory schema (`builder_pawan_2026`), isolating personal bookmark vaults per authenticated handle.
 - **Automated High-Priority Alerts via Amazon SES**: Signals scoring 80 or higher automatically trigger structured HTML email dispatches to registered engineering teams.
 
 ---
 
-## How You Built It
+## How I Built It
 
 ### 1. Cryptographic Normalization and Deduplication Pipeline
-Standard string comparisons fail when syndicated RSS feeds distribute the same announcement with varying query strings or minor title formatting differences. 
+Standard string comparisons fail when syndicated RSS feeds distribute the same announcement with varying query strings or minor title formatting differences.
 
-To solve this, we built a normalization pipeline in TypeScript that:
+To solve this, I designed a normalization pipeline in TypeScript that:
 - Strips URL tracking parameters (such as `utm_source`, `utm_medium`, and session identifiers).
 - Normalizes unicode whitespace and removes marketing boilerplates.
 - Computes a canonical SHA-256 hash stored in an indexed hash vault.
@@ -64,7 +64,7 @@ function computeCanonicalHash(item: RawFeedItem): string {
 ```
 
 ### 2. Multi-Metric 5-Pillar Evaluation Prompts
-Rather than relying on simple binary importance flags, we designed a structured JSON extraction prompt executed by Claude 3.5 Haiku via Amazon Bedrock:
+Rather than relying on simple binary importance flags, I structured a JSON extraction prompt executed by Claude 3.5 Haiku via Amazon Bedrock:
 
 ```typescript
 const prompt = `Evaluate the following AWS release across 5 weighted engineering dimensions:
@@ -78,10 +78,10 @@ Output strict JSON with integer scores between 0 and 100, a 2-sentence summary, 
 ```
 
 ### 3. Voice Ergonomics, Speech Normalization, and Acoustic Echo Protection
-During the development of Dori, we tackled three critical audio engineering challenges:
-1. **Acoustic Feedback Protection**: Playing audio through device speakers caused the browser microphone to capture the synthetic voice, triggering self-interruption. We solved this by muting speech recognition during audio playback and re-arming the listener strictly on `audio.onended`.
-2. **Synchronous 0ms Audio Dispatch**: Instead of executing sequential roundtrips where the UI displayed text before audio started, we coupled speech playback directly with word-by-word streaming reveal, eliminating text-before-speech lag.
-3. **Phonetic Speech Normalization**: Speech-to-text models often transcribe cloud terms phonetically. We implemented a phonetic alias normalizer:
+During the development of Dori, I addressed three critical audio engineering challenges:
+1. **Acoustic Feedback Protection**: Playing audio through device speakers caused the browser microphone to capture the synthetic voice, triggering self-interruption. I solved this by muting speech recognition during audio playback and re-arming the listener strictly on `audio.onended`.
+2. **Synchronous 0ms Audio Dispatch**: Instead of executing sequential roundtrips where the UI displayed text before audio started, I coupled speech playback directly with word-by-word streaming reveal, eliminating text-before-speech lag.
+3. **Phonetic Speech Normalization**: Speech-to-text models often transcribe cloud terms phonetically. I built a phonetic alias normalizer:
 
 ```typescript
 function normalizeSpeechQuery(query: string): string {
@@ -95,13 +95,13 @@ function normalizeSpeechQuery(query: string): string {
 }
 ```
 
-4. **1.1-Second Silence Debounce**: Configured continuous Web Speech recognition with a 1,100ms silence timer so users can speak multi-sentence questions without being cut off mid-thought.
+4. **1.1-Second Silence Debounce**: I configured continuous Web Speech recognition with a 1,100ms silence timer so users can speak multi-sentence questions without being cut off mid-thought.
 
 ---
 
 ## AWS Services Used / Architecture Overview
 
-The system is deployed as a fully serverless architecture within the AWS Free Tier.
+I deployed the entire solution on a serverless architecture within the AWS Free Tier.
 
 ```mermaid
 flowchart TD
@@ -154,12 +154,12 @@ flowchart TD
 
 ---
 
-## What You Learned
+## What I Learned
 
 Across the Summer Build Series, building AWS Signal provided key architectural insights:
-1. **Autonomous Agents Require Strict Boundaries**: Building an agent that fetches data is straightforward; designing one that reliably ignores 90% of low-signal marketing noise while highlighting critical architectural updates requires careful prompt constraints and deterministic deduplication.
+1. **Autonomous Agents Require Strict Boundaries**: Ingesting raw data is straightforward; designing an agent that reliably ignores 90% of low-signal marketing noise while highlighting critical architectural updates requires careful prompt constraints and deterministic deduplication.
 2. **Voice Latency Dictates User Immersion**: Latency in voice applications breaks immersion rapidly. Coupling local browser speech events with cloud-based neural synthesis ensures responses start within milliseconds.
-3. **Serverless Is Ideal for Agent Pipelines**: By combining EventBridge, Lambda Function URLs, and DynamoDB, we achieved a resilient, zero-idle-cost agent system capable of operating continuously within the AWS Free Tier.
+3. **Serverless Is Ideal for Agent Pipelines**: By combining EventBridge, Lambda Function URLs, and DynamoDB, I achieved a resilient, zero-idle-cost agent system capable of operating continuously within the AWS Free Tier.
 
 ---
 
@@ -173,8 +173,8 @@ Across the Summer Build Series, building AWS Signal provided key architectural i
 
 ---
 
-## Community Shoutout
+## Tag a Builder Who Inspired You
 
-Special thanks to **Lewis Sawe** and their project *The Museum That Grows* for demonstrating how autonomous agents can operate continuously to create value. Thank you as well to the AWS Builder Center team and the wider AWS community for organizing the Summer Build Series.
+A big shoutout to **Lewis Sawe** for their project *The Museum That Grows*, which inspired my approach to designing always-on autonomous agents that continuously curate value without human intervention. Thank you as well to **Ben Fowler** and the AWS Builder Center team for organizing an exceptional Summer Build Series.
 
 *Submitted by Pawan Joshi for the AWS Builder Center Summer Builds Showcase Weekend Challenge.*
