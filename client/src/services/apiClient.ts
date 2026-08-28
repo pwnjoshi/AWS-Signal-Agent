@@ -290,6 +290,30 @@ export function stopDoriSpeech() {
   }
 }
 
+async function getVoicesAsync(): Promise<SpeechSynthesisVoice[]> {
+  if (typeof window === 'undefined' || !('speechSynthesis' in window)) return [];
+  let voices = window.speechSynthesis.getVoices();
+  if (voices.length > 0) return voices;
+
+  return new Promise((resolve) => {
+    let resolved = false;
+    const handler = () => {
+      if (resolved) return;
+      resolved = true;
+      voices = window.speechSynthesis.getVoices();
+      window.speechSynthesis.removeEventListener('voiceschanged', handler);
+      resolve(voices);
+    };
+    window.speechSynthesis.addEventListener('voiceschanged', handler);
+    setTimeout(() => {
+      if (!resolved) {
+        resolved = true;
+        resolve(window.speechSynthesis.getVoices());
+      }
+    }, 300);
+  });
+}
+
 /**
  * Plays ultra-realistic human executive broadcast speech for Daily Briefings.
  * 100% human sounding (zero robotic artifact, natural 1.0 pitch, executive cadence).
@@ -309,8 +333,8 @@ export async function playHumanBriefingSpeech(
   const utterance = new SpeechSynthesisUtterance(text);
   activeUtterance = utterance;
 
-  const voices = window.speechSynthesis.getVoices();
-  // Find realistic natural human executive voice
+  const voices = await getVoicesAsync();
+  // Prioritize natural human broadcast voices
   const humanVoice = voices.find(v => 
     v.lang.startsWith('en') && (
       v.name.includes('Natural') ||
@@ -330,8 +354,8 @@ export async function playHumanBriefingSpeech(
     utterance.voice = humanVoice;
   }
 
-  utterance.rate = 1.0;  // Natural human speaking rate
-  utterance.pitch = 1.0; // Natural grounded human pitch (no robotic/baby shift)
+  utterance.rate = 0.98; // Natural human executive cadence
+  utterance.pitch = 0.98; // Grounded, authentic human news resonance
   utterance.volume = 1.0;
 
   utterance.onend = () => {
@@ -384,12 +408,12 @@ export async function playDoriSpeech(
     }
   }
 
-  // 2. Instant Neural Browser Speech with cute girl robotic pitch
+  // 2. Instant Neural Browser Speech with cute baby girl robotic pitch
   fallbackBrowserSpeech(text, onEnd, onWordBoundary);
   return () => stopDoriSpeech();
 }
 
-function fallbackBrowserSpeech(
+async function fallbackBrowserSpeech(
   text: string, 
   onEnd?: () => void,
   onWordBoundary?: (wordIndex: number) => void
@@ -403,15 +427,15 @@ function fallbackBrowserSpeech(
   const utterance = new SpeechSynthesisUtterance(text);
   activeUtterance = utterance;
 
-  // Pick cute female / young robotic voice
-  const voices = window.speechSynthesis.getVoices();
+  const voices = await getVoicesAsync();
+  // Pick cute female / baby girl robotic voice
   const cuteVoice = voices.find(v => 
     v.lang.startsWith('en') && (
+      v.name.includes('Zira') ||
       v.name.includes('Google US English') ||
       v.name.includes('Samantha') ||
       v.name.includes('Victoria') ||
       v.name.includes('Jenny') ||
-      v.name.includes('Zira') ||
       v.name.includes('Karen') ||
       v.name.includes('Female')
     )
@@ -421,8 +445,8 @@ function fallbackBrowserSpeech(
     utterance.voice = cuteVoice;
   }
 
-  utterance.rate = 1.12;
-  utterance.pitch = 1.52; // Sweet, cute robotic girl / baby pitch
+  utterance.rate = 1.15;
+  utterance.pitch = 1.55; // Sweet, cute baby girl robotic pitch
   utterance.volume = 1.0;
 
   // Word-by-word boundary sync
