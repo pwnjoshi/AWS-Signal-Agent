@@ -25,7 +25,7 @@ router.post('/dori/ask', rateLimiter(60, 15 * 60 * 1000), async (req, res) => {
 
     let audioBase64: string | undefined;
     if (synthesizeAudio) {
-      const pollyRes = await synthesizeDoriSpeech(answer, 'Danielle', 'generative');
+      const pollyRes = await synthesizeDoriSpeech(answer, 'Ivy', 'neural');
       if (pollyRes) {
         audioBase64 = pollyRes.audioBase64;
       }

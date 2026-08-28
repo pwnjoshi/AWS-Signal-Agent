@@ -17,7 +17,7 @@ export interface PollySynthesisResult {
 }
 
 /**
- * Clean text for human-like conversational speech playback.
+ * Clean text for cute conversational speech playback.
  */
 function cleanTextForSpeech(text: string): string {
   return text
@@ -27,12 +27,12 @@ function cleanTextForSpeech(text: string): string {
 }
 
 /**
- * Synthesizes expressive, human-like, warm conversation speech for Dori using Amazon Polly Generative voice.
+ * Synthesizes cute, baby-girl cheerful conversation speech for Dori using Amazon Polly Neural voice (Ivy).
  */
 export async function synthesizeDoriSpeech(
   text: string, 
-  voiceId: VoiceId = 'Danielle', 
-  engine: Engine = 'generative'
+  voiceId: VoiceId = 'Ivy', 
+  engine: Engine = 'neural'
 ): Promise<PollySynthesisResult | null> {
   const cleaned = cleanTextForSpeech(text);
   if (!cleaned) return null;
@@ -41,8 +41,8 @@ export async function synthesizeDoriSpeech(
     const command = new SynthesizeSpeechCommand({
       Text: cleaned,
       OutputFormat: 'mp3',
-      VoiceId: voiceId, // Danielle (warm, young, cheerful, expressive)
-      Engine: engine, // 'generative'
+      VoiceId: voiceId, // 'Ivy' = Cute female child/young girl voice
+      Engine: engine, // 'neural'
       TextType: 'text',
     });
 
@@ -66,16 +66,33 @@ export async function synthesizeDoriSpeech(
       engine,
     };
   } catch (err: any) {
-    console.warn('Amazon Polly synthesis error (falling back to neural/local):', err.message);
+    console.warn('Amazon Polly synthesis error (falling back):', err.message);
     
-    // Fallback to Neural Joanna / Ruth if Generative is unavailable in the region
-    if (engine === 'generative') {
-      try {
-        return await synthesizeDoriSpeech(cleaned, 'Ruth', 'generative');
-      } catch (fallbackErr: any) {
-        console.warn('Polly fallback failed:', fallbackErr.message);
+    // Fallback to Neural Ruth / Joanna if Ivy is unavailable
+    try {
+      const fallbackCommand = new SynthesizeSpeechCommand({
+        Text: cleaned,
+        OutputFormat: 'mp3',
+        VoiceId: 'Ruth',
+        Engine: 'generative',
+        TextType: 'text',
+      });
+      const response = await pollyClient.send(fallbackCommand);
+      if (response.AudioStream) {
+        const chunks: Uint8Array[] = [];
+        const stream = response.AudioStream as any;
+        for await (const chunk of stream) {
+          chunks.push(chunk);
+        }
+        const buffer = Buffer.concat(chunks);
+        return {
+          audioBase64: `data:audio/mp3;base64,${buffer.toString('base64')}`,
+          format: 'mp3',
+          voice: 'Ruth',
+          engine: 'generative',
+        };
       }
-    }
+    } catch {}
     return null;
   }
 }

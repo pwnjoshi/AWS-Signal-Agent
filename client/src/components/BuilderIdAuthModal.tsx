@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { UserProfile } from '../types/clientTypes';
 import { X, ShieldCheck, User, Mail, ArrowRight, CheckCircle2, LogOut, RefreshCw, KeyRound } from 'lucide-react';
-import { authenticateBuilderId } from '../services/apiClient';
+import { authenticateBuilderId, signOutBuilderId } from '../services/apiClient';
 
 interface BuilderIdAuthModalProps {
   currentProfile: UserProfile | null;
@@ -15,8 +15,8 @@ export const BuilderIdAuthModal: React.FC<BuilderIdAuthModalProps> = ({
   onSuccess,
 }) => {
   const [isSwitching, setIsSwitching] = useState<boolean>(!currentProfile?.is_authenticated);
-  const [builderId, setBuilderId] = useState(currentProfile?.builder_id || '');
-  const [displayName, setDisplayName] = useState(currentProfile?.display_name || '');
+  const [builderId, setBuilderId] = useState(currentProfile?.builder_id && currentProfile.builder_id !== 'guest' ? currentProfile.builder_id : '');
+  const [displayName, setDisplayName] = useState(currentProfile?.display_name && currentProfile.display_name !== 'Guest Builder' ? currentProfile.display_name : '');
   const [email, setEmail] = useState(currentProfile?.email || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
@@ -32,27 +32,35 @@ export const BuilderIdAuthModal: React.FC<BuilderIdAuthModalProps> = ({
       setTimeout(() => {
         onSuccess(profile);
         onClose();
-      }, 600);
+      }, 500);
     } catch (err: any) {
-      alert(`Quick Auth error: ${err.message}`);
+      alert(`Authentication error: ${err.message}`);
       setIsSubmitting(false);
     }
   };
 
-  const handleSignOut = () => {
-    const defaultProfile: UserProfile = {
-      builder_id: 'builder_guest',
-      display_name: 'Guest Builder',
-      email: 'guest@builder.aws',
-      email_list: ['guest@builder.aws'],
-      is_authenticated: false,
-      logged_in_at: new Date().toISOString(),
-    };
-    onSuccess(defaultProfile);
-    setIsSwitching(true);
-    setBuilderId('');
-    setDisplayName('');
-    setEmail('');
+  const handleSignOut = async () => {
+    setIsSubmitting(true);
+    try {
+      const guestProfile = await signOutBuilderId();
+      setSuccessMsg('Signed out successfully. Session reset to guest.');
+      setTimeout(() => {
+        onSuccess(guestProfile);
+        onClose();
+      }, 400);
+    } catch (err: any) {
+      console.error('Sign out error:', err);
+      const fallbackGuest: UserProfile = {
+        builder_id: 'guest',
+        display_name: 'Guest Builder',
+        email: '',
+        email_list: [],
+        is_authenticated: false,
+        logged_in_at: new Date().toISOString(),
+      };
+      onSuccess(fallbackGuest);
+      onClose();
+    }
   };
 
   return (
@@ -70,7 +78,7 @@ export const BuilderIdAuthModal: React.FC<BuilderIdAuthModalProps> = ({
                 AWS Builder ID
               </h2>
               <p className="text-xs text-slate-500 dark:text-zinc-400 font-normal mt-0.5">
-                {currentProfile?.is_authenticated && !isSwitching ? 'Active Profile Session' : 'One-Click Profile Authentication'}
+                {currentProfile?.is_authenticated && !isSwitching ? 'Active Profile Session' : 'Account Sign-In & Isolation'}
               </p>
             </div>
           </div>
@@ -89,7 +97,7 @@ export const BuilderIdAuthModal: React.FC<BuilderIdAuthModalProps> = ({
           <div className="py-8 text-center space-y-2">
             <CheckCircle2 className="w-10 h-10 text-[#00d294] mx-auto animate-bounce" />
             <h3 className="text-base font-semibold text-slate-900 dark:text-zinc-100">{successMsg}</h3>
-            <p className="text-xs text-slate-500 dark:text-zinc-400">Syncing your personal vault and preferences...</p>
+            <p className="text-xs text-slate-500 dark:text-zinc-400">Updating account vault and preferences...</p>
           </div>
         ) : currentProfile?.is_authenticated && !isSwitching ? (
           /* Active Authenticated Profile View */
@@ -112,7 +120,7 @@ export const BuilderIdAuthModal: React.FC<BuilderIdAuthModalProps> = ({
               <div className="pt-2 border-t border-slate-200 dark:border-zinc-700/80 space-y-1.5 text-slate-600 dark:text-zinc-400">
                 <div className="flex justify-between">
                   <span>Notification Email:</span>
-                  <strong className="text-slate-900 dark:text-zinc-200 font-medium">{currentProfile.email}</strong>
+                  <strong className="text-slate-900 dark:text-zinc-200 font-medium">{currentProfile.email || 'None configured'}</strong>
                 </div>
                 <div className="flex justify-between">
                   <span>Session Status:</span>
@@ -128,10 +136,11 @@ export const BuilderIdAuthModal: React.FC<BuilderIdAuthModalProps> = ({
               <button
                 type="button"
                 onClick={handleSignOut}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 border border-red-200 dark:border-red-800 transition-all cursor-pointer"
+                disabled={isSubmitting}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 border border-red-200 dark:border-red-800 transition-all cursor-pointer disabled:opacity-50"
               >
                 <LogOut className="w-3.5 h-3.5" />
-                <span>Sign out</span>
+                <span>{isSubmitting ? 'Signing out...' : 'Sign out'}</span>
               </button>
 
               <div className="flex items-center gap-2">
@@ -205,7 +214,7 @@ export const BuilderIdAuthModal: React.FC<BuilderIdAuthModalProps> = ({
             <div className="bg-slate-50 dark:bg-[#202026] border border-slate-200 dark:border-zinc-700 rounded-lg p-3 flex items-start gap-2 text-xs text-slate-600 dark:text-zinc-400 font-sans">
               <ShieldCheck className="w-4 h-4 text-[#00d294] shrink-0 mt-0.5" />
               <p className="leading-relaxed font-normal">
-                Entering your Builder ID immediately authenticates your session, syncs your custom topic preferences, and enables saved bookmark vault sync.
+                Signing in isolates your Saved Vault signals and custom topic alerts specifically to this Builder ID.
               </p>
             </div>
 

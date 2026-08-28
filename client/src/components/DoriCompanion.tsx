@@ -22,14 +22,14 @@ export const DoriCompanion: React.FC<DoriCompanionProps> = ({
   const [isBlinking, setIsBlinking] = useState(false);
   const [emotion, setEmotion] = useState<DoriEmotion>(propEmotion || 'happy');
   
-  // Continuous conversation states: 'idle' | 'listening' | 'thinking' | 'speaking'
+  // States: 'idle' | 'listening' | 'thinking' | 'speaking'
   const [conversationState, setConversationState] = useState<'idle' | 'listening' | 'thinking' | 'speaking'>('idle');
-  const [bubbleMessage, setBubbleMessage] = useState<string>(propMessage || "Click me to talk with me!");
+  const [displayedText, setDisplayedText] = useState<string>(propMessage || "Click me to talk with me!");
 
   // Session flags and references
   const isSessionActiveRef = useRef(false);
   const recognitionRef = useRef<any>(null);
-  const timeoutRef = useRef<any>(null);
+  const typewriterTimerRef = useRef<any>(null);
   const conversationHistoryRef = useRef<Array<{ role: 'user' | 'assistant'; content: string }>>([]);
 
   // Natural blinking eyes animation every 3.5 seconds
@@ -42,7 +42,7 @@ export const DoriCompanion: React.FC<DoriCompanionProps> = ({
     return () => clearInterval(blinkInterval);
   }, []);
 
-  // Update visual emotion based on conversational state
+  // Visual emotion updater
   useEffect(() => {
     if (conversationState === 'speaking') {
       setEmotion('excited');
@@ -55,24 +55,17 @@ export const DoriCompanion: React.FC<DoriCompanionProps> = ({
     }
   }, [conversationState, propEmotion]);
 
-  // Cleanup on component unmount
+  // Clean unmount
   useEffect(() => {
     return () => {
       isSessionActiveRef.current = false;
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      if (typewriterTimerRef.current) clearInterval(typewriterTimerRef.current);
       stopDoriSpeech();
-      if (recognitionRef.current) {
-        try {
-          recognitionRef.current.onresult = null;
-          recognitionRef.current.onend = null;
-          recognitionRef.current.onerror = null;
-          recognitionRef.current.abort();
-        } catch {}
-      }
+      killRecognition();
     };
   }, []);
 
-  // Safely stop all recognition listeners
+  // Safely stop microphone
   const killRecognition = () => {
     if (recognitionRef.current) {
       try {
@@ -85,44 +78,54 @@ export const DoriCompanion: React.FC<DoriCompanionProps> = ({
     }
   };
 
-  const startListeningRef = useRef<() => void>(() => {});
+  // Fast Word-by-Word Streaming Reveal
+  const streamWords = (fullText: string) => {
+    if (typewriterTimerRef.current) clearInterval(typewriterTimerRef.current);
+    const words = fullText.split(' ');
+    let currentIndex = 0;
+    setDisplayedText('');
 
-  // Main voice query processor with context memory
+    typewriterTimerRef.current = setInterval(() => {
+      currentIndex++;
+      if (currentIndex <= words.length) {
+        setDisplayedText(words.slice(0, currentIndex).join(' '));
+      } else {
+        clearInterval(typewriterTimerRef.current);
+      }
+    }, 90); // ~90ms per word syncs with fast speech
+  };
+
+  // Main voice query handler
   const processVoiceQuestion = async (question: string) => {
     if (!isSessionActiveRef.current) return;
 
-    // Interrupt any active speech immediately
-    stopDoriSpeech();
+    // 1. MUTED MIC: Stop recognition while processing and speaking to prevent hearing herself!
     killRecognition();
+    stopDoriSpeech();
 
     setConversationState('thinking');
-    setBubbleMessage("Thinking...");
+    setDisplayedText("Thinking...");
 
     try {
-      // Append user's question to session context history
       const currentHistory = [...conversationHistoryRef.current];
       
       const res = await askDoriQuestionApi(question, currentHistory);
       if (!isSessionActiveRef.current) return;
 
-      // Update history with question & answer
+      // Update multi-turn history
       conversationHistoryRef.current = [
         ...currentHistory,
         { role: 'user' as const, content: question },
         { role: 'assistant' as const, content: res.answer },
-      ].slice(-8); // Keep last 4 turns
+      ].slice(-8);
 
       setConversationState('speaking');
-      setBubbleMessage(res.answer);
+      streamWords(res.answer);
 
-      // Start barge-in listener so the user can interrupt Dori anytime
-      startBargeInListener();
-
-      // Play Amazon Polly Generative voice (Danielle)
+      // 2. Play fast cute Ivy voice (Microphone is STRICTLY MUTED during playback!)
       await playDoriSpeech(res.answer, res.audioBase64, () => {
-        // Callback when Dori finishes speaking naturally
+        // 3. Callback when Dori finishes speaking: NOW safely turn microphone back on!
         if (isSessionActiveRef.current) {
-          killRecognition();
           startListeningForSpeech();
         }
       });
@@ -130,65 +133,29 @@ export const DoriCompanion: React.FC<DoriCompanionProps> = ({
       if (!isSessionActiveRef.current) return;
       const fallback = "I'm tracking updates across Amazon Bedrock, AWS Lambda, and DynamoDB. What service would you like to explore?";
       setConversationState('speaking');
-      setBubbleMessage(fallback);
+      setDisplayedText(fallback);
       await playDoriSpeech(fallback, null, () => {
         if (isSessionActiveRef.current) {
-          killRecognition();
           startListeningForSpeech();
         }
       });
     }
   };
 
-  // Barge-In Listener: Listens during Dori's speech to allow the user to interrupt!
-  const startBargeInListener = () => {
-    if (!isSessionActiveRef.current) return;
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) return;
-
-    try {
-      killRecognition();
-      const bargeRecognition = new SpeechRecognition();
-      recognitionRef.current = bargeRecognition;
-      bargeRecognition.continuous = true;
-      bargeRecognition.interimResults = true;
-      bargeRecognition.lang = 'en-US';
-
-      bargeRecognition.onresult = (event: any) => {
-        if (!isSessionActiveRef.current) return;
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
-          const transcript = event.results[i][0].transcript.trim();
-          if (transcript.length > 2) {
-            // User interrupted! Stop speaking immediately and handle question!
-            stopDoriSpeech();
-            killRecognition();
-            processVoiceQuestion(transcript);
-            return;
-          }
-        }
-      };
-
-      bargeRecognition.onerror = () => {};
-      bargeRecognition.onend = () => {};
-
-      bargeRecognition.start();
-    } catch {}
-  };
-
-  // Standard Listener: Listens when Dori is awaiting a question
+  // Turn-taking Microphone Listener (Active ONLY when Dori is NOT speaking)
   const startListeningForSpeech = () => {
     if (!isSessionActiveRef.current) return;
 
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
-      const defaultBriefing = "Good day builder! Amazon Bedrock and AWS Lambda SnapStart are active. What would you like to build today?";
+      const defaultBriefing = "Good day builder! Amazon Bedrock and AWS Lambda are active. What would you like to build today?";
       setConversationState('speaking');
-      setBubbleMessage(defaultBriefing);
+      setDisplayedText(defaultBriefing);
       playDoriSpeech(defaultBriefing, null, () => {
         setConversationState('idle');
         isSessionActiveRef.current = false;
-        setBubbleMessage("Click me to talk with me!");
+        setDisplayedText("Click me to talk with me!");
       });
       return;
     }
@@ -205,22 +172,22 @@ export const DoriCompanion: React.FC<DoriCompanionProps> = ({
       recognition.onstart = () => {
         if (isSessionActiveRef.current) {
           setConversationState('listening');
-          setBubbleMessage("Listening... (Speak your question)");
+          setDisplayedText("Listening... (Speak your question)");
         }
       };
 
       recognition.onresult = (event: any) => {
         if (!isSessionActiveRef.current) return;
         const transcript = event.results[0][0].transcript;
-        if (transcript) {
+        if (transcript && transcript.trim().length > 0) {
           processVoiceQuestion(transcript);
         }
       };
 
       recognition.onerror = (event: any) => {
         if (isSessionActiveRef.current && event.error === 'no-speech') {
-          setBubbleMessage("I'm listening... Ask me anything about AWS!");
-          timeoutRef.current = setTimeout(() => {
+          setDisplayedText("I'm listening... Ask me anything about AWS!");
+          setTimeout(() => {
             if (isSessionActiveRef.current && conversationState === 'listening') {
               startListeningForSpeech();
             }
@@ -230,7 +197,7 @@ export const DoriCompanion: React.FC<DoriCompanionProps> = ({
 
       recognition.onend = () => {
         if (isSessionActiveRef.current && conversationState === 'listening') {
-          timeoutRef.current = setTimeout(() => {
+          setTimeout(() => {
             if (isSessionActiveRef.current && conversationState === 'listening') {
               try { recognition.start(); } catch {}
             }
@@ -244,31 +211,29 @@ export const DoriCompanion: React.FC<DoriCompanionProps> = ({
       if (isSessionActiveRef.current) {
         setConversationState('idle');
         isSessionActiveRef.current = false;
-        setBubbleMessage("Click me to talk with me!");
+        setDisplayedText("Click me to talk with me!");
       }
     }
   };
 
-  startListeningRef.current = startListeningForSpeech;
-
-  // Master click handler: Toggle voice session on / off
+  // Master Click Handler: Turn on or cleanly stop
   const handleToggleVoiceSession = () => {
     if (!interactive) return;
 
     if (isSessionActiveRef.current) {
       // User clicked to TURN OFF session
       isSessionActiveRef.current = false;
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      if (typewriterTimerRef.current) clearInterval(typewriterTimerRef.current);
       killRecognition();
       stopDoriSpeech();
       setConversationState('idle');
-      setBubbleMessage("Click me to talk with me!");
+      setDisplayedText("Click me to talk with me!");
     } else {
-      // User clicked to TURN ON session
+      // User clicked to START session
       isSessionActiveRef.current = true;
-      conversationHistoryRef.current = []; // Clear context on fresh session start
+      conversationHistoryRef.current = [];
       setConversationState('listening');
-      setBubbleMessage("Listening... Speak your question now!");
+      setDisplayedText("Listening... Speak your question now!");
       startListeningForSpeech();
     }
   };
@@ -306,7 +271,7 @@ export const DoriCompanion: React.FC<DoriCompanionProps> = ({
             {conversationState === 'speaking' ? (
               <span className="text-[11px] font-semibold flex items-center gap-1 text-white">
                 <Volume2 className="w-3.5 h-3.5 animate-pulse" />
-                Dori is Speaking • You can interrupt anytime! (Click to End)
+                Dori is Speaking (Click to End)
               </span>
             ) : conversationState === 'listening' ? (
               <span className="text-[11px] font-semibold flex items-center gap-1 text-white">
@@ -326,8 +291,8 @@ export const DoriCompanion: React.FC<DoriCompanionProps> = ({
             )}
           </div>
           
-          <p className={`text-xs leading-relaxed font-normal ${isActive ? 'text-white' : 'text-slate-600 dark:text-zinc-400'}`}>
-            {bubbleMessage}
+          <p className={`text-xs leading-relaxed font-normal min-h-[1.25rem] ${isActive ? 'text-white' : 'text-slate-600 dark:text-zinc-400'}`}>
+            {displayedText}
           </p>
 
           {/* Speech Bubble Pointer Arrow */}

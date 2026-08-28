@@ -334,7 +334,7 @@ export async function playDoriSpeech(
     const res = await fetch(`${BASE_URL}/api/dori/synthesize`, {
       method: 'POST',
       headers: defaultHeaders(),
-      body: JSON.stringify({ text, voiceId: 'Ruth', engine: 'generative' }),
+      body: JSON.stringify({ text, voiceId: 'Ivy', engine: 'neural' }),
     });
 
     if (res.ok) {
@@ -372,8 +372,8 @@ function fallbackBrowserSpeech(text: string, onEnd?: () => void) {
   window.speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(text);
   activeUtterance = utterance;
-  utterance.rate = 1.02;
-  utterance.pitch = 1.05;
+  utterance.rate = 1.10;
+  utterance.pitch = 1.32;
 
   utterance.onend = () => {
     activeUtterance = null;
