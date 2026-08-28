@@ -16,10 +16,12 @@
 
 | Resource | Live Production URL | Description |
 | :--- | :--- | :--- |
-| 🌐 **Web Application** | **[http://aws-signal-web-013131247228.s3-website-us-east-1.amazonaws.com](http://aws-signal-web-013131247228.s3-website-us-east-1.amazonaws.com)** | Mobile-first React 18 + Vite SPA hosted on AWS S3 Static Website Hosting |
+| 🏷️ **Custom Domain** | **[https://signal.awsclubgeu.in](https://signal.awsclubgeu.in)** | High-speed global edge distribution on custom domain |
+| 🌐 **CloudFront CDN** | **[https://dofp2vd8b27w6.cloudfront.net](https://dofp2vd8b27w6.cloudfront.net)** | AWS CloudFront Global CDN |
+| 🪣 **AWS S3 Web Origin** | **[http://aws-signal-web-013131247228.s3-website-us-east-1.amazonaws.com](http://aws-signal-web-013131247228.s3-website-us-east-1.amazonaws.com)** | Mobile-first React 18 + Vite SPA hosted on AWS S3 |
 | ⚡ **Serverless API** | **[https://mfolke7x65n2gdosj6i5777c3y0zcmxq.lambda-url.us-east-1.on.aws](https://mfolke7x65n2gdosj6i5777c3y0zcmxq.lambda-url.us-east-1.on.aws)** | Bundled Node.js Express Lambda Function URL |
 | 📖 **Decoupled API v1** | **[https://mfolke7x65n2gdosj6i5777c3y0zcmxq.lambda-url.us-east-1.on.aws/api/v1/news](https://mfolke7x65n2gdosj6i5777c3y0zcmxq.lambda-url.us-east-1.on.aws/api/v1/news)** | Public REST API for third-party systems to fetch normalized AWS intelligence |
-| 🐙 **GitHub Repository** | **[https://github.com/pwnjoshi/AWS-Signal-Agent-Specification](https://github.com/pwnjoshi/AWS-Signal-Agent-Specification)** | Complete monorepo with client, server, collectors, and cloud CDK specs |
+| 🐙 **GitHub Repository** | **[https://github.com/pwnjoshi/AWS-Signal-Agent](https://github.com/pwnjoshi/AWS-Signal-Agent)** | Complete monorepo with client, server, collectors, and cloud CDK specs |
 
 ---
 
