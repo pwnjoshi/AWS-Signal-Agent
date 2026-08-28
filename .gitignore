@@ -40,3 +40,6 @@ desktop.ini
 *.njsproj
 *.sln
 *.swp
+*.zip
+server/*.zip
+lambda-deploy.zip

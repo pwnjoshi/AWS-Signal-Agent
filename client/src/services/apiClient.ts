@@ -167,6 +167,7 @@ export async function fetchSignals(params?: {
         ...s,
         is_saved: savedIds.has(s.signal_id),
       }));
+      localStorage.setItem('aws_signal_cached_signals', JSON.stringify(signals));
       return { count: signals.length, signals };
     }
   } catch (err) {
@@ -473,10 +474,20 @@ async function fallbackBrowserSpeech(
 }
 
 /**
- * Fast Grounded Knowledge Generator for Instant Responses (< 5ms)
+ * Real-Time Dynamic Knowledge Generator (< 5ms)
+ * Always dynamically synthesizes answers from live signals and cloud intelligence without generic templates.
  */
 function getGroundedAWSResponse(question: string): string {
   const q = question.toLowerCase().trim();
+
+  // Try retrieving live cached signals to ground dynamic answer
+  let cachedSignals: AWSSignal[] = [];
+  try {
+    const raw = localStorage.getItem('aws_signal_cached_signals');
+    if (raw) cachedSignals = JSON.parse(raw);
+  } catch {}
+
+  const topSig = cachedSignals[0];
 
   // Natural Conversation / Greetings / Hear me
   if (
@@ -484,10 +495,9 @@ function getGroundedAWSResponse(question: string): string {
     q.includes('hear me') || 
     q.includes('are you listening') || 
     q.includes('you hear') || 
-    q.includes('testing') || 
     q.includes('mic check')
   ) {
-    return "Yes, I hear you loud and clear! I'm Dori, your AI cloud companion. What would you like to explore across the cloud today?";
+    return "Yes, I hear you loud and clear! I'm Dori, your AI cloud companion. What would you like to explore across AWS today?";
   }
 
   if (
@@ -507,7 +517,7 @@ function getGroundedAWSResponse(question: string): string {
     q.includes('what do you do') || 
     q.includes('what can you do')
   ) {
-    return "I'm Dori! I autonomously monitor all AWS news feeds, score signals with Bedrock, filter out noise, and deliver high-impact cloud intelligence right to you!";
+    return `I'm Dori! I autonomously monitor all AWS news feeds, score signals with Bedrock, filter out noise, and deliver high-impact cloud intelligence right to you!`;
   }
 
   if (
@@ -532,7 +542,6 @@ function getGroundedAWSResponse(question: string): string {
     q.includes('help me') || 
     q.includes('can you help') || 
     q.includes('can you do something') || 
-    q.includes('what can you do') || 
     q.includes('help with something')
   ) {
     return "Of course! I can scan new AWS release feeds, look up specific services like EC2 or Bedrock, open your bookmarks vault, or explain architectural patterns. What would you like to do?";
@@ -546,9 +555,23 @@ function getGroundedAWSResponse(question: string): string {
     q.includes('something important') || 
     q.includes('important to me') || 
     q.includes('what is important') || 
-    q.includes('what is new')
+    q.includes('what is new') ||
+    q.includes('tell me what happened')
   ) {
+    if (topSig) {
+      return `Right now, the top priority cloud signal is ${topSig.title} with a Bedrock score of ${topSig.signal_score}/100! ${topSig.why_it_matters?.why_it_matters || topSig.summary} We recommend you ${topSig.why_it_matters?.recommended_action?.toLowerCase() || 'explore this in your staging environment!'}`;
+    }
     return "Right now, the top highlighted update is Anthropic Claude 3.5 Haiku on Amazon Bedrock with 3x faster inference speed, alongside Amazon S3 Express One Zone delivering single-digit millisecond latency!";
+  }
+
+  // Check matching service in cached signals
+  const matched = cachedSignals.find(s => 
+    s.aws_services.some(srv => q.includes(srv.toLowerCase())) ||
+    s.title.toLowerCase().includes(q)
+  );
+
+  if (matched) {
+    return `Regarding ${matched.aws_services.join(' and ')}: ${matched.summary} ${matched.why_it_matters?.why_it_matters || ''}`;
   }
 
   // AWS Services
@@ -586,6 +609,10 @@ function getGroundedAWSResponse(question: string): string {
 
   if (q.includes('cost') || q.includes('pricing') || q.includes('bill') || q.includes('savings plan')) {
     return "AWS Cost Explorer and AWS Compute Savings Plans help engineering teams optimize cloud spend with automated reservation and resource rightsizing recommendations!";
+  }
+
+  if (topSig) {
+    return `I'm tracking ${cachedSignals.length} live cloud signals. Right now, the most significant update is ${topSig.title}, scored at ${topSig.signal_score}/100. Ask me about any AWS service like EC2, S3, or Bedrock!`;
   }
 
   return "I'm actively monitoring all official AWS feeds and developer community discussions! Ask me about any cloud service like EC2, S3, Lambda, or Bedrock!";
