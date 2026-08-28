@@ -33,9 +33,9 @@ export const DoriCompanion: React.FC<DoriCompanionProps> = ({
     const quotes = [
       "I'm keeping an eye on AWS What's New and re:Post discussions!",
       "Tip: Bedrock Cross-Region inference is trending today!",
-      "I deduplicate everything so you don't read the same AWS news twice.",
+      "I deduplicate everything with SHA-256 so you don't read duplicate AWS news.",
       "Need a daily briefing? Check out Today's Briefing tab!",
-      "Everything is clear in your AWS world right now!",
+      "Everything is clear in your AWS environment right now!",
     ];
     const nextQuote = quotes[Math.floor(Math.random() * quotes.length)];
     setSpeech(nextQuote);
@@ -57,22 +57,22 @@ export const DoriCompanion: React.FC<DoriCompanionProps> = ({
     <div className="relative inline-flex flex-col items-center select-none group">
       {/* Speech Bubble */}
       {showSpeechBubble && speech && (
-        <div className="mb-3 max-w-xs bg-white text-slate-800 border border-blue-100 rounded-2xl p-3 text-xs md:text-sm shadow-lg shadow-blue-500/5 relative animate-float z-10 transition-all duration-300">
-          <div className="font-rounded font-semibold text-blue-600 mb-0.5 flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-blue-500 animate-ping" />
+        <div className="mb-3 max-w-xs bg-white dark:bg-[#18181b] text-slate-900 dark:text-zinc-100 border border-slate-200 dark:border-zinc-800 rounded-xl p-3 text-xs md:text-sm shadow-sm relative z-10 transition-all duration-200">
+          <div className="font-mono font-bold text-blue-600 dark:text-blue-400 mb-0.5 flex items-center gap-1.5 text-xs">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#00d294]" />
             Dori Assistant
           </div>
-          <p className="text-slate-600 leading-relaxed font-sans">{speech}</p>
+          <p className="text-slate-600 dark:text-zinc-400 leading-relaxed font-sans text-xs">{speech}</p>
           {/* Arrow */}
-          <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-b border-r border-blue-100 rotate-45" />
+          <div className="absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-3 h-3 bg-white dark:bg-[#18181b] border-b border-r border-slate-200 dark:border-zinc-800 rotate-45" />
         </div>
       )}
 
       {/* Dori Companion Vector Graphic */}
       <div 
         onClick={handleCompanionClick} 
-        className={`relative cursor-pointer transition-transform duration-300 ${interactive ? 'hover:scale-105 active:scale-95' : ''}`}
-        title="Dori - Your Autonomous AWS Companion"
+        className={`relative cursor-pointer transition-transform duration-200 ${interactive ? 'hover:scale-105 active:scale-98' : ''}`}
+        title="Dori - Your Autonomous AWS Intelligence Companion"
       >
         <svg
           width={width}
@@ -80,11 +80,11 @@ export const DoriCompanion: React.FC<DoriCompanionProps> = ({
           viewBox="0 0 120 120"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="drop-shadow-md"
+          className="drop-shadow-sm"
         >
           {/* Antenna / Sensor */}
           <line x1="60" y1="18" x2="60" y2="8" stroke="#2563EB" strokeWidth="4" strokeLinecap="round" />
-          <circle cx="60" cy="7" r="5" fill={currentEmotion === 'alert' ? '#EF4444' : '#3B82F6'} className={currentEmotion === 'alert' ? 'animate-pulse' : ''} />
+          <circle cx="60" cy="7" r="5" fill={currentEmotion === 'alert' ? '#EF4444' : '#3B82F6'} />
 
           {/* Main Robotic Cloud Body */}
           <rect x="20" y="18" width="80" height="78" rx="39" fill="#2563EB" />
@@ -186,3 +186,4 @@ export const DoriCompanion: React.FC<DoriCompanionProps> = ({
     </div>
   );
 };
+export default DoriCompanion;
