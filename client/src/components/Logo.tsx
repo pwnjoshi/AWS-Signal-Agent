@@ -2,7 +2,7 @@ import React from 'react';
 import { useTheme } from '../context/ThemeContext';
 
 interface LogoProps {
-  size?: 'sm' | 'md' | 'lg' | 'xl';
+  size?: 'sm' | 'md' | 'lg';
   showText?: boolean;
   className?: string;
 }
@@ -10,46 +10,44 @@ interface LogoProps {
 export const Logo: React.FC<LogoProps> = ({ size = 'md', showText = true, className = '' }) => {
   const { theme } = useTheme();
 
-  const dimensions = {
-    sm: 'w-7 h-7',
-    md: 'w-8 h-8',
-    lg: 'w-10 h-10',
-    xl: 'w-14 h-14',
+  const imgSize = {
+    sm: 'h-6 w-6',
+    md: 'h-8 w-8',
+    lg: 'h-10 w-10',
   }[size];
 
-  const textSize = {
+  const titleSize = {
     sm: 'text-xs',
     md: 'text-sm sm:text-base',
     lg: 'text-base sm:text-lg',
-    xl: 'text-xl sm:text-2xl',
   }[size];
 
-  // In dark mode use whitelogo.png with crisp visibility, in light mode use standard logo.png
   const logoSrc = theme === 'dark' ? '/whitelogo.png' : '/logo.png';
 
   return (
-    <div className={`flex items-center gap-2.5 ${className}`}>
-      {/* Brand Logo Container with contrast styling */}
-      <div className="p-1 rounded-xl bg-surface-low border border-outline shadow-sm flex items-center justify-center shrink-0 transition-colors">
+    <div className={`flex items-center gap-2.5 select-none ${className}`}>
+      {/* Crisp Logo Icon Container with Clean Border */}
+      <div className="h-9 w-9 rounded-lg bg-surface border border-outline flex items-center justify-center p-1.5 shrink-0 transition-colors shadow-sm">
         <img
           src={logoSrc}
           alt="AWS Signal Logo"
-          className={`${dimensions} object-contain shrink-0 transform transition-transform duration-300 hover:scale-105`}
+          className="h-full w-full object-contain"
           onError={(e: any) => {
             e.target.src = '/logo.png';
           }}
         />
       </div>
 
-      {/* Brand Name Typography */}
+      {/* Clean Brand Typography */}
       {showText && (
-        <div className="flex flex-col leading-tight font-mono text-left">
-          <span className={`font-black tracking-tight text-on-background uppercase ${textSize}`}>
-            AWS <span className="text-primary">Signal</span>
-          </span>
-          <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider flex items-center gap-1 text-[#fe9800] dark:text-secondary">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#fe9800] dark:bg-secondary animate-pulse" />
-            GEU Builder Group
+        <div className="flex flex-col text-left leading-none font-mono">
+          <div className="flex items-center gap-1">
+            <span className={`font-black tracking-tight text-on-background uppercase ${titleSize}`}>
+              AWS Signal
+            </span>
+          </div>
+          <span className="text-[10px] text-on-surface-variant font-medium tracking-wide mt-1">
+            Autonomous Cloud Intelligence
           </span>
         </div>
       )}
