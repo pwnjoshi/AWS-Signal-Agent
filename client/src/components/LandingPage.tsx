@@ -75,10 +75,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
           </div>
         </div>
 
-        {/* Crisp High-Impact Heading */}
-        <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 dark:text-zinc-100 tracking-tight leading-[1.15] max-w-3xl">
-          AWS updates without noise. <br className="hidden sm:inline" />
-          Scored by <span className="text-blue-600 dark:text-blue-400">Bedrock</span>. Spoken by <span className="text-indigo-600 dark:text-indigo-400">Dori</span>.
+        {/* Crisp High-Impact Heading in Exactly 2 Rows */}
+        <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 dark:text-zinc-100 tracking-tight leading-tight max-w-4xl flex flex-col items-center">
+          <span className="block">AWS updates without noise.</span>
+          <span className="block mt-1 sm:mt-2">
+            Scored by <span className="text-blue-600 dark:text-blue-400">Bedrock</span>. Spoken by <span className="text-indigo-600 dark:text-indigo-400">Dori</span>.
+          </span>
         </h1>
 
         {/* Clean, Concise Subtitle */}
