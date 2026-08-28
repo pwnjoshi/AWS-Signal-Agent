@@ -1,151 +1,101 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..900;1,200..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..900;1,200..900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 * {
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 pre, code, .font-mono, pre *, code * {
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: 'JetBrains Mono', 'Plus Jakarta Sans', monospace;
 }
 
-/* ── Light Mode by Default ── */
+/* ── Light Mode (Clean, High-Contrast Slate & AWS Electric Blue) ── */
 :root {
   --bg-color-rgb: 255 255 255;
-  --text-color-rgb: 10 10 10;
-  --text-muted-rgb: 100 100 110;
+  --text-color-rgb: 15 23 42;          /* Slate 900 */
+  --text-muted-rgb: 71 85 105;         /* Slate 600 */
   --surface-color-rgb: 255 255 255;
-  --surface-dim-rgb: 244 244 245;
-  --surface-bright-rgb: 228 228 231;
+  --surface-dim-rgb: 248 250 252;
+  --surface-bright-rgb: 241 245 249;
   --surface-lowest-rgb: 255 255 255;
-  --surface-low-rgb: 250 250 252;
-  --surface-container-rgb: 244 244 245;
-  --surface-high-rgb: 228 228 231;
-  --surface-highest-rgb: 212 212 216;
-  --outline-color-rgb: 228 228 231;
-  --outline-variant-rgb: 212 212 216;
-  --grid-color-rgb: 173 92 255;
+  --surface-low-rgb: 248 250 252;      /* Slate 50 */
+  --surface-container-rgb: 241 245 249;/* Slate 100 */
+  --surface-high-rgb: 226 232 240;
+  --surface-highest-rgb: 203 213 225;
+  --outline-color-rgb: 226 232 240;    /* Slate 200 */
+  --outline-variant-rgb: 203 213 225;
+  --grid-color-rgb: 37 99 235;
   
-  --color-primary-rgb: 173 92 255;
-  --color-primary-container-rgb: 156 71 255;
-  --color-secondary-rgb: 255 192 128;
-  --color-secondary-container-rgb: 254 152 0;
+  --color-primary-rgb: 37 99 235;      /* AWS Electric Blue #2563EB */
+  --color-primary-container-rgb: 29 78 216; /* #1D4ED8 */
+  --color-secondary-rgb: 234 88 12;    /* AWS Warm Amber #EA580C */
+  --color-secondary-container-rgb: 194 65 12;
 }
 
-/* ── Dark Mode ── */
+/* ── Dark Mode (Deep Obsidian, Crisp Contrast & Vibrant Accents) ── */
 .dark {
-  --bg-color-rgb: 9 9 11;
-  --text-color-rgb: 244 244 245;
-  --text-muted-rgb: 161 161 170;
-  --surface-color-rgb: 9 9 11;
-  --surface-dim-rgb: 18 18 22;
-  --surface-bright-rgb: 39 39 42;
+  --bg-color-rgb: 9 9 11;             /* Zinc 950 */
+  --text-color-rgb: 248 250 252;       /* Zinc 50 */
+  --text-muted-rgb: 161 161 170;       /* Zinc 400 */
+  --surface-color-rgb: 18 18 22;       /* Dark card surface */
+  --surface-dim-rgb: 12 12 15;
+  --surface-bright-rgb: 28 28 35;
   --surface-lowest-rgb: 9 9 11;
-  --surface-low-rgb: 18 18 22;
-  --surface-container-rgb: 24 24 27;
-  --surface-high-rgb: 39 39 42;
+  --surface-low-rgb: 24 24 28;
+  --surface-container-rgb: 32 32 38;
+  --surface-high-rgb: 39 39 45;
   --surface-highest-rgb: 63 63 70;
-  --outline-color-rgb: 39 39 42;
+  --outline-color-rgb: 39 39 45;       /* Crisp border */
   --outline-variant-rgb: 63 63 70;
-  --grid-color-rgb: 173 92 255;
+  --grid-color-rgb: 96 165 250;
+  
+  --color-primary-rgb: 96 165 250;     /* Vibrant Sky Blue #60A5FA */
+  --color-primary-container-rgb: 59 130 246; /* #3B82F6 */
+  --color-secondary-rgb: 251 146 60;   /* Vibrant Orange #FB923C */
+  --color-secondary-container-rgb: 249 115 22;
 }
 
 html, body {
   background-color: rgb(var(--bg-color-rgb));
   color: rgb(var(--text-color-rgb));
-  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 ::selection {
-  background-color: #E0DAFF !important;
-  color: #161616 !important;
+  background-color: rgba(var(--color-primary-rgb), 0.2) !important;
+  color: inherit !important;
 }
 
-/* ── Moving Laser Beams & Blueprint Grid ── */
+/* ── Subtle Background Grid ── */
 .site-main-grid {
-  background-size: 60px 60px;
+  background-size: 40px 40px;
   background-image: 
-    linear-gradient(to right, rgba(var(--grid-color-rgb), 0.14) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(var(--grid-color-rgb), 0.14) 1px, transparent 1px);
-  mask-image: radial-gradient(ellipse 80% 80% at 50% 30%, #000 30%, transparent 80%);
-}
-
-.laser-grid-line-h {
-  position: absolute;
-  left: 0;
-  width: 100%;
-  height: 1.5px;
-  background: linear-gradient(90deg, transparent 0%, rgba(173, 92, 255, 0.8) 50%, transparent 100%);
-  filter: drop-shadow(0 0 8px #AD5CFF);
-  animation: laser-beam-horizontal 9s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-  pointer-events: none;
-}
-
-.laser-grid-line-v {
-  position: absolute;
-  top: 0;
-  height: 100%;
-  width: 1.5px;
-  background: linear-gradient(180deg, transparent 0%, rgba(255, 192, 128, 0.8) 50%, transparent 100%);
-  filter: drop-shadow(0 0 8px #ffc080);
-  animation: laser-beam-vertical 11s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-  pointer-events: none;
-}
-
-.site-gradient-glows {
-  position: absolute;
-  top: 5%;
-  left: 20%;
-  width: 60vw;
-  height: 50vh;
-  background: radial-gradient(ellipse at center, rgba(173, 92, 255, 0.12) 0%, rgba(255, 192, 128, 0.05) 50%, transparent 70%);
-  filter: blur(80px);
-  pointer-events: none;
-  animation: gradient-move 14s ease infinite alternate;
-}
-
-@keyframes laser-beam-horizontal {
-  0% { top: -2%; opacity: 0; }
-  10% { opacity: 0.9; }
-  90% { opacity: 0.9; }
-  100% { top: 102%; opacity: 0; }
-}
-
-@keyframes laser-beam-vertical {
-  0% { left: -2%; opacity: 0; }
-  10% { opacity: 0.8; }
-  90% { opacity: 0.8; }
-  100% { left: 102%; opacity: 0; }
-}
-
-@keyframes gradient-move {
-  0% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(40px, -30px) scale(1.1); }
-  100% { transform: translate(-30px, 30px) scale(0.95); }
+    linear-gradient(to right, rgba(var(--grid-color-rgb), 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(var(--grid-color-rgb), 0.05) 1px, transparent 1px);
+  mask-image: radial-gradient(ellipse 70% 70% at 50% 30%, #000 30%, transparent 80%);
 }
 
 /* ── Unified Button & Card Classes ── */
-.btn-geu-primary {
+.btn-primary {
   background-color: rgb(var(--color-primary-rgb));
   color: #ffffff;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
 
-.btn-geu-primary:hover {
+.btn-primary:hover {
   background-color: rgb(var(--color-primary-container-rgb));
-  box-shadow: 0 0 20px rgba(173, 92, 255, 0.35);
 }
 
-.premium-card {
+.btn-secondary {
   background-color: rgb(var(--surface-color-rgb));
+  color: rgb(var(--text-color-rgb));
   border: 1px solid rgb(var(--outline-color-rgb));
-  border-radius: 0.75rem;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
 
-.premium-card:hover {
-  border-color: rgba(173, 92, 255, 0.4);
+.btn-secondary:hover {
+  background-color: rgb(var(--surface-container-rgb));
 }

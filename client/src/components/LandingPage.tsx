@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   Radio, 
   Sparkles, 
-  Play, 
   ArrowRight, 
   ArrowUpRight, 
   ShieldCheck, 
@@ -16,24 +15,16 @@ import {
   Activity, 
   MessageSquare, 
   Cloud, 
-  Compass, 
   Terminal, 
-  Share2, 
-  Lock, 
-  ChevronRight, 
-  Mail, 
-  Users, 
-  Database,
-  Flame,
+  Clock, 
   Brain,
-  Clock,
-  FlaskConical,
   Scale,
-  Target
+  Target,
+  ExternalLink,
+  BookOpen
 } from 'lucide-react';
 import { GEUNavbar as Navbar } from './GEUNavbar';
 import { ParticleBackground } from './ParticleBackground';
-import { DoriCompanion } from './DoriCompanion';
 import { useTheme } from '../context/ThemeContext';
 
 interface LandingPageProps {
@@ -41,46 +32,31 @@ interface LandingPageProps {
   onOpenAuthModal?: () => void;
 }
 
-const HERO_CYCLES = [
-  'WITH CLOUD & AI',
-  'ON THE AWS CLOUD',
-  'AUTONOMOUSLY 24/7',
-  'BEFORE BREAKING PROD',
-];
-
 const DORI_PROMPTS = [
   {
     category: 'Architecture',
-    q: '“What changed in Lambda SnapStart today?”',
+    q: 'What changed in AWS Lambda SnapStart today?',
     a: 'Java 21 managed runtime SnapStart support expanded to 6 new regions with 90% p99 latency reduction. Zero cold-start tax on containerized functions.',
     impact: 'High Impact • Architecture Optimization',
   },
   {
     category: 'Bedrock AI',
-    q: '“Did Anthropic Claude 3.5 Sonnet get updated?”',
+    q: 'Did Anthropic Claude 3.5 Sonnet get updated?',
     a: 'Cross-region inference profiles are now enabled across us-east-1 and us-west-2 for automatic burst failover during high-demand generative workloads.',
     impact: 'Critical • Production Resilience',
   },
   {
     category: 'Security',
-    q: '“Any security alerts on S3 or IAM?”',
+    q: 'Any security alerts on S3 or IAM?',
     a: 'No high-risk CVEs detected in the last 24h. AWS IAM Access Analyzer added 5 new automated policy checks for cross-account trust validation.',
     impact: 'Safe • Security Verified',
   },
 ];
 
 export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAuthModal }) => {
-  const [cycleIndex, setCycleIndex] = useState(0);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [activePromptIdx, setActivePromptIdx] = useState(0);
   const { theme } = useTheme();
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCycleIndex((prev) => (prev + 1) % HERO_CYCLES.length);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
 
   const handleAudioNarration = () => {
     if (!('speechSynthesis' in window)) {
@@ -107,50 +83,43 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
   return (
     <div className="min-h-screen bg-background text-on-background selection:bg-primary/20 selection:text-primary relative font-sans overflow-x-hidden transition-colors">
       
-      {/* Particle Canvas & Grid */}
+      {/* Background Grid & Canvas */}
       <div className="fixed inset-0 pointer-events-none -z-10">
-        <div className="absolute inset-0 site-main-grid opacity-30" />
+        <div className="absolute inset-0 site-main-grid opacity-40" />
         <ParticleBackground />
       </div>
 
       {/* Standalone Navigation */}
       <Navbar onOpenAuthModal={onOpenAuthModal} onLaunchDashboard={onGetStarted} />
 
-      {/* ── Section 1: Hero Section ── */}
-      <section id="home" className="relative pt-28 sm:pt-36 pb-16 sm:pb-24 min-h-[85vh] flex items-center justify-center">
-
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 text-center space-y-7 relative z-10">
+      {/* ── Section 1: Clean, Professional Hero ── */}
+      <section id="home" className="relative pt-32 sm:pt-40 pb-16 sm:pb-24 min-h-[80vh] flex items-center justify-center">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center space-y-6 relative z-10">
           
-          {/* Standalone Status Badge */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-lg bg-surface border border-outline shadow-sm font-mono text-xs text-on-surface-variant hover:border-primary/40 transition-all">
+          {/* Status Badge */}
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-surface border border-outline shadow-sm text-xs font-mono text-on-surface-variant">
             <span className="w-2 h-2 rounded-full bg-[#00d294]" />
-            <span className="font-bold text-on-background">Autonomous Cloud Intelligence</span>
+            <span className="font-semibold text-on-background">Autonomous Cloud Intelligence</span>
             <span className="text-outline">•</span>
             <span className="text-primary font-bold">AWS Signal 2.0</span>
           </div>
 
-          {/* Bold Main Headline with Cycling Typography */}
-          <div className="space-y-3">
-            <h1 className="font-black font-display leading-[1.1] tracking-tight uppercase text-3xl sm:text-5xl md:text-6xl text-on-background">
-              WHERE CLOUD BUILDERS <br />
-              <span className="inline-flex items-center px-3.5 py-0.5 rounded-lg bg-surface-low border border-outline text-primary text-[0.8em] font-mono uppercase tracking-wider font-extrabold align-middle my-1">
-                STAY INFORMED
-              </span> <br />
-              <span className="text-primary">
-                {HERO_CYCLES[cycleIndex]}
-              </span>
+          {/* Clean Main Headline */}
+          <div className="space-y-4">
+            <h1 className="text-3xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-on-background leading-[1.15]">
+              Where Cloud Builders Stay Informed
             </h1>
 
-            <p className="max-w-2xl mx-auto text-xs sm:text-sm text-on-surface-variant leading-relaxed font-sans">
+            <p className="text-sm sm:text-lg text-on-surface-variant max-w-2xl mx-auto font-normal leading-relaxed">
               An autonomous cloud intelligence platform powered by Amazon Bedrock. AWS Signal monitors hundreds of release feeds, analyzes developer friction on re:Post, and delivers personalized audio briefings before breaking your stack.
             </p>
           </div>
 
           {/* Action CTAs */}
-          <div className="flex flex-wrap items-center justify-center gap-3 pt-1 font-mono">
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2 font-mono">
             <Link
               to="/dashboard"
-              className="px-5 py-2.5 bg-primary text-white hover:bg-primary-container rounded-lg text-xs font-bold uppercase tracking-wide shadow-sm active:scale-98 transition-all flex items-center gap-2"
+              className="px-5 py-2.5 bg-primary hover:bg-primary-container text-white rounded-lg text-xs font-bold uppercase tracking-wider shadow-sm active:scale-98 transition-all flex items-center gap-2"
             >
               <Radio className="w-4 h-4" />
               <span>Launch Command Hub</span>
@@ -158,7 +127,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
 
             <button
               onClick={handleAudioNarration}
-              className={`px-4 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wide border transition-all flex items-center gap-2 cursor-pointer ${
+              className={`px-4 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider border transition-all flex items-center gap-2 cursor-pointer ${
                 isSpeaking
                   ? 'bg-amber-500 text-white border-amber-400'
                   : 'bg-surface border-outline hover:bg-surface-container text-on-background'
@@ -215,7 +184,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
             <span className="text-xs font-mono font-bold text-primary uppercase tracking-widest block">
               Autonomous Cloud Intelligence
             </span>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black font-display text-on-background tracking-tight uppercase">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-on-background tracking-tight">
               The Architecture of Clarity
             </h2>
             <p className="text-on-surface-variant text-xs sm:text-sm max-w-xl mx-auto leading-relaxed font-sans">
@@ -227,42 +196,42 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
           <div className="grid grid-cols-1 md:grid-cols-12 gap-5">
             
             {/* Bento 1: While You Were Away (Col 8) */}
-            <div className="md:col-span-8 p-7 rounded-xl bg-surface border border-outline shadow-sm flex flex-col justify-between min-h-[300px]">
+            <div className="md:col-span-8 p-6 sm:p-7 rounded-xl bg-surface border border-outline shadow-sm flex flex-col justify-between min-h-[280px]">
               <div>
                 <span className="text-[10px] font-mono font-bold text-primary uppercase tracking-widest block mb-1.5">Signature Capability</span>
-                <h3 className="text-lg md:text-xl font-bold text-on-background uppercase mb-2 font-display">
+                <h3 className="text-lg md:text-xl font-bold text-on-background uppercase mb-2">
                   "While You Were Away" Executive Synthesis
                 </h3>
-                <p className="text-on-surface-variant text-xs sm:text-sm leading-relaxed max-w-2xl font-light font-sans">
+                <p className="text-on-surface-variant text-xs sm:text-sm leading-relaxed max-w-2xl font-normal font-sans">
                   Never suffer from release fatigue. Whenever you open the dashboard, Dori scans the exact timeframe since your last visit, strips out duplicate marketing noise using SHA-256 hashes, and delivers a concise 60-second summary.
                 </p>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-5 border-t border-outline font-mono">
                 <div className="p-2.5 bg-surface-low border border-outline rounded-lg">
-                  <span className="text-[9px] text-on-surface-variant uppercase block font-bold">Announcements</span>
-                  <span className="text-base font-black text-on-background">03</span>
+                  <span className="text-[10px] text-on-surface-variant uppercase block font-semibold">Announcements</span>
+                  <span className="text-base font-bold text-on-background">03</span>
                 </div>
                 <div className="p-2.5 bg-surface-low border border-outline rounded-lg">
-                  <span className="text-[9px] text-on-surface-variant uppercase block font-bold">Discussions</span>
-                  <span className="text-base font-black text-on-background">07</span>
+                  <span className="text-[10px] text-on-surface-variant uppercase block font-semibold">Discussions</span>
+                  <span className="text-base font-bold text-on-background">07</span>
                 </div>
                 <div className="p-2.5 bg-surface-low border border-outline rounded-lg">
-                  <span className="text-[9px] text-on-surface-variant uppercase block font-bold">Emerging</span>
-                  <span className="text-base font-black text-[#00d294]">02</span>
+                  <span className="text-[10px] text-on-surface-variant uppercase block font-semibold">Emerging</span>
+                  <span className="text-base font-bold text-[#00d294]">02</span>
                 </div>
                 <div className="p-2.5 bg-surface-low border border-red-500/30 rounded-lg">
-                  <span className="text-[9px] text-red-500 uppercase block font-bold">High Alert</span>
-                  <span className="text-base font-black text-red-500">01</span>
+                  <span className="text-[10px] text-red-500 uppercase block font-semibold">High Alert</span>
+                  <span className="text-base font-bold text-red-500">01</span>
                 </div>
               </div>
             </div>
 
             {/* Bento 2: Multi-Metric Score (Col 4) */}
-            <div className="md:col-span-4 p-7 rounded-xl bg-surface border border-outline shadow-sm flex flex-col justify-between font-mono">
+            <div className="md:col-span-4 p-6 sm:p-7 rounded-xl bg-surface border border-outline shadow-sm flex flex-col justify-between font-mono">
               <div className="space-y-1.5">
                 <span className="text-[10px] font-mono font-bold text-primary uppercase tracking-widest block">Bedrock Algorithm</span>
-                <h4 className="text-base font-bold text-on-background uppercase font-display">5-Pillar Score</h4>
+                <h4 className="text-base font-bold text-on-background uppercase">5-Pillar Score</h4>
                 <p className="text-on-surface-variant text-xs font-sans">Each raw item is ranked dynamically across weighted parameters.</p>
               </div>
 
@@ -291,17 +260,17 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
             </div>
 
             {/* Bento 3: Meet Dori Simulator (Col 12) */}
-            <div id="dori" className="md:col-span-12 p-7 rounded-xl bg-surface border border-outline shadow-sm flex flex-col space-y-5">
+            <div id="dori" className="md:col-span-12 p-6 sm:p-7 rounded-xl bg-surface border border-outline shadow-sm flex flex-col space-y-5">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div className="space-y-1.5 max-w-2xl">
+                <div className="space-y-1 max-w-2xl">
                   <div className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full bg-primary" />
                     <span className="text-[10px] font-mono font-bold text-primary uppercase tracking-widest block">AI Companion</span>
                   </div>
-                  <h3 className="text-lg md:text-xl font-bold text-on-background uppercase font-display">
+                  <h3 className="text-lg md:text-xl font-bold text-on-background uppercase">
                     Meet Dori: Your Autonomous Cloud Specialist
                   </h3>
-                  <p className="text-on-surface-variant text-xs sm:text-sm leading-relaxed font-light font-sans">
+                  <p className="text-on-surface-variant text-xs sm:text-sm leading-relaxed font-normal font-sans">
                     Dori runs autonomously in the background, learns your Builder ID stack preferences, and only surfaces intelligence that directly impacts your systems.
                   </p>
                 </div>
@@ -324,10 +293,10 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
               </div>
 
               {/* Dori Simulator Box */}
-              <div className="bg-surface-low border border-outline rounded-lg p-5 font-mono space-y-3">
+              <div className="bg-surface-low border border-outline rounded-lg p-4 sm:p-5 font-mono space-y-2.5">
                 <div className="flex items-start gap-2.5 text-xs text-primary font-bold">
                   <Terminal className="w-4 h-4 shrink-0 mt-0.5" />
-                  <span>{DORI_PROMPTS[activePromptIdx].q}</span>
+                  <span>"{DORI_PROMPTS[activePromptIdx].q}"</span>
                 </div>
                 <div className="pl-6 text-xs text-on-background font-sans leading-relaxed">
                   {DORI_PROMPTS[activePromptIdx].a}
@@ -352,8 +321,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
             <span className="text-xs font-bold text-primary uppercase tracking-widest block">
               Autonomous Pipeline
             </span>
-            <h2 className="text-2xl sm:text-3xl font-black font-display text-on-background tracking-tight uppercase">
-              From Raw RSS to Verified Intelligence
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-on-background tracking-tight">
+              From Raw Feeds to Verified Intelligence
             </h2>
           </div>
 
@@ -366,7 +335,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
               { step: '05', title: 'Notify', desc: 'Instant SES email alerts dispatched to subscribed Builder IDs.' },
             ].map((s) => (
               <div key={s.step} className="bg-surface border border-outline rounded-lg p-4 space-y-1.5 hover:border-primary/40 transition-all shadow-sm">
-                <span className="text-xs font-black text-primary">{s.step}.</span>
+                <span className="text-xs font-bold text-primary">{s.step}.</span>
                 <h4 className="text-xs font-bold text-on-background uppercase">{s.title}</h4>
                 <p className="text-[11px] text-on-surface-variant font-sans leading-relaxed">{s.desc}</p>
               </div>
@@ -384,37 +353,37 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
             <span className="text-xs font-bold text-primary uppercase tracking-widest block">
               Architecture & Capabilities
             </span>
-            <h2 className="text-2xl sm:text-3xl font-black font-display text-on-background tracking-tight uppercase">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-on-background tracking-tight">
               Engineered for Modern Cloud Teams
             </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            <div className="p-6 rounded-xl bg-surface border border-outline shadow-sm space-y-3 font-mono">
-              <div className="w-10 h-10 rounded-lg bg-surface-low border border-outline flex items-center justify-center text-primary">
-                <Cpu className="w-5 h-5" />
+            <div className="p-5 sm:p-6 rounded-xl bg-surface border border-outline shadow-sm space-y-2.5 font-mono">
+              <div className="w-9 h-9 rounded-lg bg-surface-low border border-outline flex items-center justify-center text-primary">
+                <Cpu className="w-4 h-4" />
               </div>
-              <h3 className="text-base font-bold text-on-background uppercase font-display">Serverless Autonomous Agent</h3>
+              <h3 className="text-sm font-bold text-on-background uppercase">Serverless Autonomous Agent</h3>
               <p className="text-xs text-on-surface-variant leading-relaxed font-sans">
                 Runs 24/7 on AWS Lambda, EventBridge Scheduler, and Amazon DynamoDB with zero idle container costs.
               </p>
             </div>
 
-            <div className="p-6 rounded-xl bg-surface border border-outline shadow-sm space-y-3 font-mono">
-              <div className="w-10 h-10 rounded-lg bg-surface-low border border-outline flex items-center justify-center text-[#fe9800]">
-                <ShieldCheck className="w-5 h-5" />
+            <div className="p-5 sm:p-6 rounded-xl bg-surface border border-outline shadow-sm space-y-2.5 font-mono">
+              <div className="w-9 h-9 rounded-lg bg-surface-low border border-outline flex items-center justify-center text-[#fe9800]">
+                <ShieldCheck className="w-4 h-4" />
               </div>
-              <h3 className="text-base font-bold text-on-background uppercase font-display">Cryptographic Deduplication</h3>
+              <h3 className="text-sm font-bold text-on-background uppercase">Cryptographic Deduplication</h3>
               <p className="text-xs text-on-surface-variant leading-relaxed font-sans">
                 SHA-256 content hashing guarantees you never read duplicate release updates or syndicated press releases.
               </p>
             </div>
 
-            <div className="p-6 rounded-xl bg-surface border border-outline shadow-sm space-y-3 font-mono">
-              <div className="w-10 h-10 rounded-lg bg-surface-low border border-outline flex items-center justify-center text-[#00d294]">
-                <Volume2 className="w-5 h-5" />
+            <div className="p-5 sm:p-6 rounded-xl bg-surface border border-outline shadow-sm space-y-2.5 font-mono">
+              <div className="w-9 h-9 rounded-lg bg-surface-low border border-outline flex items-center justify-center text-[#00d294]">
+                <Volume2 className="w-4 h-4" />
               </div>
-              <h3 className="text-base font-bold text-on-background uppercase font-display">Audio Voice Synthesizer</h3>
+              <h3 className="text-sm font-bold text-on-background uppercase">Audio Voice Synthesizer</h3>
               <p className="text-xs text-on-surface-variant leading-relaxed font-sans">
                 Dori's built-in neural speech engine reads out executive morning digests so you can listen hands-free.
               </p>
@@ -433,14 +402,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onOpenAu
               <p className="text-xs font-bold text-primary uppercase tracking-wider mb-1">
                 AWS Signal Intelligence Platform
               </p>
-              <h2 className="text-xl sm:text-3xl font-black text-on-background uppercase tracking-tight">
+              <h2 className="text-xl sm:text-2xl font-black text-on-background uppercase tracking-tight">
                 Build. Ship. Stay Ahead.
               </h2>
             </div>
 
             <Link
               to="/dashboard"
-              className="px-5 py-2.5 bg-primary hover:bg-primary-container text-white rounded-lg text-xs font-bold uppercase tracking-wide shadow-sm flex items-center gap-1.5 transition-all"
+              className="px-5 py-2.5 bg-primary hover:bg-primary-container text-white rounded-lg text-xs font-bold uppercase tracking-wider shadow-sm flex items-center gap-1.5 transition-all"
             >
               <span>Launch Command Hub</span>
               <ArrowUpRight className="w-3.5 h-3.5" />
