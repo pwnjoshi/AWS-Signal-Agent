@@ -94,8 +94,19 @@ export interface DailyBriefing {
 
 export type ScheduleFrequency = '1h' | '6h' | '12h' | 'daily_8am' | 'weekly_mon';
 
+export interface UserProfile {
+  builder_id: string;
+  display_name: string;
+  email: string;
+  email_list: string[];
+  avatar_url?: string;
+  is_authenticated: boolean;
+  logged_in_at: string;
+}
+
 export interface UserPreferences {
   user_id: string;
+  builder_id: string;
   name: string;
   email: string;
   email_list: string[];

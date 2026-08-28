@@ -30,24 +30,24 @@ export const Logo: React.FC<LogoProps> = ({ size = 'md', showText = true, classN
         
         <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full relative z-10">
           <defs>
-            <linearGradient id="logo-grad-1" x1="10" y1="90" x2="90" y2="10" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#3b82f6" />
+            <linearGradient id="pulse-logo-grad" x1="10" y1="90" x2="90" y2="10" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stopColor="#2563eb" />
               <stop offset="50%" stopColor="#06b6d4" />
-              <stop offset="100%" stopColor="#6366f1" />
+              <stop offset="100%" stopColor="#f59e0b" />
             </linearGradient>
           </defs>
 
           {/* Radar Signal Wave Outer Arc */}
-          <path d="M 18,36 A 36,36 0 0,1 82,36" stroke="url(#logo-grad-1)" strokeWidth="6" strokeLinecap="round" opacity="0.4" />
-          <path d="M 26,28 A 26,26 0 0,1 74,28" stroke="url(#logo-grad-1)" strokeWidth="7" strokeLinecap="round" opacity="0.85" />
+          <path d="M 18,36 A 36,36 0 0,1 82,36" stroke="url(#pulse-logo-grad)" strokeWidth="6" strokeLinecap="round" opacity="0.4" />
+          <path d="M 26,28 A 26,26 0 0,1 74,28" stroke="url(#pulse-logo-grad)" strokeWidth="7" strokeLinecap="round" opacity="0.85" />
 
           {/* Cloud Signal Base */}
           <path 
             d="M 26,70 C 17,70 13,61 17,52 C 21,43 30,43 34,39 C 39,30 52,26 62,33 C 72,28 84,37 82,48 C 88,53 87,64 78,70 Z" 
-            fill="url(#logo-grad-1)" 
+            fill="url(#pulse-logo-grad)" 
           />
 
-          {/* Lightning Signal Core */}
+          {/* Lightning Pulse Core */}
           <path 
             d="M 54,34 L 42,54 L 52,54 L 46,73 L 62,47 L 51,47 Z" 
             fill="#ffffff" 
@@ -63,11 +63,11 @@ export const Logo: React.FC<LogoProps> = ({ size = 'md', showText = true, classN
       {showText && (
         <div className="flex flex-col leading-none">
           <span className={`font-extrabold tracking-tight text-slate-900 font-rounded ${textSize}`}>
-            AWS <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 bg-clip-text text-transparent">Signal</span>
+            AWS <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-amber-500 bg-clip-text text-transparent">Pulse AI</span>
           </span>
           <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-blue-600 mt-1 flex items-center gap-1">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            Autonomous Agent
+            Autonomous Intelligence Platform
           </span>
         </div>
       )}

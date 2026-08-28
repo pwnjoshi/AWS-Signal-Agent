@@ -5,6 +5,7 @@ import {
   DailyBriefing, 
   ServiceExplorerItem, 
   UserPreferences, 
+  UserProfile, 
   WhileYouWereAwaySummary 
 } from '../types/clientTypes';
 
@@ -22,6 +23,27 @@ function defaultHeaders(extra?: Record<string, string>): Record<string, string> 
   };
 }
 
+// AWS Builder ID Auth & Profile API
+export async function authenticateBuilderId(builder_id: string, display_name?: string, email?: string): Promise<UserProfile> {
+  const res = await fetch(`${BASE_URL}/api/auth/builder-id`, {
+    method: 'POST',
+    headers: defaultHeaders(),
+    body: JSON.stringify({ builder_id, display_name, email }),
+  });
+  if (!res.ok) throw new Error('Failed to authenticate Builder ID');
+  const data = await res.json();
+  return data.profile;
+}
+
+export async function fetchActiveProfile(): Promise<UserProfile> {
+  const res = await fetch(`${BASE_URL}/api/auth/profile`, {
+    headers: defaultHeaders(),
+  });
+  if (!res.ok) throw new Error('Failed to fetch profile');
+  return res.json();
+}
+
+// Agent Status & Execution
 export async function fetchAgentStatus(): Promise<{
   status: string;
   is_running: boolean;

@@ -8,9 +8,11 @@ import {
   BookOpen, 
   Bookmark, 
   Settings, 
-  Activity 
+  Activity,
+  UserCheck 
 } from 'lucide-react';
 import { Logo } from './Logo';
+import { UserProfile } from '../types/clientTypes';
 
 export type NavTab = 
   | 'home' 
@@ -28,6 +30,8 @@ interface SidebarProps {
   setActiveTab: (tab: NavTab) => void;
   savedCount?: number;
   alertCount?: number;
+  userProfile?: UserProfile | null;
+  onOpenAuthModal?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -35,6 +39,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   setActiveTab,
   savedCount = 0,
   alertCount = 0,
+  userProfile,
+  onOpenAuthModal,
 }) => {
   const navItems = [
     { id: 'home' as NavTab, label: 'Home', icon: Home },
@@ -115,14 +121,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <span>Settings</span>
         </button>
 
-        {/* User Profile */}
-        <div className="pt-3 border-t border-slate-100 mt-2 flex items-center gap-3 px-2">
-          <div className="w-9 h-9 rounded-full bg-blue-100 border border-blue-200 flex items-center justify-center font-bold text-blue-700 text-xs">
-            P
+        {/* AWS Builder ID Profile Component */}
+        <div 
+          onClick={onOpenAuthModal}
+          className="pt-3 border-t border-slate-100 mt-2 flex items-center gap-3 px-2 cursor-pointer hover:bg-slate-50 rounded-xl p-1 transition-colors"
+          title="Click to manage AWS Builder ID profile"
+        >
+          <div className="w-9 h-9 rounded-full bg-amber-100 border border-amber-300 flex items-center justify-center font-extrabold text-amber-800 text-xs">
+            <UserCheck className="w-4 h-4 text-amber-600" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-semibold text-slate-800 truncate">Pawan</p>
-            <p className="text-[11px] text-slate-400 truncate">AWS Developer</p>
+            <p className="text-xs font-bold text-slate-800 truncate">{userProfile?.display_name || 'Pawan'}</p>
+            <p className="text-[10px] font-semibold text-amber-700 truncate">{userProfile?.builder_id || 'builder_pawan_2026'}</p>
           </div>
         </div>
       </div>

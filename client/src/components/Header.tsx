@@ -1,6 +1,7 @@
 import React from 'react';
-import { Play, RefreshCw, Bell, Search } from 'lucide-react';
+import { Play, RefreshCw, Bell, Search, UserCheck } from 'lucide-react';
 import { Logo } from './Logo';
+import { UserProfile } from '../types/clientTypes';
 
 interface HeaderProps {
   onRunAgent: () => void;
@@ -8,6 +9,8 @@ interface HeaderProps {
   onSearchChange?: (term: string) => void;
   searchTerm?: string;
   onOpenSettings?: () => void;
+  userProfile?: UserProfile | null;
+  onOpenAuthModal?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -16,6 +19,8 @@ export const Header: React.FC<HeaderProps> = ({
   onSearchChange,
   searchTerm = '',
   onOpenSettings,
+  userProfile,
+  onOpenAuthModal,
 }) => {
   return (
     <header className="h-16 bg-white border-b border-slate-200 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 shadow-xs">
@@ -32,18 +37,22 @@ export const Header: React.FC<HeaderProps> = ({
           type="text"
           value={searchTerm}
           onChange={(e) => onSearchChange && onSearchChange(e.target.value)}
-          placeholder="Search AWS signals..."
+          placeholder="Search AWS Pulse AI signals, services..."
           className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-3 py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all placeholder:text-slate-400"
         />
       </div>
 
       {/* Action Controls & Agent Status */}
       <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-        {/* Agent Status Badge (Desktop Only) */}
-        <div className="hidden lg:flex items-center gap-2 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-full text-xs font-semibold text-emerald-700">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-          AGENT ONLINE
-        </div>
+        {/* AWS Builder ID Profile Badge */}
+        <button
+          onClick={onOpenAuthModal}
+          className="flex items-center gap-2 bg-amber-50 hover:bg-amber-100/80 border border-amber-200 px-3 py-1.5 rounded-full text-xs font-bold text-amber-900 transition-all"
+          title="Switch AWS Builder ID Profile"
+        >
+          <UserCheck className="w-3.5 h-3.5 text-amber-600" />
+          <span className="hidden sm:inline">{userProfile?.builder_id || 'builder_pawan'}</span>
+        </button>
 
         {/* Demo Trigger: "Run Agent Now" */}
         <button
@@ -59,7 +68,7 @@ export const Header: React.FC<HeaderProps> = ({
           ) : (
             <>
               <Play className="w-3.5 h-3.5 fill-white" />
-              <span className="hidden sm:inline">Run Agent Now</span>
+              <span className="hidden sm:inline">Run Agent</span>
               <span className="sm:hidden">Run</span>
             </>
           )}

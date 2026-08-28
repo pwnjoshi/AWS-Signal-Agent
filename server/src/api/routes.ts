@@ -4,13 +4,61 @@ import { getSchedulerStatus, runAgentPipeline, updateScheduleCron } from '../sch
 import { sendSignalAlertIfNeeded } from '../services/emailAlertService';
 import { generateDailyBriefing } from '../services/briefingGenerator';
 import { apiSecurityGuard, rateLimiter } from '../middleware/security';
+import { fetchAWSFeeds } from '../collectors/awsFeedsCollector';
 
 const router = Router();
 
-// Apply Security Guard Middleware across all API routes (Security Headers + API Key validation)
+// Decoupled Public API v1 endpoints (open for external applications to fetch AWS news)
+router.get('/v1/news', rateLimiter(100, 15 * 60 * 1000), async (req, res) => {
+  try {
+    const { items, errors } = await fetchAWSFeeds();
+    res.json({
+      status: 'success',
+      count: items.length,
+      errors: errors.length > 0 ? errors : undefined,
+      news: items,
+    });
+  } catch (err: any) {
+    res.status(500).json({ status: 'error', error: err.message });
+  }
+});
+
+router.get('/v1/signals', rateLimiter(100, 15 * 60 * 1000), (req, res) => {
+  const signals = storage.getSignals();
+  res.json({ status: 'success', count: signals.length, signals });
+});
+
+router.get('/v1/briefings/latest', rateLimiter(100, 15 * 60 * 1000), (req, res) => {
+  let latest = storage.getLatestBriefing();
+  if (!latest) {
+    latest = generateDailyBriefing(storage.getSignals());
+    storage.saveBriefing(latest);
+  }
+  res.json({ status: 'success', briefing: latest });
+});
+
+router.get('/v1/trends', rateLimiter(100, 15 * 60 * 1000), (req, res) => {
+  res.json({ status: 'success', trends: storage.getTopics() });
+});
+
+// Builder ID Quick Auth & Profile Endpoints
+router.post('/auth/builder-id', rateLimiter(30, 15 * 60 * 1000), (req, res) => {
+  const { builder_id, display_name, email } = req.body;
+  if (!builder_id) {
+    return res.status(400).json({ error: 'builder_id is required' });
+  }
+  const profile = storage.authenticateBuilderId(builder_id, display_name, email);
+  res.json({ success: true, profile });
+});
+
+router.get('/auth/profile', (req, res) => {
+  res.json(storage.getActiveProfile());
+});
+
+// Security Guard Middleware across core API routes
 router.use(apiSecurityGuard);
 
-// Agent Status & Telemetry (General rate limit: 100 requests / 15 min)
+// Agent Status & Telemetry
 router.get('/agent/status', rateLimiter(100, 15 * 60 * 1000), (req, res) => {
   const status = getSchedulerStatus();
   const logs = storage.getLogs();
@@ -24,7 +72,7 @@ router.get('/agent/status', rateLimiter(100, 15 * 60 * 1000), (req, res) => {
   });
 });
 
-// Strict Rate Limiting on heavy Bedrock execution: Max 10 runs per 15 minutes
+// Bedrock Execution Trigger
 router.post('/agent/run', rateLimiter(10, 15 * 60 * 1000), async (req, res) => {
   try {
     const log = await runAgentPipeline('manual_demo');
@@ -67,7 +115,6 @@ router.get('/signals', rateLimiter(100, 15 * 60 * 1000), (req, res) => {
     signals = signals.filter(s => s.is_saved);
   }
 
-  // Sorting
   if (sort === 'importance') {
     signals.sort((a, b) => b.importance_score - a.importance_score);
   } else if (sort === 'relevance') {
@@ -75,7 +122,6 @@ router.get('/signals', rateLimiter(100, 15 * 60 * 1000), (req, res) => {
   } else if (sort === 'score') {
     signals.sort((a, b) => b.signal_score - a.signal_score);
   } else {
-    // default newest
     signals.sort((a, b) => new Date(b.published_at).getTime() - new Date(a.published_at).getTime());
   }
 
@@ -165,7 +211,7 @@ router.put('/preferences', rateLimiter(30, 15 * 60 * 1000), (req, res) => {
   res.json(updated);
 });
 
-// Test Email Alert: Max 5 test alerts per 15 minutes
+// Test Email Alert
 router.post('/alerts/test', rateLimiter(5, 15 * 60 * 1000), async (req, res) => {
   const signals = storage.getSignals();
   const targetSignal = signals[0];

@@ -3,7 +3,7 @@ import path from 'path';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, PutCommand, ScanCommand } from '@aws-sdk/lib-dynamodb';
 import { fromIni } from '@aws-sdk/credential-providers';
-import { AgentExecutionLog, AWSSignal, CommunityTopic, DailyBriefing, UserPreferences } from '../types';
+import { AgentExecutionLog, AWSSignal, CommunityTopic, DailyBriefing, UserPreferences, UserProfile } from '../types';
 
 const DATA_DIR = process.env.AWS_LAMBDA_FUNCTION_NAME 
   ? path.join('/tmp', 'data')
@@ -23,6 +23,7 @@ const FILES = {
   topics: path.join(DATA_DIR, 'topics.json'),
   briefings: path.join(DATA_DIR, 'briefings.json'),
   preferences: path.join(DATA_DIR, 'preferences.json'),
+  profiles: path.join(DATA_DIR, 'profiles.json'),
   logs: path.join(DATA_DIR, 'logs.json'),
 };
 
@@ -61,6 +62,7 @@ export class StorageService {
   private briefings: DailyBriefing[] = [];
   private logs: AgentExecutionLog[] = [];
   private preferences: UserPreferences;
+  private activeProfile: UserProfile;
 
   constructor() {
     const savedSignals = readJsonFile<AWSSignal[]>(FILES.signals, []);
@@ -76,7 +78,8 @@ export class StorageService {
 
     this.preferences = {
       user_id: 'usr_pawan_default',
-      name: 'Pawan',
+      builder_id: loadedPrefs.builder_id || 'builder_pawan_2026',
+      name: loadedPrefs.name || 'Pawan',
       email: loadedPrefs.email || 'pawan@example.com',
       email_list: loadedPrefs.email_list || (loadedPrefs.email ? [loadedPrefs.email] : ['pawan@example.com', 'devops@company.com']),
       email_enabled: loadedPrefs.email_enabled ?? true,
@@ -89,7 +92,15 @@ export class StorageService {
       last_visited_at: loadedPrefs.last_visited_at || new Date(Date.now() - 3600 * 1000 * 12).toISOString(),
     };
 
-    // Hydrate memory from live AWS DynamoDB tables asynchronously
+    this.activeProfile = {
+      builder_id: this.preferences.builder_id,
+      display_name: this.preferences.name,
+      email: this.preferences.email,
+      email_list: this.preferences.email_list,
+      is_authenticated: true,
+      logged_in_at: new Date().toISOString(),
+    };
+
     this.hydrateFromDynamoDB();
   }
 
@@ -102,6 +113,39 @@ export class StorageService {
     } catch (err: any) {
       console.log(`[DynamoDB Hydrate] Note: ${err.message}. Using active in-memory and disk persistence.`);
     }
+  }
+
+  // Builder ID Authentication & Quick Login
+  public authenticateBuilderId(builderIdInput: string, name?: string, email?: string): UserProfile {
+    const cleanId = builderIdInput.trim().toLowerCase().replace(/[^a-z0-9_.-]/g, '_') || 'builder_pawan_2026';
+    const displayName = name || cleanId.replace('builder_', '').replace(/_/g, ' ').toUpperCase();
+    const userEmail = email || `${cleanId.replace('builder_', '')}@builder.aws`;
+
+    this.preferences.builder_id = cleanId;
+    this.preferences.name = displayName;
+    this.preferences.email = userEmail;
+
+    if (!this.preferences.email_list.includes(userEmail)) {
+      this.preferences.email_list.unshift(userEmail);
+    }
+
+    this.activeProfile = {
+      builder_id: cleanId,
+      display_name: displayName,
+      email: userEmail,
+      email_list: this.preferences.email_list,
+      is_authenticated: true,
+      logged_in_at: new Date().toISOString(),
+    };
+
+    writeJsonFile(FILES.preferences, this.preferences);
+    writeJsonFile(FILES.profiles, this.activeProfile);
+
+    return this.activeProfile;
+  }
+
+  public getActiveProfile(): UserProfile {
+    return this.activeProfile;
   }
 
   // Signals
@@ -179,7 +223,6 @@ export class StorageService {
   public updatePreferences(updates: Partial<UserPreferences>): UserPreferences {
     this.preferences = { ...this.preferences, ...updates };
     
-    // Ensure email_list stays synchronized
     if (updates.email && (!this.preferences.email_list || !this.preferences.email_list.includes(updates.email))) {
       this.preferences.email_list = [updates.email, ...(this.preferences.email_list || []).filter(e => e !== updates.email)];
     }

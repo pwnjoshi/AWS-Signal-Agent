@@ -30,13 +30,13 @@ export interface AWSSignal {
   aws_services: string[];
   category: SignalCategory;
   summary: string;
-  importance_score: number; // 0-100
-  relevance_score: number;  // 0-100
-  novelty_score: number;    // 0-100
-  momentum_score: number;   // 0-100
-  impact_score: number;     // 0-100
-  signal_score: number;     // Weighted calculated score
-  confidence_score: number; // 0-100
+  importance_score: number;
+  relevance_score: number;
+  novelty_score: number;
+  momentum_score: number;
+  impact_score: number;
+  signal_score: number;
+  confidence_score: number;
   why_it_matters: WhyItMatters;
   content_hash: string;
   status: 'new' | 'processed' | 'alerted' | 'archived';
@@ -48,12 +48,12 @@ export interface CommunityTopic {
   name: string;
   service: string;
   mention_count: number;
-  trend_score: number; // 0-100
+  trend_score: number;
   velocity: 'rising' | 'stable' | 'fading';
   common_symptoms: string[];
   suggested_solutions: string[];
   related_docs: Array<{ title: string; url: string }>;
-  related_signals: string[]; // IDs
+  related_signals: string[];
   first_seen: string;
   last_seen: string;
   evolution_timeline?: Array<{ date: string; stage: string; note: string }>;
@@ -94,8 +94,19 @@ export interface DailyBriefing {
 
 export type ScheduleFrequency = '1h' | '6h' | '12h' | 'daily_8am' | 'weekly_mon';
 
+export interface UserProfile {
+  builder_id: string;
+  display_name: string;
+  email: string;
+  email_list: string[];
+  avatar_url?: string;
+  is_authenticated: boolean;
+  logged_in_at: string;
+}
+
 export interface UserPreferences {
   user_id: string;
+  builder_id: string;
   name: string;
   email: string;
   email_list: string[];

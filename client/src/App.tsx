@@ -9,6 +9,7 @@ import { BriefingsPage } from './pages/BriefingsPage';
 import { AgentStatusTimeline } from './components/AgentStatusTimeline';
 import { SignalDetailModal } from './components/SignalDetailModal';
 import { AlertSettingsModal } from './components/AlertSettingsModal';
+import { BuilderIdAuthModal } from './components/BuilderIdAuthModal';
 import { LandingPage } from './components/LandingPage';
 import { 
   AWSSignal, 
@@ -16,10 +17,12 @@ import {
   DailyBriefing, 
   ServiceExplorerItem, 
   UserPreferences, 
+  UserProfile,
   WhileYouWereAwaySummary,
   AgentExecutionLog 
 } from './types/clientTypes';
 import { 
+  fetchActiveProfile,
   fetchAgentStatus, 
   fetchBriefings, 
   fetchLatestBriefing, 
@@ -35,6 +38,10 @@ import {
 export function App() {
   const [activeTab, setActiveTab] = useState<NavTab>('home');
   const [showLanding, setShowLanding] = useState<boolean>(false);
+
+  // Profile & Auth State
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
 
   // Application Data States
   const [signals, setSignals] = useState<AWSSignal[]>([]);
@@ -64,6 +71,7 @@ export function App() {
         servicesRes,
         summaryRes,
         prefsRes,
+        profileRes,
       ] = await Promise.all([
         fetchAgentStatus().catch(() => null),
         fetchSignals().catch(() => ({ signals: [] })),
@@ -73,6 +81,7 @@ export function App() {
         fetchServicesExplorer().catch(() => []),
         fetchWhileYouWereAway().catch(() => null),
         fetchPreferences().catch(() => null),
+        fetchActiveProfile().catch(() => null),
       ]);
 
       if (statusRes) {
@@ -88,6 +97,7 @@ export function App() {
       setServices(servicesRes || []);
       setSummary(summaryRes);
       setPreferences(prefsRes);
+      setUserProfile(profileRes);
     } catch (err) {
       console.error('Error loading data:', err);
     }
@@ -139,6 +149,8 @@ export function App() {
         }}
         savedCount={savedSignalsCount}
         alertCount={summary?.high_priority_alerts ?? 1}
+        userProfile={userProfile}
+        onOpenAuthModal={() => setShowAuthModal(true)}
       />
 
       {/* Main Content Area */}
@@ -154,6 +166,8 @@ export function App() {
             }
           }}
           onOpenSettings={() => setShowAlertSettings(true)}
+          userProfile={userProfile}
+          onOpenAuthModal={() => setShowAuthModal(true)}
         />
 
         <main className="p-4 sm:p-6 md:p-8 pb-24 md:pb-8 max-w-7xl mx-auto w-full flex-1">
@@ -213,7 +227,7 @@ export function App() {
                     ✉ Intelligent SES Alert History
                   </h1>
                   <p className="text-slate-500 text-xs sm:text-sm mt-1">
-                    Signals that triggered high-priority automated email alerts to your recipient list.
+                    Signals that triggered high-priority automated email alerts to {userProfile?.builder_id || 'your Builder ID profile'}.
                   </p>
                 </div>
                 <button
@@ -267,6 +281,17 @@ export function App() {
           preferences={preferences}
           onClose={() => setShowAlertSettings(false)}
           onUpdate={(updated) => setPreferences(updated)}
+        />
+      )}
+
+      {showAuthModal && (
+        <BuilderIdAuthModal
+          currentProfile={userProfile}
+          onClose={() => setShowAuthModal(false)}
+          onSuccess={(profile) => {
+            setUserProfile(profile);
+            loadAllData();
+          }}
         />
       )}
     </div>
