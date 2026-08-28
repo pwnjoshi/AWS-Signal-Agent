@@ -47,10 +47,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
   ];
 
   return (
-    <aside className="hidden md:flex w-64 bg-surface border-r border-outline flex-col justify-between h-screen sticky top-0 z-20 shrink-0 text-on-background font-sans transition-colors">
+    <aside className="hidden md:flex w-64 bg-white dark:bg-[#121216] border-r border-slate-200 dark:border-zinc-800 flex-col justify-between h-screen sticky top-0 z-20 shrink-0 text-slate-900 dark:text-zinc-100 font-sans transition-colors">
       <div>
         {/* Brand Header */}
-        <div className="p-4 border-b border-outline">
+        <div className="p-4 border-b border-slate-200 dark:border-zinc-800">
           <Link to="/">
             <Logo size="md" />
           </Link>
@@ -67,17 +67,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 to={item.path}
                 className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg font-bold text-xs tracking-wide transition-all ${
                   isActive
-                    ? 'bg-primary text-white shadow-sm'
-                    : 'text-on-surface-variant hover:bg-surface-container hover:text-on-background'
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-[#1f1f26] hover:text-slate-900 dark:hover:text-zinc-100'
                 }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-on-surface-variant'}`} />
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-500 dark:text-zinc-400'}`} />
                   <span>{item.label}</span>
                 </div>
                 {item.badge !== undefined && item.badge > 0 && (
                   <span className={`text-[10px] px-2 py-0.5 rounded-md font-extrabold ${
-                    isActive ? 'bg-white text-zinc-950' : 'bg-surface-container text-on-surface-variant border border-outline'
+                    isActive ? 'bg-white text-blue-600' : 'bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700'
                   }`}>
                     {item.badge}
                   </span>
@@ -89,18 +89,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
       </div>
 
       {/* Footer Navigation */}
-      <div className="p-3 border-t border-outline space-y-1 font-mono">
+      <div className="p-3 border-t border-slate-200 dark:border-zinc-800 space-y-1 font-mono">
         <Link
           to="/telemetry"
           className={`w-full flex items-center gap-2.5 px-3.5 py-2 rounded-lg font-bold text-xs transition-all ${
             location.pathname === '/telemetry'
-              ? 'bg-surface-container text-primary border border-outline'
-              : 'text-on-surface-variant hover:bg-surface-container hover:text-on-background'
+              ? 'bg-slate-100 dark:bg-[#1f1f26] text-blue-600 dark:text-blue-400 border border-slate-200 dark:border-zinc-700'
+              : 'text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-[#1f1f26] hover:text-slate-900 dark:hover:text-zinc-100'
           }`}
         >
-          <Activity className="w-4 h-4 text-primary" />
+          <Activity className="w-4 h-4 text-blue-600 dark:text-blue-400" />
           <span className="flex-1 text-left">Agent Telemetry</span>
-          <span className="text-[9px] bg-surface border border-outline px-1.5 py-0.5 rounded text-on-surface-variant font-bold">
+          <span className="text-[9px] bg-slate-100 dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 px-1.5 py-0.5 rounded text-slate-600 dark:text-zinc-400 font-bold">
             HUD
           </span>
         </Link>
@@ -108,16 +108,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Theme Switcher Button */}
         <button
           onClick={toggleTheme}
-          className="w-full flex items-center gap-2.5 px-3.5 py-2 rounded-lg font-bold text-xs text-on-surface-variant hover:bg-surface-container hover:text-on-background cursor-pointer transition-all"
+          className="w-full flex items-center gap-2.5 px-3.5 py-2 rounded-lg font-bold text-xs text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-[#1f1f26] hover:text-slate-900 dark:hover:text-zinc-100 cursor-pointer transition-all"
         >
           {theme === 'light' ? (
             <>
-              <Moon className="w-4 h-4" />
+              <Moon className="w-4 h-4 text-slate-700" />
               <span>Dark Theme</span>
             </>
           ) : (
             <>
-              <Sun className="w-4 h-4 text-[#fe9800]" />
+              <Sun className="w-4 h-4 text-amber-400" />
               <span>Light Theme</span>
             </>
           )}
@@ -125,24 +125,24 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         <button
           onClick={onOpenSettings}
-          className="w-full flex items-center gap-2.5 px-3.5 py-2 rounded-lg font-bold text-xs text-on-surface-variant hover:bg-surface-container hover:text-on-background cursor-pointer transition-all"
+          className="w-full flex items-center gap-2.5 px-3.5 py-2 rounded-lg font-bold text-xs text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-[#1f1f26] hover:text-slate-900 dark:hover:text-zinc-100 cursor-pointer transition-all"
         >
-          <Settings className="w-4 h-4 text-on-surface-variant" />
+          <Settings className="w-4 h-4 text-slate-500 dark:text-zinc-400" />
           <span>Config</span>
         </button>
 
         {/* AWS Builder ID Profile Chip */}
         <div 
           onClick={onOpenAuthModal}
-          className="pt-2.5 border-t border-outline mt-1.5 flex items-center gap-2.5 px-2 cursor-pointer hover:bg-surface-container rounded-lg p-2 transition-colors border border-outline bg-surface-low"
+          className="pt-2.5 border-t border-slate-200 dark:border-zinc-800 mt-1.5 flex items-center gap-2.5 px-2 cursor-pointer hover:bg-slate-100 dark:hover:bg-[#1f1f26] rounded-lg p-2 transition-colors border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-[#18181b]"
           title="Manage AWS Builder ID profile"
         >
-          <div className="w-8 h-8 rounded-md bg-surface border border-outline flex items-center justify-center font-bold text-primary text-xs shrink-0">
-            <UserCheck className="w-4 h-4 text-primary" />
+          <div className="w-8 h-8 rounded-md bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 flex items-center justify-center font-bold text-blue-600 dark:text-blue-400 text-xs shrink-0">
+            <UserCheck className="w-4 h-4 text-blue-600 dark:text-blue-400" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-bold text-on-background truncate">{userProfile?.display_name || 'Pawan Joshi'}</p>
-            <p className="text-[10px] font-mono text-on-surface-variant truncate">{userProfile?.builder_id || 'builder_pawan_2026'}</p>
+            <p className="text-xs font-bold text-slate-900 dark:text-zinc-100 truncate">{userProfile?.display_name || 'Pawan Joshi'}</p>
+            <p className="text-[10px] font-mono text-slate-500 dark:text-zinc-400 truncate">{userProfile?.builder_id || 'builder_pawan_2026'}</p>
           </div>
         </div>
       </div>
@@ -165,7 +165,7 @@ export const MobileBottomNav: React.FC<SidebarProps> = ({
   ];
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface/95 backdrop-blur-md border-t border-outline px-2 py-1.5 flex items-center justify-around font-mono">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#121216]/95 backdrop-blur-md border-t border-slate-200 dark:border-zinc-800 px-2 py-1.5 flex items-center justify-around font-mono">
       {items.map((item) => {
         const Icon = item.icon;
         const isActive = location.pathname === item.path;
@@ -174,10 +174,10 @@ export const MobileBottomNav: React.FC<SidebarProps> = ({
             key={item.path}
             to={item.path}
             className={`flex flex-col items-center justify-center py-1 px-3 rounded-lg transition-all ${
-              isActive ? 'text-primary font-bold' : 'text-on-surface-variant font-medium hover:text-on-background'
+              isActive ? 'text-blue-600 dark:text-blue-400 font-bold' : 'text-slate-600 dark:text-zinc-400 font-medium hover:text-slate-900 dark:hover:text-zinc-100'
             }`}
           >
-            <Icon className={`w-4 h-4 ${isActive ? 'text-primary' : 'text-on-surface-variant'}`} />
+            <Icon className={`w-4 h-4 ${isActive ? 'text-blue-600 dark:text-blue-400' : 'text-slate-500 dark:text-zinc-400'}`} />
             <span className="text-[10px] mt-0.5">{item.label}</span>
           </Link>
         );
@@ -185,12 +185,12 @@ export const MobileBottomNav: React.FC<SidebarProps> = ({
       
       <button
         onClick={onOpenSettings}
-        className="flex flex-col items-center justify-center py-1 px-3 rounded-lg transition-all text-on-surface-variant font-medium hover:text-on-background"
+        className="flex flex-col items-center justify-center py-1 px-3 rounded-lg transition-all text-slate-600 dark:text-zinc-400 font-medium hover:text-slate-900 dark:hover:text-zinc-100"
       >
         <div className="relative">
-          <Settings className="w-4 h-4 text-on-surface-variant" />
+          <Settings className="w-4 h-4 text-slate-500 dark:text-zinc-400" />
           {alertCount > 0 && (
-            <span className="absolute -top-1 -right-2 w-3 h-3 bg-[#fe9800] text-white text-[7px] font-extrabold rounded-full flex items-center justify-center">
+            <span className="absolute -top-1 -right-2 w-3 h-3 bg-amber-500 text-white text-[7px] font-extrabold rounded-full flex items-center justify-center">
               {alertCount}
             </span>
           )}
@@ -200,3 +200,4 @@ export const MobileBottomNav: React.FC<SidebarProps> = ({
     </nav>
   );
 };
+export default Sidebar;

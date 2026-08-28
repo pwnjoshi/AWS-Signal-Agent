@@ -91,7 +91,7 @@ function MainLayout({
   setGlobalSearch: (val: string) => void;
 }) {
   return (
-    <div className="min-h-screen flex bg-background text-on-background font-sans transition-colors">
+    <div className="min-h-screen flex bg-slate-50 dark:bg-[#09090b] text-slate-900 dark:text-zinc-100 font-sans transition-colors">
       {/* Desktop Sidebar */}
       <Sidebar
         savedCount={savedCount}

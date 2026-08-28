@@ -1,271 +1,190 @@
 import React, { useState } from 'react';
-import { UserPreferences, ScheduleFrequency } from '../types/clientTypes';
-import { X, Mail, Bell, Check, Send, Plus, Trash2, Clock, Calendar } from 'lucide-react';
-import { sendTestEmailAlert, updatePreferences } from '../services/apiClient';
+import { UserPreferences } from '../types/clientTypes';
+import { X, Mail, Bell, Check, Sparkles, Shield, Cpu, Cloud, Radio } from 'lucide-react';
+import { updatePreferences } from '../services/apiClient';
 
 interface AlertSettingsModalProps {
   preferences: UserPreferences | null;
   onClose: () => void;
-  onUpdate: (updated: UserPreferences) => void;
+  onUpdate: (prefs: UserPreferences) => void;
 }
+
+const AWS_SERVICES = [
+  'Amazon Bedrock',
+  'AWS Lambda',
+  'Amazon ECS',
+  'Amazon DynamoDB',
+  'Amazon S3',
+  'Amazon OpenSearch',
+  'Amazon SageMaker',
+  'AWS CloudFormation',
+  'AWS Step Functions',
+  'Amazon Q Developer',
+];
 
 export const AlertSettingsModal: React.FC<AlertSettingsModalProps> = ({
   preferences,
   onClose,
   onUpdate,
 }) => {
-  const [emailInput, setEmailInput] = useState('');
-  const [emailList, setEmailList] = useState<string[]>(
-    preferences?.email_list && preferences.email_list.length > 0
-      ? preferences.email_list
-      : [preferences?.email || 'pawan@example.com']
-  );
-  const [emailEnabled, setEmailEnabled] = useState(preferences?.email_enabled ?? true);
-  const [digestFreq, setDigestFreq] = useState<'daily' | 'weekly' | 'instant_only' | 'off'>(preferences?.digest_frequency ?? 'daily');
-  const [scheduleFreq, setScheduleFreq] = useState<ScheduleFrequency>(preferences?.schedule_frequency || '6h');
-  const [threshold, setThreshold] = useState<'high' | 'medium' | 'all'>(preferences?.alert_threshold ?? 'high');
-  const [sendingTest, setSendingTest] = useState(false);
-  const [testResult, setTestResult] = useState<string | null>(null);
+  const [email, setEmail] = useState(preferences?.email || '');
+  const [alertThreshold, setAlertThreshold] = useState<'high' | 'medium' | 'all'>(preferences?.alert_threshold || 'high');
+  const [topics, setTopics] = useState<string[]>(preferences?.favorite_topics || ['Amazon Bedrock', 'AWS Lambda']);
+  const [isSaving, setIsSaving] = useState(false);
+  const [savedSuccess, setSavedSuccess] = useState(false);
 
-  const getCronForFrequency = (freq: ScheduleFrequency): string => {
-    switch (freq) {
-      case '1h': return '0 */1 * * *';
-      case '6h': return '0 */6 * * *';
-      case '12h': return '0 */12 * * *';
-      case 'daily_8am': return '0 8 * * *';
-      case 'weekly_mon': return '0 8 * * 1';
-      default: return '0 */6 * * *';
+  const toggleTopic = (t: string) => {
+    if (topics.includes(t)) {
+      setTopics(topics.filter(x => x !== t));
+    } else {
+      setTopics([...topics, t]);
     }
   };
 
-  const handleAddEmail = () => {
-    const trimmed = emailInput.trim();
-    if (trimmed && trimmed.includes('@') && !emailList.includes(trimmed)) {
-      setEmailList([...emailList, trimmed]);
-      setEmailInput('');
-    }
-  };
-
-  const handleRemoveEmail = (target: string) => {
-    if (emailList.length > 1) {
-      setEmailList(emailList.filter(e => e !== target));
-    }
-  };
-
-  const handleSave = async () => {
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSaving(true);
     try {
-      const cron_expression = getCronForFrequency(scheduleFreq);
-      const primaryEmail = emailList[0] || 'pawan@example.com';
       const updated = await updatePreferences({
-        email: primaryEmail,
-        email_list: emailList,
-        email_enabled: emailEnabled,
-        digest_frequency: digestFreq,
-        schedule_frequency: scheduleFreq,
-        cron_expression,
-        alert_threshold: threshold,
+        email,
+        alert_threshold: alertThreshold,
+        favorite_topics: topics,
       });
-      onUpdate(updated);
-      onClose();
+      setSavedSuccess(true);
+      setTimeout(() => {
+        onUpdate(updated);
+        onClose();
+      }, 700);
     } catch (err: any) {
-      alert(`Error updating preferences: ${err.message}`);
-    }
-  };
-
-  const handleSendTest = async () => {
-    setSendingTest(true);
-    setTestResult(null);
-    try {
-      const res = await sendTestEmailAlert();
-      setTestResult(`Test SES alert sent to ${emailList.length} recipient(s)!`);
-    } catch (err: any) {
-      setTestResult(`Failed: ${err.message}`);
+      alert(`Failed to save preferences: ${err.message}`);
     } finally {
-      setSendingTest(false);
+      setIsSaving(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 font-sans text-on-background">
-      <div className="bg-surface rounded-xl max-w-lg w-full shadow-2xl border border-outline p-6 animate-in fade-in zoom-in-95 duration-150 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 font-sans text-slate-900 dark:text-zinc-100">
+      <div className="bg-white dark:bg-[#18181b] rounded-xl max-w-lg w-full shadow-2xl border border-slate-200 dark:border-zinc-800 p-6 animate-in fade-in zoom-in-95 duration-150 max-h-[90vh] overflow-y-auto">
         
         {/* Header */}
-        <div className="flex items-center justify-between gap-4 mb-5 pb-4 border-b border-outline">
+        <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-zinc-800 mb-5">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-surface-low border border-outline flex items-center justify-center text-primary font-bold">
-              <Mail className="w-4 h-4" />
+            <div className="w-9 h-9 rounded-lg bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold shrink-0">
+              <Bell className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-base font-black font-mono uppercase tracking-tight text-on-background">
-                Schedule & Alert Settings
+              <h2 className="text-base font-black font-mono uppercase tracking-tight text-slate-900 dark:text-zinc-100 leading-tight">
+                SES Intelligence Dispatch Settings
               </h2>
-              <p className="text-xs text-on-surface-variant font-sans mt-0.5">Configure Autonomous Agent Frequency & Email List</p>
+              <p className="text-xs text-slate-600 dark:text-zinc-400 font-sans mt-0.5">Automated High-Priority Notification Delivery</p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="p-1.5 text-on-surface-variant hover:text-on-background hover:bg-surface-container rounded-lg transition-all border border-outline cursor-pointer"
+            className="p-1.5 text-slate-500 hover:text-slate-900 dark:hover:text-zinc-100 hover:bg-slate-100 dark:hover:bg-[#27272a] rounded-lg transition-all border border-slate-200 dark:border-zinc-800 cursor-pointer"
             aria-label="Close"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Options Form */}
-        <div className="space-y-5 text-xs text-on-surface-variant font-sans">
-
-          {/* 1. Recipient Email List */}
+        <form onSubmit={handleSave} className="space-y-4 text-xs font-sans">
+          
+          {/* Notification Email */}
           <div>
-            <label className="block text-xs font-bold text-on-background uppercase font-mono tracking-wider mb-1.5">
-              Notification Recipient Emails
+            <label className="block text-xs font-bold text-slate-900 dark:text-zinc-100 uppercase font-mono tracking-wider mb-1.5">
+              Amazon SES Recipient Email Address
             </label>
-            <div className="flex gap-2 mb-2">
+            <div className="relative">
+              <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="email"
-                value={emailInput}
-                onChange={(e) => setEmailInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddEmail())}
-                placeholder="Add email address..."
-                className="flex-1 bg-surface-low border border-outline rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-primary text-on-background placeholder:text-on-surface-variant font-mono"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="your.email@organization.com"
+                className="w-full bg-slate-50 dark:bg-[#202026] border border-slate-200 dark:border-zinc-700 rounded-lg pl-9 pr-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-900 dark:text-zinc-100 placeholder:text-slate-400 font-mono"
               />
-              <button
-                type="button"
-                onClick={handleAddEmail}
-                className="bg-primary hover:bg-primary-container text-white px-3.5 py-2 rounded-lg text-xs font-bold font-mono transition-all flex items-center gap-1 uppercase cursor-pointer"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                Add
-              </button>
-            </div>
-
-            {/* Email Chips */}
-            <div className="flex flex-wrap gap-1.5 pt-1 font-mono">
-              {emailList.map((addr) => (
-                <span key={addr} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-surface-low text-on-background border border-outline text-xs">
-                  <span>{addr}</span>
-                  {emailList.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveEmail(addr)}
-                      className="text-on-surface-variant hover:text-red-500 transition-colors cursor-pointer"
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </button>
-                  )}
-                </span>
-              ))}
             </div>
           </div>
 
-          {/* 2. Autonomous Agent Execution Schedule */}
+          {/* Threshold Selector */}
           <div>
-            <label className="block text-xs font-bold text-on-background uppercase font-mono tracking-wider mb-1.5 flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5 text-primary" />
-              Autonomous Agent Scan Frequency
+            <label className="block text-xs font-bold text-slate-900 dark:text-zinc-100 uppercase font-mono tracking-wider mb-1.5">
+              Alert Trigger Threshold
             </label>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 font-mono">
-              {[
-                { id: '1h', label: 'Every Hour', cron: '0 */1 * * *' },
-                { id: '6h', label: 'Every 6 Hours', cron: '0 */6 * * *' },
-                { id: '12h', label: 'Every 12 Hours', cron: '0 */12 * * *' },
-                { id: 'daily_8am', label: 'Daily at 8:00 AM', cron: '0 8 * * *' },
-                { id: 'weekly_mon', label: 'Weekly (Monday)', cron: '0 8 * * 1' },
-              ].map((opt) => (
+            <div className="grid grid-cols-3 gap-2">
+              {(['high', 'medium', 'all'] as const).map((lvl) => (
                 <button
-                  key={opt.id}
                   type="button"
-                  onClick={() => setScheduleFreq(opt.id as any)}
-                  className={`p-2.5 rounded-lg border text-left transition-all cursor-pointer ${
-                    scheduleFreq === opt.id
-                      ? 'border-primary bg-primary/10 text-primary font-bold'
-                      : 'border-outline bg-surface-low text-on-surface-variant hover:bg-surface-container hover:text-on-background'
+                  key={lvl}
+                  onClick={() => setAlertThreshold(lvl)}
+                  className={`py-2 rounded-lg text-xs font-mono font-bold capitalize border transition-all ${
+                    alertThreshold === lvl
+                      ? 'bg-blue-600 text-white border-blue-600'
+                      : 'bg-slate-50 dark:bg-[#202026] border-slate-200 dark:border-zinc-700 text-slate-700 dark:text-zinc-300'
                   }`}
                 >
-                  <span className="text-xs block font-bold">{opt.label}</span>
-                  <span className="text-[10px] text-on-surface-variant font-mono block mt-0.5">{opt.cron}</span>
+                  {lvl} Priority
                 </button>
               ))}
             </div>
           </div>
 
-          {/* 3. Enable Toggle */}
-          <div className="flex items-center justify-between p-3 bg-surface-low rounded-lg border border-outline">
-            <div>
-              <span className="font-bold text-on-background block text-xs uppercase font-mono tracking-wide">Enable Email Alerts</span>
-              <span className="text-[11px] text-on-surface-variant font-sans">Dispatches signals meeting threshold to recipient list.</span>
-            </div>
-            <input
-              type="checkbox"
-              checked={emailEnabled}
-              onChange={(e) => setEmailEnabled(e.target.checked)}
-              className="w-4 h-4 accent-primary rounded cursor-pointer"
-            />
-          </div>
-
-          {/* 4. Alert Threshold */}
+          {/* Topic Subscriptions */}
           <div>
-            <label className="block text-xs font-bold text-on-background uppercase font-mono tracking-wider mb-1.5">
-              Alert Priority Threshold
+            <label className="block text-xs font-bold text-slate-900 dark:text-zinc-100 uppercase font-mono tracking-wider mb-2">
+              Followed AWS Services & Stack Priorities ({topics.length} Selected)
             </label>
-            <div className="grid grid-cols-3 gap-2 font-mono">
-              {[
-                { id: 'high', label: 'High Priority', sub: 'Score >= 80' },
-                { id: 'medium', label: 'Medium & Above', sub: 'Score >= 60' },
-                { id: 'all', label: 'All Signals', sub: 'Every update' },
-              ].map((opt) => (
-                <button
-                  key={opt.id}
-                  type="button"
-                  onClick={() => setThreshold(opt.id as any)}
-                  className={`p-2.5 rounded-lg border text-left transition-all cursor-pointer ${
-                    threshold === opt.id
-                      ? 'border-primary bg-primary/10 text-primary font-bold'
-                      : 'border-outline bg-surface-low text-on-surface-variant hover:bg-surface-container hover:text-on-background'
-                  }`}
-                >
-                  <span className="text-xs block font-bold">{opt.label}</span>
-                  <span className="text-[10px] text-on-surface-variant font-normal">{opt.sub}</span>
-                </button>
-              ))}
+            <div className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto p-2 bg-slate-50 dark:bg-[#202026] rounded-lg border border-slate-200 dark:border-zinc-700">
+              {AWS_SERVICES.map((srv) => {
+                const isSelected = topics.includes(srv);
+                return (
+                  <button
+                    type="button"
+                    key={srv}
+                    onClick={() => toggleTopic(srv)}
+                    className={`px-2.5 py-1 rounded-md text-[11px] font-bold font-mono transition-all flex items-center gap-1 cursor-pointer ${
+                      isSelected
+                        ? 'bg-blue-600 text-white shadow-sm'
+                        : 'bg-white dark:bg-[#18181b] border border-slate-200 dark:border-zinc-700 text-slate-600 dark:text-zinc-400 hover:text-slate-900 dark:hover:text-zinc-100'
+                    }`}
+                  >
+                    {isSelected && <Check className="w-3 h-3 text-white" />}
+                    <span>{srv}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          {/* Test Alert Button */}
-          <div>
+          {/* Actions */}
+          <div className="pt-3 border-t border-slate-200 dark:border-zinc-800 flex items-center justify-end gap-2.5 font-mono">
             <button
               type="button"
-              onClick={handleSendTest}
-              disabled={sendingTest}
-              className="w-full flex items-center justify-center gap-1.5 bg-surface-low hover:bg-surface-container text-on-background border border-outline px-3.5 py-2 rounded-lg font-bold text-xs uppercase font-mono tracking-wider transition-all disabled:opacity-50 cursor-pointer"
+              onClick={onClose}
+              className="px-4 py-2 rounded-lg text-xs font-bold text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-[#27272a] hover:text-slate-900 dark:hover:text-zinc-100 transition-all border border-slate-200 dark:border-zinc-700 uppercase cursor-pointer"
             >
-              <Send className="w-3.5 h-3.5 text-primary" />
-              <span>{sendingTest ? 'Sending Test Alert...' : 'Send Test SES Alert'}</span>
+              Cancel
             </button>
-            {testResult && (
-              <p className="text-xs font-semibold text-[#00d294] mt-1.5 text-center font-mono">
-                {testResult}
-              </p>
-            )}
+            <button
+              type="submit"
+              disabled={isSaving || !email}
+              className="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider shadow-sm transition-all active:scale-98 disabled:opacity-50 cursor-pointer"
+            >
+              {savedSuccess ? (
+                <>
+                  <Check className="w-3.5 h-3.5" />
+                  <span>Saved!</span>
+                </>
+              ) : (
+                <span>{isSaving ? 'Saving...' : 'Save Preferences'}</span>
+              )}
+            </button>
           </div>
-        </div>
 
-        {/* Footer Actions */}
-        <div className="mt-6 pt-3 border-t border-outline flex items-center justify-end gap-2.5 font-mono">
-          <button
-            onClick={onClose}
-            className="px-3.5 py-2 rounded-lg text-xs font-bold text-on-surface-variant hover:bg-surface-container hover:text-on-background transition-all border border-outline uppercase cursor-pointer"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSave}
-            className="bg-primary hover:bg-primary-container text-white px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider shadow-sm transition-all active:scale-98 cursor-pointer"
-          >
-            Save Settings
-          </button>
-        </div>
-
+        </form>
       </div>
     </div>
   );

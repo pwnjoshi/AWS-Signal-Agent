@@ -15,13 +15,13 @@ export const BriefingsPage: React.FC<BriefingsPageProps> = ({
   onOpenSignalDetail,
 }) => {
   return (
-    <div className="space-y-6 pb-12 font-mono text-on-background">
+    <div className="space-y-6 pb-12 font-mono text-slate-900 dark:text-zinc-100">
       <div>
-        <h1 className="text-xl sm:text-2xl font-black text-on-background font-display uppercase tracking-tight flex items-center gap-3">
-          <BookOpen className="w-6 h-6 text-primary" />
+        <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-zinc-100 font-display uppercase tracking-tight flex items-center gap-2.5">
+          <BookOpen className="w-5 h-5 text-blue-600 dark:text-blue-400" />
           Autonomous AWS Signal Daily Briefings
         </h1>
-        <p className="text-on-surface-variant text-xs sm:text-sm mt-1 font-sans">
+        <p className="text-slate-600 dark:text-zinc-400 text-xs sm:text-sm mt-1 font-sans">
           Synthesized every morning at 08:00 AM by Dori to deliver what changed, why developers care, community pulse, and practical labs.
         </p>
       </div>

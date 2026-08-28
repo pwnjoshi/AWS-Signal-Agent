@@ -53,13 +53,13 @@ export const SignalsPage: React.FC<SignalsPageProps> = ({
   }
 
   return (
-    <div className="space-y-6 pb-12 font-mono text-on-background">
+    <div className="space-y-6 pb-12 font-mono text-slate-900 dark:text-zinc-100">
       <div>
-        <h1 className="text-xl sm:text-2xl font-black text-on-background font-display uppercase tracking-tight flex items-center gap-3">
-          <Radio className="w-6 h-6 text-primary" />
+        <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-zinc-100 font-display uppercase tracking-tight flex items-center gap-2.5">
+          <Radio className="w-5 h-5 text-blue-600 dark:text-blue-400" />
           {savedOnly ? 'Saved Signals Vault' : 'AWS Radar Intelligence Stream'}
         </h1>
-        <p className="text-on-surface-variant text-xs sm:text-sm mt-1 font-sans">
+        <p className="text-slate-600 dark:text-zinc-400 text-xs sm:text-sm mt-1 font-sans">
           {savedOnly ? 'Your personally bookmarked AWS articles and architecture patterns.' : 'All discovered, normalized, SHA-256 deduplicated, and Bedrock-ranked signals.'}
         </p>
       </div>
@@ -79,10 +79,10 @@ export const SignalsPage: React.FC<SignalsPageProps> = ({
       />
 
       {filtered.length === 0 ? (
-        <div className="bg-surface rounded-3xl border border-outline p-12 text-center text-on-surface-variant space-y-3 shadow-sm">
-          <Bookmark className="w-10 h-10 text-on-surface-variant mx-auto opacity-50" />
-          <p className="font-bold text-sm sm:text-base text-on-background">No signals match your filter criteria.</p>
-          <p className="text-xs text-on-surface-variant">Try clearing your filters or running the radar agent.</p>
+        <div className="bg-white dark:bg-[#121216] rounded-xl border border-slate-200 dark:border-zinc-800 p-10 text-center text-slate-600 dark:text-zinc-400 space-y-2.5 shadow-sm">
+          <Bookmark className="w-8 h-8 text-slate-400 mx-auto opacity-50" />
+          <p className="font-bold text-sm sm:text-base text-slate-900 dark:text-zinc-100">No signals match your filter criteria.</p>
+          <p className="text-xs text-slate-500 dark:text-zinc-400">Try clearing your filters or running the radar agent.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -36,26 +36,26 @@ export const BuilderIdAuthModal: React.FC<BuilderIdAuthModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 font-sans text-on-background">
-      <div className="bg-surface rounded-xl max-w-md w-full shadow-2xl border border-outline p-6 animate-in fade-in zoom-in-95 duration-150">
+    <div className="fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 font-sans text-slate-900 dark:text-zinc-100">
+      <div className="bg-white dark:bg-[#18181b] rounded-xl max-w-md w-full shadow-2xl border border-slate-200 dark:border-zinc-800 p-6 animate-in fade-in zoom-in-95 duration-150">
         
         {/* Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-outline mb-5">
+        <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-zinc-800 mb-5">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-surface-low border border-outline flex items-center justify-center text-[#fe9800] font-bold text-sm shrink-0">
+            <div className="w-9 h-9 rounded-lg bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-800 flex items-center justify-center text-orange-600 dark:text-orange-400 font-bold text-sm shrink-0">
               ⚡
             </div>
             <div>
-              <h2 className="text-base font-black font-mono uppercase tracking-tight text-on-background leading-tight">
+              <h2 className="text-base font-black font-mono uppercase tracking-tight text-slate-900 dark:text-zinc-100 leading-tight">
                 AWS Builder ID Quick Auth
               </h2>
-              <p className="text-xs text-on-surface-variant font-sans mt-0.5">Instant One-Click Profile Authentication</p>
+              <p className="text-xs text-slate-600 dark:text-zinc-400 font-sans mt-0.5">Instant One-Click Profile Authentication</p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="p-1.5 text-on-surface-variant hover:text-on-background hover:bg-surface-container rounded-lg transition-all border border-outline cursor-pointer"
+            className="p-1.5 text-slate-500 hover:text-slate-900 dark:hover:text-zinc-100 hover:bg-slate-100 dark:hover:bg-[#27272a] rounded-lg transition-all border border-slate-200 dark:border-zinc-800 cursor-pointer"
             aria-label="Close"
           >
             <X className="w-4 h-4" />
@@ -64,24 +64,24 @@ export const BuilderIdAuthModal: React.FC<BuilderIdAuthModalProps> = ({
 
         <form onSubmit={handleSubmit} className="space-y-4 text-xs font-sans">
           <div>
-            <label className="block text-xs font-bold text-on-background uppercase font-mono tracking-wider mb-1.5">
+            <label className="block text-xs font-bold text-slate-900 dark:text-zinc-100 uppercase font-mono tracking-wider mb-1.5">
               AWS Builder ID Username / Handle
             </label>
             <div className="relative">
-              <User className="w-4 h-4 text-on-surface-variant absolute left-3 top-1/2 -translate-y-1/2" />
+              <User className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 required
                 value={builderId}
                 onChange={(e) => setBuilderId(e.target.value)}
                 placeholder="e.g. builder_pawan_2026 or pawan_aws"
-                className="w-full bg-surface-low border border-outline rounded-lg pl-9 pr-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-primary text-on-background placeholder:text-on-surface-variant font-mono"
+                className="w-full bg-slate-50 dark:bg-[#202026] border border-slate-200 dark:border-zinc-700 rounded-lg pl-9 pr-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-900 dark:text-zinc-100 placeholder:text-slate-400 font-mono"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-on-background uppercase font-mono tracking-wider mb-1.5">
+            <label className="block text-xs font-bold text-slate-900 dark:text-zinc-100 uppercase font-mono tracking-wider mb-1.5">
               Display Name
             </label>
             <input
@@ -89,27 +89,27 @@ export const BuilderIdAuthModal: React.FC<BuilderIdAuthModalProps> = ({
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
               placeholder="e.g. Pawan Joshi"
-              className="w-full bg-surface-low border border-outline rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-primary text-on-background placeholder:text-on-surface-variant"
+              className="w-full bg-slate-50 dark:bg-[#202026] border border-slate-200 dark:border-zinc-700 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-900 dark:text-zinc-100 placeholder:text-slate-400"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-on-background uppercase font-mono tracking-wider mb-1.5">
+            <label className="block text-xs font-bold text-slate-900 dark:text-zinc-100 uppercase font-mono tracking-wider mb-1.5">
               Notification Email
             </label>
             <div className="relative">
-              <Mail className="w-4 h-4 text-on-surface-variant absolute left-3 top-1/2 -translate-y-1/2" />
+              <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="e.g. pawan@example.com"
-                className="w-full bg-surface-low border border-outline rounded-lg pl-9 pr-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-primary text-on-background placeholder:text-on-surface-variant font-mono"
+                className="w-full bg-slate-50 dark:bg-[#202026] border border-slate-200 dark:border-zinc-700 rounded-lg pl-9 pr-3 py-2 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-900 dark:text-zinc-100 placeholder:text-slate-400 font-mono"
               />
             </div>
           </div>
 
-          <div className="bg-surface-low border border-outline rounded-lg p-3 flex items-start gap-2 text-xs text-on-surface-variant font-sans">
+          <div className="bg-slate-50 dark:bg-[#202026] border border-slate-200 dark:border-zinc-700 rounded-lg p-3 flex items-start gap-2 text-xs text-slate-600 dark:text-zinc-400 font-sans">
             <ShieldCheck className="w-4 h-4 text-[#00d294] shrink-0 mt-0.5" />
             <p className="leading-relaxed">
               Entering your Builder ID immediately authenticates your session, syncs your custom topic preferences, and enables email alerts.
@@ -120,14 +120,14 @@ export const BuilderIdAuthModal: React.FC<BuilderIdAuthModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg text-xs font-bold text-on-surface-variant hover:bg-surface-container hover:text-on-background transition-all border border-outline uppercase cursor-pointer"
+              className="px-4 py-2 rounded-lg text-xs font-bold text-slate-600 dark:text-zinc-400 hover:bg-slate-100 dark:hover:bg-[#27272a] hover:text-slate-900 dark:hover:text-zinc-100 transition-all border border-slate-200 dark:border-zinc-700 uppercase cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting || !builderId.trim()}
-              className="inline-flex items-center gap-1.5 bg-primary hover:bg-primary-container text-white px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider shadow-sm transition-all active:scale-98 disabled:opacity-50 cursor-pointer"
+              className="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-bold text-xs uppercase tracking-wider shadow-sm transition-all active:scale-98 disabled:opacity-50 cursor-pointer"
             >
               <span>{isSubmitting ? 'Authenticating...' : 'Sign In with Builder ID'}</span>
               <ArrowRight className="w-3.5 h-3.5" />

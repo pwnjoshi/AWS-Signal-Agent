@@ -9,18 +9,18 @@ interface TrendingPageProps {
 
 export const TrendingPage: React.FC<TrendingPageProps> = ({ trends }) => {
   return (
-    <div className="space-y-6 pb-12 font-mono text-on-background">
+    <div className="space-y-6 pb-12 font-mono text-slate-900 dark:text-zinc-100">
       <div>
-        <h1 className="text-xl sm:text-2xl font-black text-on-background font-display uppercase tracking-tight flex items-center gap-3">
-          <Flame className="w-6 h-6 text-[#fe9800] dark:text-secondary" />
+        <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-zinc-100 font-display uppercase tracking-tight flex items-center gap-2.5">
+          <Flame className="w-5 h-5 text-orange-600 dark:text-orange-400" />
           Emerging AWS Community Friction & Trends
         </h1>
-        <p className="text-on-surface-variant text-xs sm:text-sm mt-1 font-sans">
+        <p className="text-slate-600 dark:text-zinc-400 text-xs sm:text-sm mt-1 font-sans">
           Dori monitors re:Post developer questions, blogs, and forums to spot recurring developer challenges before they become official issues.
         </p>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-5">
         {trends.map((topic) => (
           <TrendCard key={topic.topic_id} topic={topic} />
         ))}
