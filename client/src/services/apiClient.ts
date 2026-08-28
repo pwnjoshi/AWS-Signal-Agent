@@ -48,38 +48,28 @@ export function setLocalSavedIds(ids: string[], builderId: string = 'guest') {
   }
 }
 
-// AWS Builder ID Auth & Profile API with instant localStorage persistence
+// AWS Builder ID Auth & Profile API with AWS Builder Center verification
 export async function authenticateBuilderId(builder_id: string, display_name?: string, email?: string): Promise<UserProfile> {
-  const cleanId = builder_id.trim();
-  const localProfile: UserProfile = {
-    builder_id: cleanId,
-    display_name: display_name?.trim() || cleanId,
-    email: email?.trim() || `${cleanId}@builder.aws`,
-    email_list: [email?.trim() || `${cleanId}@builder.aws`],
-    is_authenticated: true,
-    logged_in_at: new Date().toISOString(),
-  };
+  const cleanId = builder_id.trim().toLowerCase();
 
-  localStorage.setItem(STORAGE_KEYS.PROFILE, JSON.stringify(localProfile));
+  const res = await fetch(`${BASE_URL}/api/auth/builder-id`, {
+    method: 'POST',
+    headers: defaultHeaders(),
+    body: JSON.stringify({ builder_id: cleanId, display_name, email }),
+  });
 
-  try {
-    const res = await fetch(`${BASE_URL}/api/auth/builder-id`, {
-      method: 'POST',
-      headers: defaultHeaders(),
-      body: JSON.stringify({ builder_id: cleanId, display_name: localProfile.display_name, email: localProfile.email }),
-    });
-    if (res.ok) {
-      const data = await res.json();
-      if (data.profile) {
-        localStorage.setItem(STORAGE_KEYS.PROFILE, JSON.stringify(data.profile));
-        return data.profile;
-      }
-    }
-  } catch (err) {
-    console.warn('Backend sync failed, using local profile:', err);
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.error || `Username '${cleanId}' could not be verified in AWS Builder Center.`);
   }
 
-  return localProfile;
+  const data = await res.json();
+  if (data.profile) {
+    localStorage.setItem(STORAGE_KEYS.PROFILE, JSON.stringify(data.profile));
+    return data.profile;
+  }
+
+  throw new Error('Verification failed: No verified profile returned.');
 }
 
 export async function signOutBuilderId(): Promise<UserProfile> {

@@ -7,6 +7,7 @@ import { apiSecurityGuard, rateLimiter } from '../middleware/security';
 import { fetchAWSFeeds } from '../collectors/awsFeedsCollector';
 import { synthesizeDoriSpeech } from '../services/pollyService';
 import { askDoriQuestion } from '../services/bedrockService';
+import { verifyWithAWSBuilderCenter } from '../services/builderCenterService';
 
 const router = Router();
 
@@ -92,14 +93,27 @@ router.get('/v1/trends', rateLimiter(100, 15 * 60 * 1000), (req, res) => {
   res.json({ status: 'success', trends: storage.getTopics() });
 });
 
-// Builder ID Quick Auth & Profile Endpoints
-router.post('/auth/builder-id', rateLimiter(30, 15 * 60 * 1000), (req, res) => {
+// Builder ID Quick Auth & Profile Endpoints with AWS Builder Center Verification
+router.post('/auth/builder-id', rateLimiter(30, 15 * 60 * 1000), async (req, res) => {
   const { builder_id, display_name, email } = req.body;
-  if (!builder_id) {
+  if (!builder_id || typeof builder_id !== 'string') {
     return res.status(400).json({ error: 'builder_id is required' });
   }
-  const profile = storage.authenticateBuilderId(builder_id, display_name, email);
-  res.json({ success: true, profile });
+
+  // Verify against AWS Builder Center Directory
+  const verification = await verifyWithAWSBuilderCenter(builder_id, display_name, email);
+  if (!verification.verified) {
+    return res.status(400).json({ 
+      error: verification.error || `Username '${builder_id}' could not be verified in AWS Builder Center.` 
+    });
+  }
+
+  const profile = storage.authenticateBuilderId(
+    verification.builder_id, 
+    verification.display_name, 
+    verification.email
+  );
+  res.json({ success: true, profile, verification });
 });
 
 router.get('/auth/profile', (req, res) => {
