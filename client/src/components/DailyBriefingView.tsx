@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { DailyBriefing } from '../types/clientTypes';
 import { Volume2, VolumeX, Sparkles, ExternalLink } from 'lucide-react';
 
-import { playDoriSpeech, stopDoriSpeech } from '../services/apiClient';
+import { playHumanBriefingSpeech, stopDoriSpeech } from '../services/apiClient';
 
 interface DailyBriefingViewProps {
   briefing: DailyBriefing | null;
@@ -29,10 +29,10 @@ export const DailyBriefingView: React.FC<DailyBriefingViewProps> = ({ briefing, 
       return;
     }
 
-    const narrationScript = `Good morning builders. This is Dori with your AWS Signal intelligence briefing for ${briefing.date}. Here is what changed across the AWS cloud: ${briefing.what_changed}. Why it matters for developers: ${briefing.why_developers_care}. Community Pulse: ${briefing.community_pulse}. Your recommended hands-on lab for today: ${briefing.try_today?.title || ''}. ${briefing.try_today?.description || ''}. Stay curious and happy building!`;
+    const narrationScript = `Good morning builders. This is your AWS Signal daily executive briefing for ${briefing.date}. Here is what changed across the AWS cloud: ${briefing.what_changed}. Why it matters for developers: ${briefing.why_developers_care}. Community pulse: ${briefing.community_pulse}. Your recommended hands-on architectural pattern for today: ${briefing.try_today?.title || ''}. ${briefing.try_today?.description || ''}. Stay ahead and happy building!`;
 
     setIsPlayingAudio(true);
-    await playDoriSpeech(narrationScript, () => {
+    await playHumanBriefingSpeech(narrationScript, () => {
       setIsPlayingAudio(false);
     });
   };
