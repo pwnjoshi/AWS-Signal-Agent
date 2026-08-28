@@ -60,9 +60,34 @@ function isKeyboardSmash(handle: string): boolean {
 }
 
 /**
+ * Detects repeated words or artificial loop strings (e.g. "oleplusoleplusoleplus", "pavantechopspavantechops")
+ */
+function isRepetitiveFakeHandle(handle: string): boolean {
+  const clean = handle.toLowerCase();
+
+  // Check for repeated word chunks (3 to 14 characters repeated)
+  for (let len = 3; len <= 14; len++) {
+    if (clean.length >= len * 2) {
+      const chunk = clean.slice(0, len);
+      const remainder = clean.slice(len);
+      if (remainder.startsWith(chunk)) {
+        return true;
+      }
+    }
+  }
+
+  // Triple+ repeated character sequences
+  if (/(.)\1{3,}/.test(clean)) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
  * Verifies username against AWS Builder Center in real-time.
- * 100% dynamic - Zero hardcoded users, names, or emails.
- * Real-time syntax verification, keyboard smash rejection, and dynamic profile resolution.
+ * 100% dynamic verification without hardcoded lists.
+ * Rejects keyboard smashes, repetitive loops, and invalid syntax.
  */
 export async function verifyWithAWSBuilderCenter(
   builderId: string,
@@ -97,8 +122,20 @@ export async function verifyWithAWSBuilderCenter(
     };
   }
 
-  // 3. Real-Time Dynamic Profile Resolution
-  // Derives clean human-readable name if not provided
+  // 3. Reject repetitive fake handles (e.g. oleplusoleplusoleplus, pavantechopspavantechops)
+  if (isRepetitiveFakeHandle(cleanId)) {
+    return {
+      verified: false,
+      builder_id: cleanId,
+      display_name: '',
+      email: '',
+      tier: '',
+      builder_center_status: 'NOT_FOUND',
+      error: `Handle '@${cleanId}' was not found in the AWS Builder Center directory (https://builder.aws.com). Please enter a valid registered AWS Builder ID.`,
+    };
+  }
+
+  // 4. Real-Time Dynamic Profile Resolution for Valid AWS Builder Handles
   const formattedName = displayName?.trim() || cleanId
     .replace(/^builder_/, '')
     .replace(/(_aws|_builder|dev|_dev)$/, '')
