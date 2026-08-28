@@ -30,7 +30,7 @@ export const AlertSettingsModal: React.FC<AlertSettingsModalProps> = ({
   onClose,
   onUpdate,
 }) => {
-  const [email, setEmail] = useState(preferences?.email || userProfile?.email || 'joshipawan2021@gmail.com');
+  const [email, setEmail] = useState(preferences?.email || userProfile?.email || '');
   const [alertThreshold, setAlertThreshold] = useState<'high' | 'medium' | 'all'>(preferences?.alert_threshold || 'high');
   const [topics, setTopics] = useState<string[]>(preferences?.favorite_topics || ['Amazon Bedrock', 'AWS Lambda', 'Amazon ECS']);
   const [isSaving, setIsSaving] = useState(false);
@@ -166,7 +166,7 @@ export const AlertSettingsModal: React.FC<AlertSettingsModalProps> = ({
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="e.g. joshipawan2021@gmail.com"
+                placeholder="e.g. builder@example.com"
                 className="w-full bg-slate-50 dark:bg-[#202026] border border-slate-200 dark:border-zinc-700 rounded-xl pl-9 pr-3 py-2.5 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-900 dark:text-zinc-100 placeholder:text-slate-400 font-mono"
               />
             </div>
