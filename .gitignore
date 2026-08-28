@@ -27,6 +27,7 @@ yarn-error.log*
 
 # Articles & Drafts
 AWS_BUILDER_CENTER_ARTICLE.md
+AWS_BUILDER_SHOWCASE_ARTICLE.md
 
 # System & IDE Files
 .DS_Store

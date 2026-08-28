@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { DailyBriefing } from '../types/clientTypes';
-import { Sparkles, Calendar, ArrowRight, Zap, Target, BookOpen, Clock } from 'lucide-react';
+import { Sparkles, Calendar, ArrowRight, Zap, Target, BookOpen, Clock, Volume2, VolumeX } from 'lucide-react';
 
 interface DailyBriefingViewProps {
   briefing: DailyBriefing | null;
@@ -8,6 +8,8 @@ interface DailyBriefingViewProps {
 }
 
 export const DailyBriefingView: React.FC<DailyBriefingViewProps> = ({ briefing, onOpenSignalDetail }) => {
+  const [isSpeaking, setIsSpeaking] = useState(false);
+
   if (!briefing) {
     return (
       <div className="bg-white rounded-3xl border border-slate-200 p-8 text-center text-slate-500">
@@ -17,16 +19,66 @@ export const DailyBriefingView: React.FC<DailyBriefingViewProps> = ({ briefing, 
     );
   }
 
+  const handleSpeakBriefing = () => {
+    if (!('speechSynthesis' in window)) {
+      alert('Speech synthesis is not supported in this browser.');
+      return;
+    }
+
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      return;
+    }
+
+    const textToRead = `Good day! Here is your AWS Signal Daily Briefing for ${briefing.date}. ${briefing.title}. Top signal of the day: ${briefing.top_signal?.title || ''}. What changed: ${briefing.what_changed}. Why developers care: ${briefing.why_developers_care}. Community pulse: ${briefing.community_pulse}.`;
+    
+    const utterance = new SpeechSynthesisUtterance(textToRead);
+    utterance.rate = 1.0;
+    utterance.pitch = 1.1;
+
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+
+    setIsSpeaking(true);
+    window.speechSynthesis.speak(utterance);
+  };
+
   return (
     <div className="space-y-6">
       {/* Hero Briefing Banner */}
       <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm">
-        <div className="flex items-center justify-between gap-4 mb-4 pb-4 border-b border-slate-100">
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-4 pb-4 border-b border-slate-100">
           <div className="flex items-center gap-2 text-blue-600 font-bold text-xs uppercase tracking-wider">
             <Calendar className="w-4 h-4" />
             <span>AWS Signal Daily Brief — {briefing.date}</span>
           </div>
-          <span className="text-xs text-slate-400">Generated automatically at 08:00 AM</span>
+
+          <div className="flex items-center gap-3">
+            {/* Dori Voice Audio Briefing Button */}
+            <button
+              onClick={handleSpeakBriefing}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs ${
+                isSpeaking
+                  ? 'bg-amber-500 text-white animate-pulse'
+                  : 'bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200'
+              }`}
+            >
+              {isSpeaking ? (
+                <>
+                  <VolumeX className="w-4 h-4" />
+                  <span>Stop Dori Voice</span>
+                </>
+              ) : (
+                <>
+                  <Volume2 className="w-4 h-4 text-blue-600" />
+                  <span>🔊 Listen to Dori's Audio Briefing</span>
+                </>
+              )}
+            </button>
+
+            <span className="text-xs text-slate-400 hidden sm:inline">Generated at 08:00 AM</span>
+          </div>
         </div>
 
         <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mb-4 font-rounded">
